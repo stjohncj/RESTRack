@@ -1,0 +1,18 @@
+HTTP verb  	URL  	      controller  	action  	                        used for
+GET 	    /photos 	      Photos 	      index 	                          display a list of all photos
+######GET 	    /photos/new 	  Photos 	      Xnew 	                            return an HTML form for creating a new photo
+GET 	    /photos/1 	    Photos 	      show 	                            display a specific photo
+######GET 	    /photos/1/edit 	Photos 	      Xedit 	                            return an HTML form for editing a photo
+POST 	    /photos 	      Photos 	      create 	                          create a new photo
+POST      /photos/1       Photos        ? (add)   ? (wikipedia: treat the addressed member as a collection and create a new member in it)
+PUT 	    /photos/  	    Photos 	      ? (replace_all) 	          ?  (Replace entire collection)
+PUT 	    /photos/1 	    Photos 	      update 	                          update a specific photo
+DELETE 	  /photos/  	    Photos 	      ? (destroy_all) 	          delete a specific photo
+DELETE 	  /photos/1 	    Photos 	      destroy 	                        delete a specific photo
+
+
+
+RESTRack:
+    #                    HTTP Verb: |    GET    |   PUT     |   POST      |   DELETE
+    # Collection URI (/widgets/):   |   index   |   replace |   create    |   destroy
+    # Element URI (/widgets/42):    |   show    |   update  |   add       |   delete

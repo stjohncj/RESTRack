@@ -1,0 +1,6 @@
+:SERVICE_NAME:    :SampleApp                 # This is the name of your service, and will become the primary module of the application.
+#:ROOT:            'test/sample_app'         # This must be set to the root of your RESTRack application.
+:LOG_ROOT:        '/var/log/rest_rack'
+:LOG:             'sample_app.log'
+:REQUEST_LOG:     'sample_app.request.log'
+:DEFAULT_FORMAT:  :JSON                     # Supported formats are :JSON and :XML
