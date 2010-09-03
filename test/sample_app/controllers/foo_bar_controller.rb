@@ -1,6 +1,10 @@
 class SampleApp::FooBarController < RESTRack::ResourceController
 
-  has_relation :baz
+  has_relationship_from :baz, &get_baz_id_from_foo_bar_id
+
+  def get_baz_id_from_foo_bar_id(id)
+    '777'
+  end
 
   def index
     puts 'In SampleApp::FooBarController class method: index'

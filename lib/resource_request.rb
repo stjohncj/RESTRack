@@ -28,9 +28,16 @@ module RESTRack
 
       # Path stack is the remaining URL path that hasn't been translated into resources and actions.
       # For the initial request this will be the entire request path.
-      @path_stack = @request.path_info
+     # @path_stack = @request.path_info
       # Load initial resource controller from the path stack.
-      setup_controller
+     # setup_controller
+
+# Parse out the controller of the resource being requested from the path.
+      ( empty, @controller_name, @id, @action, @path_stack ) = @request.path_info.split('/', 5)
+      # Determine the response format
+      get_format
+      # Set and return the controller
+      @controller_name = RESTRack::Support.camelize( @controller_name )
     end
 
     def locate
@@ -49,14 +56,15 @@ module RESTRack
       @resource.output
     end
 
-    def setup_controller
-      # Parse out the controller of the resource being requested from the path.
-      ( empty, @controller_name, @id, @action, @path_stack ) = @path_stack.split('/', 5)
-      # Determine the response format
-      get_format if @format.nil?
-      # Set and return the controller
-      @controller_name = RESTRack::Support.camelize( @controller_name )
-    end
+    #def setup_controller()
+    #  # Get the controller name from the path stack, and get the path stack ready to satisfy the rest of the request.
+    #  # Parse out the controller of the resource being requested from the path.
+    #  ( empty, @controller_name, @id, @action, @path_stack ) = @path_stack.split('/', 5)
+    #  # Determine the response format
+    #  get_format if @format.nil?
+    #  # Set and return the controller
+    #  @controller_name = RESTRack::Support.camelize( @controller_name )
+    #end
 
     private
     def get_request_id

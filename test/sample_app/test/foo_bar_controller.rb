@@ -26,7 +26,7 @@ class SampleApp::TestFooBarController < Test::Unit::TestCase
     end
     puts 'output from `show` method: ' + output.pretty_inspect
   end
-
+# TODO: Should this work for '/foo_bar/144/baz/' too???
   def test_relation
     env = Rack::MockRequest.env_for('/foo_bar/144/baz', {
       :method => 'GET'
