@@ -2,10 +2,13 @@ module RESTRack
   class ResourceController
     attr_reader :input, :output
 
-    def initialize(resource_request)
+    def self.__init(resource_request)
       # Base initialization method for resources and storage of request input
-      @resource_request = resource_request
-      setup_action
+      # This method should not be overriden in decendent classes.
+      __self = self.new
+      __self.resource_request = resource_request
+      __self.setup_action
+      return __self
     end
 
     def call
@@ -28,27 +31,28 @@ module RESTRack
     def delete(id); raise MethodNotImplemented; end
 
     protected
-    def has_relationship_from(entity, &get_entity_id_from_relation_id)
+    def self.has_relationship_to(entity, &get_entity_id_from_relation_id)
       # This method defines that there is a single link to a member from an entity collection.
       # Controller class' initialize method should set up a variable named from the decamelized version of the relation class name, whose value is the id of the relation.
       # adding accessor instance method with name from entity's Class
-      self.class.define_method( entity.to_sym,
+      define_method( entity.to_sym,
         Proc.new do |id|
-          @resource_request.id = get_entity_id_from_relation_id(id)
-          ( empty, @resource_request.action, @resource_request.path_stack ) = @resource_request.request.path_info.split('/', 3)
+          @resource_request.id = yield id
+          @resource_request.resource_name = RESTRack::Support.camelize( entity.to_s )
+          ( empty, @resource_request.action, @resource_request.path_stack ) = @resource_request.path_stack.split('/', 3) unless @resource_request.path_stack.nil? or @resource_request.path_stack.empty?
           @resource_request.locate
           @resource_request.call
         end
       )
     end
 
-    def has_relationships_from(entities)
+    def self.has_relationships_to(entities)
       # This method defines that there are multiple links to members from an entity collection (an array of entity identifiers).
       # Controller class' initialize method should set up an Array named from the decamelized version of the relation class name, containing the id of each relation.
       # TODO: Complete this after getting has_relation method tested and finished.
     end
 
-    def has_mapped_relationships_from(entity_map)
+    def self.has_mapped_relationships_to(entity_map)
       # This method defines that there are mapped links to members from an entity collection (a hash of entity identifiers).
       # Controller class' initialize method should set up an Hash named from the decamelized version of the relation class name, containing the id of each relation as values.
       # TODO: Complete this after getting has_relation method tested and finished.
@@ -93,7 +97,7 @@ module RESTRack
       xml.instruct!
       # Search in templates/controller/action.xml.builder for the XML template
       # TODO: make sure it works from any execution path, i.e. you can fire up the web service from from different directories and template files are still found.
-      eval( File.new( "templates/#{@resource_request.controller_name}/#{@action}.xml.builder" ).read )
+      eval( File.new( "templates/#{@resource_request.resource_name}/#{@action}.xml.builder" ).read )
       return buffer
     end
 

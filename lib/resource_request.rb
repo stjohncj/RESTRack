@@ -1,7 +1,7 @@
 module RESTRack
   class ResourceRequest
     attr_reader :request, :request_id, :input, :get_query_string, :get_query_hash
-    attr_accessor :content_type, :controller_name, :format, :action, :id
+    attr_accessor :content_type, :path_stack, :format, :resource_name, :action, :id
 
     def initialize(opts)
       # Initialize the ResourceRequest by assigning a request_id and determining the path, format, and controller of the resource.
@@ -32,12 +32,12 @@ module RESTRack
       # Load initial resource controller from the path stack.
      # setup_controller
 
-# Parse out the controller of the resource being requested from the path.
-      ( empty, @controller_name, @id, @action, @path_stack ) = @request.path_info.split('/', 5)
+  # Parse out the controller of the resource being requested from the path.
+      ( empty, @resource_name, @id, @action, @path_stack ) = @request.path_info.split('/', 5)
       # Determine the response format
       get_format
       # Set and return the controller
-      @controller_name = RESTRack::Support.camelize( @controller_name )
+      @resource_name = RESTRack::Support.camelize( @resource_name )
     end
 
     def locate
@@ -59,11 +59,11 @@ module RESTRack
     #def setup_controller()
     #  # Get the controller name from the path stack, and get the path stack ready to satisfy the rest of the request.
     #  # Parse out the controller of the resource being requested from the path.
-    #  ( empty, @controller_name, @id, @action, @path_stack ) = @path_stack.split('/', 5)
+    #  ( empty, @resource_name, @id, @action, @path_stack ) = @path_stack.split('/', 5)
     #  # Determine the response format
     #  get_format if @format.nil?
     #  # Set and return the controller
-    #  @controller_name = RESTRack::Support.camelize( @controller_name )
+    #  @resource_name = RESTRack::Support.camelize( @resource_name )
     #end
 
     private
@@ -94,8 +94,8 @@ module RESTRack
     end
 
     def instantiate_controller
-      # Called from the locate method, this method dynamically finds the class based on the URI and instantiates an object of that class.
-      return Kernel.const_get( RESTRack::CONFIG[:SERVICE_NAME].to_sym ).const_get( "#{@controller_name}Controller".to_sym ).new(self)
+      # Called from the locate method, this method dynamically finds the class based on the URI and instantiates an object of that class via the __init method on RESTRack::ResourceController.
+      return Kernel.const_get( RESTRack::CONFIG[:SERVICE_NAME].to_sym ).const_get( "#{@resource_name}Controller".to_sym ).__init(self)
     end
 
   end # module ResourceRequest

@@ -1,8 +1,6 @@
 class SampleApp::FooBarController < RESTRack::ResourceController
 
-  has_relationship_from :baz, &get_baz_id_from_foo_bar_id
-
-  def get_baz_id_from_foo_bar_id(id)
+  has_relationship_to( :baz ) do |id|
     '777'
   end
 
