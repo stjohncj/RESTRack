@@ -6,9 +6,12 @@ module RESTRack
       # Base initialization method for resources and storage of request input
       # This method should not be overriden in decendent classes.
       __self = self.new
-      __self.resource_request = resource_request
-      __self.setup_action
-      return __self
+      return __self.__init(resource_request)
+    end
+    def __init(resource_request)
+      @resource_request = resource_request
+      setup_action
+      self
     end
 
     def call
@@ -20,17 +23,19 @@ module RESTRack
     # Collection URI (/widgets/):   |   index   |   replace |   create  |   destroy
     # Element URI   (/widgets/42):  |   show    |   update  |   add     |   delete
 
-    # Throw errors if RESTful methods are called but not implemented by descendent classes.
-    def index;      raise MethodNotImplemented; end
-    def replace;    raise MethodNotImplemented; end
-    def create;     raise MethodNotImplemented; end
-    def destroy;    raise MethodNotImplemented; end
-    def show(id);   raise MethodNotImplemented; end
-    def update(id); raise MethodNotImplemented; end
-    def add(id);    raise MethodNotImplemented; end
-    def delete(id); raise MethodNotImplemented; end
+    #def index;       end
+    #def replace;     end
+    #def create;      end
+    #def destroy;     end
+    #def show(id);    end
+    #def update(id);  end
+    #def add(id);     end
+    #def delete(id);  end
+    def method_missing(method_sym, *arguments, &block)
+      raise HTTP405MethodNotAllowed
+    end
 
-    protected
+    protected # all internal methods are protected rather than private so that calling methods *could* be overriden if necessary.
     def self.has_relationship_to(entity, &get_entity_id_from_relation_id)
       # This method defines that there is a single link to a member from an entity collection.
       # Controller class' initialize method should set up a variable named from the decamelized version of the relation class name, whose value is the id of the relation.
@@ -39,6 +44,7 @@ module RESTRack
         Proc.new do |id|
           @resource_request.id = yield id
           @resource_request.resource_name = RESTRack::Support.camelize( entity.to_s )
+          @resource_request.action = nil
           ( empty, @resource_request.action, @resource_request.path_stack ) = @resource_request.path_stack.split('/', 3) unless @resource_request.path_stack.nil? or @resource_request.path_stack.empty?
           @resource_request.locate
           @resource_request.call
@@ -58,9 +64,10 @@ module RESTRack
       # TODO: Complete this after getting has_relation method tested and finished.
     end
 
+    # "private" methods below that are elevated to protected for potential overriden calling methods.
     def setup_action
+      # If the action is not set with the request URI, determine the action from HTTP Verb.
       if @resource_request.action.nil?
-        # Determine action from HTTP Verb
         if @resource_request.request.get?
           @resource_request.action = @resource_request.id.nil? ? :index   : :show
         elsif @resource_request.request.put?
@@ -70,7 +77,7 @@ module RESTRack
         elsif @resource_request.request.delete?
           @resource_request.action = @resource_request.id.nil? ? :destroy : :delete
         else
-          raise UnhandledHTTPVerb
+          raise HTTP405MethodNotAllowed
         end
       end
     end
@@ -88,7 +95,6 @@ module RESTRack
       end
     end
 
-    private
     def builder_up(data)
       # Use Builder to generate the XML
       buffer = ''

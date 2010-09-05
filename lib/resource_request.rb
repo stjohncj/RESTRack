@@ -95,8 +95,12 @@ module RESTRack
 
     def instantiate_controller
       # Called from the locate method, this method dynamically finds the class based on the URI and instantiates an object of that class via the __init method on RESTRack::ResourceController.
-      return Kernel.const_get( RESTRack::CONFIG[:SERVICE_NAME].to_sym ).const_get( "#{@resource_name}Controller".to_sym ).__init(self)
+      #begin
+        return Kernel.const_get( RESTRack::CONFIG[:SERVICE_NAME].to_sym ).const_get( "#{@resource_name}Controller".to_sym ).__init(self)
+      #rescue
+      #  raise HTTP404ResourceNotFound
+      #end
     end
 
-  end # module ResourceRequest
+  end # class ResourceRequest
 end # module RESTRack

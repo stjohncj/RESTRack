@@ -19,6 +19,6 @@ module RESTRack
 
     end # class methods
 
-  end # class Support
+  end # module Support
 
 end # module RESTRack
