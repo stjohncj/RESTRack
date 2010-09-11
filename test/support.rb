@@ -1,6 +1,7 @@
 require 'rubygems'
 require 'test/unit'
 require 'lib/support'
+require 'restrack'
 
 module RESTRack
   class TestSupport < Test::Unit::TestCase
@@ -42,12 +43,10 @@ module RESTRack
 
     def test_constants
       assert_nothing_raised do
-        #puts RESTRack::CONFIG[:ROOT].to_sym.to_s
-        puts RESTRack::CONFIG[:LOG_ROOT].to_sym.to_s
         puts RESTRack::CONFIG[:LOG].to_sym.to_s
         puts RESTRack::CONFIG[:REQUEST_LOG].to_sym.to_s
       end
     end
-
+# TODO: Test ROOT_RESOURCE_ACCEPT and ROOT_RESOURCE_DENY
   end
 end

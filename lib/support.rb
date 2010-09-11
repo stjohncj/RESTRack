@@ -1,11 +1,6 @@
 module RESTRack
-
-  CONFIG = YAML.load_file('config/constants.yaml')
-
   module Support
-
     class << self
-
       def camelize(str)
         str.split('_').collect { |s| s.split(//)[0].upcase + s[1,s.length-1] }.join
       end
@@ -16,9 +11,13 @@ module RESTRack
           sub += $2.downcase
         end
       end
-
     end # class methods
-
   end # module Support
-
 end # module RESTRack
+
+class Object
+  def blank?
+    # Courtesy of Rails' ActiveSupport, thank you DHH et al.
+    respond_to?(:empty?) ? empty? : !self
+  end
+end

@@ -1,6 +1,10 @@
 module RESTRack
   class WebService
 
+# TODO: Implement auth hooks
+# TODO: Work on logging, add to proper places, make all output work.
+# TODO: Test IP logging
+
     class << self
       def log; @@log; end
       def request_log; @@request_log; end
@@ -8,63 +12,65 @@ module RESTRack
 
     def initialize
       # Open the logs on spin up.
-      @@log ||= Logger.new( File.join( RESTRack::CONFIG[:LOG_ROOT], RESTRack::CONFIG[:LOG] ) )
-      @@request_log ||= Logger.new( File.join( RESTRack::CONFIG[:LOG_ROOT], RESTRack::CONFIG[:REQUEST_LOG] ) )
+      @@log         ||= Logger.new( RESTRack::CONFIG[:LOG] )
+      @@request_log ||= Logger.new( RESTRack::CONFIG[:REQUEST_LOG] )
     end
 
-    def call(env)
-      # Handle requests!
+    def call( env )
+      # Handle requests.
       request = Rack::Request.new(env)
-      response = nil
-      content_type = nil
-
       begin
         resource_request = RESTRack::ResourceRequest.new( :request => request )
-
-        @@log.debug "Locating Resource (Request ID: #{resource_request.request_id})"
         resource_request.locate
-
-        @@log.debug "Processing Request (Request ID: #{resource_request.request_id})"
         resource_request.call
-
-        @@log.debug "Retrieving Output (Request ID: #{resource_request.request_id})"
         response = resource_request.output
-        content_type = resource_request.content_type
-
-      rescue Exception => e
-
-        case e.class
-
-          when HTTP400BadRequest
-            return [400, {'Content-Type' => 'text/plain'}, "The request cannot be fulfilled due to bad syntax.\n" + e.message]
-
-          when HTTP403Forbidden
-            return [403, {'Content-Type' => 'text/plain'}, "You are forbidden to access that resource.\n" + e.message]
-
-          when HTTP404ResourceNotFound
-            return [404, {'Content-Type' => 'text/plain'}, "The resource you requested could not be found.\n" + e.message]
-
-          when HTTP405MethodNotAllowed
-            return [405, {'Content-Type' => 'text/plain'}, "The resource you requested does not support the request method provided.\n" + e.message]
-
-        else # HTTP500InternalServerError
-          if resource_request && resource_request.request_id
-            msg = " (Request ID: #{resource_request.request_id})\n\n" + e.message + "\n\n" + e.backtrace.join("\n")
-          else
-            msg = e.message + "\n\n" + e.backtrace.join("\n")
-          end
-          @@log.error msg
-          return [500, {'Content-Type' => 'text/plain'}, msg ]
-        end
-
-      else   # HTTP200OK
-        @@request_log.info "#{resource_request.format} Data Out (Request ID: #{resource_request.request_id})\n" + response
-        #       SUCCESS
-        return [200, {'Content-Type' => content_type}, response ]
+        return valid resource_request, response
+      rescue Exception => exception
+        return caught resource_request, exception
       end
-
     end # method call
 
-  end # class WebService
+    private
 
+    def valid( resource_request, response )
+      # Return HTTP200OK SUCCESS
+      @@request_log.info "#{resource_request.format} Data Out (Request ID: #{resource_request.request_id})\n" + response
+      @@request_log.debug "HTTP200OK - (Request ID: #{resource_request.request_id})"
+      return [200, {'Content-Type' => resource_request.content_type}, response ]
+    end
+
+    def caught( resource_request, exception )
+      # Return appropriate response code and messages per raised exception type.
+      if resource_request && resource_request.request_id
+        @@request_log.info exception.message + "(Request ID: #{resource_request.request_id})"
+      else
+        @@request_log.info exception.message
+      end
+      case
+        when exception.is_a?( HTTP400BadRequest )
+          return [400, {'Content-Type' => 'text/plain'}, exception.message + "\nThe request cannot be fulfilled due to bad syntax." ]
+        when exception.is_a?( HTTP401Unauthorized )
+          return [401, {'Content-Type' => 'text/plain'}, exception.message + "\nYou have failed authentication for access to the resource." ]
+        when exception.is_a?( HTTP403Forbidden )
+          return [403, {'Content-Type' => 'text/plain'}, exception.message + "\nYou are forbidden to access that resource." ]
+        when exception.is_a?( HTTP404ResourceNotFound )
+          return [404, {'Content-Type' => 'text/plain'}, exception.message + "\nThe resource you requested could not be found." ]
+        when exception.is_a?( HTTP405MethodNotAllowed )
+          return [405, {'Content-Type' => 'text/plain'}, exception.message + "\nThe resource you requested does not support the request method provided." ]
+        when exception.is_a?( HTTP409Conflict )
+          return [409, {'Content-Type' => 'text/plain'}, exception.message + "\nThe resource you requested is in a conflicted state." ]
+        when exception.is_a?( HTTP410Gone )
+          return [410, {'Content-Type' => 'text/plain'}, exception.message + "\nThe resource you requested is no longer available." ]
+        else # HTTP500ServerError
+          msg = exception.message + "\n\n" + exception.backtrace.join("\n")
+          if resource_request && resource_request.request_id
+            @@log.error msg + " (Request ID: #{resource_request.request_id})\n\n"
+          else
+            @@log.error msg
+          end
+          return [500, {'Content-Type' => 'text/plain'}, msg ]
+      end # case Exception
+    end # method caught
+
+  end # class WebService
 end # module RESTRack

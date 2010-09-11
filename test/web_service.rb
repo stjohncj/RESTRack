@@ -1,7 +1,7 @@
 require 'rubygems'
 require 'test/unit'
 require 'rack/test'
-require 'rest_rack'
+require 'restrack'
 
 module RESTRack
   class TestWebService < Test::Unit::TestCase

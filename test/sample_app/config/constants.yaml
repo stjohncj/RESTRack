@@ -1,6 +1,6 @@
-:SERVICE_NAME:    :SampleApp                 # This is the name of your service, and will become the primary module of the application.
-#:ROOT:            'test/sample_app'         # This must be set to the root of your RESTRack application.
-:LOG_ROOT:        '/var/log/rest_rack'
-:LOG:             'sample_app.log'
-:REQUEST_LOG:     'sample_app.request.log'
+:SERVICE_NAME:    :SampleApp                # This is the name of your service, and will become the primary module of the application.
+:LOG:             '/var/log/restrack/sample_app.log'
+:REQUEST_LOG:     '/var/log/restrack/sample_app.request.log'
 :DEFAULT_FORMAT:  :JSON                     # Supported formats are :JSON and :XML
+:ROOT_RESOURCE_ACCEPT:    [ 'foo_bar' ]                    # These are the resources which can be accessed from the root of your web service. If left empty, all resources are available at the root.
+:ROOT_RESOURCE_DENY:      [ 'baz' ]                        # These are the resources which cannot be accessed from the root of your web service. Use either this or ROOT_RESOURCE_ACCEPT as a blacklist or whitelist to establish routing (relationships defined in resource controllers define further routing).

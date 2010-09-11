@@ -3,6 +3,8 @@ module RESTRack
     attr_reader :request, :request_id, :input, :get_query_string, :get_query_hash
     attr_accessor :content_type, :path_stack, :format, :resource_name, :action, :id
 
+# TODO: Load from app constants.yml the whitelist and/or (?just 'or'?) blacklist of root level resources. All resources are accessible from the root level if no config options are present.
+
     def initialize(opts)
       # Initialize the ResourceRequest by assigning a request_id and determining the path, format, and controller of the resource.
       # Accepting options just to allow us to override request_id for testing.
@@ -14,28 +16,28 @@ module RESTRack
       @get_query_hash = @request.GET
       @get_query_string = @request.query_string
 
+      RESTRack::WebService.log.debug "Reading POST Input (Request ID: #{@request_id})"
       # Pull input data from POST body if present, otherwise from GET query
       # TODO: Does this make sense? Perhaps support XML as a standard input and also binary types!
       # Can this inspect the content-type of the input, and load @input intelligently?
       @input = input_str.length > 0 ? JSON.parse( input_str ) : @get_query_hash
 
       # Write input details to logs
-      RESTRack::WebService.request_log.info "Request Info (Request ID: #{@request_id})\n" + ({
+      RESTRack::WebService.request_log.info "Request ID: #{@request_id}\n" + ({
         'ip' => @request.ip
       }).to_json
-      RESTRack::WebService.log.debug "Reading POST Input as JSON (Request ID: #{@request_id})"
-      RESTRack::WebService.request_log.info "JSON Data In (Request ID: #{@request_id})\n" + input_str
+      RESTRack::WebService.request_log.debug "JSON Data In (Request ID: #{@request_id})\n" + input_str
 
-      # Path stack is the remaining URL path that hasn't been translated into resources and actions.
-      # For the initial request this will be the entire request path.
-     # @path_stack = @request.path_info
-      # Load initial resource controller from the path stack.
-     # setup_controller
-
-  # Parse out the controller of the resource being requested from the path.
-      ( empty, @resource_name, @id, @action, @path_stack ) = @request.path_info.split('/', 5)
+      # Path stack keeps track of what on the requets path is yet to be followed.
+      @path_stack = @request.path_info
       # Determine the response format
       get_format
+      # Parse out the controller of the resource being requested from the path.
+      # @path_stack will start with a forward slash here, so the first item returned will be an empty string.
+      ( empty_str, @resource_name, @id, @action, @path_stack ) = @path_stack.split('/', 5)
+      # Verify that initial resource in the request chain is accessible at the root.
+      raise HTTP403Forbidden unless RESTRack::CONFIG[:ROOT_RESOURCE_ACCEPT].blank? or RESTRack::CONFIG[:ROOT_RESOURCE_ACCEPT].include?(@resource_name)
+      raise HTTP403Forbidden if not RESTRack::CONFIG[:ROOT_RESOURCE_DENY].blank? and RESTRack::CONFIG[:ROOT_RESOURCE_DENY].include?(@resource_name)
       # Set and return the controller
       @resource_name = RESTRack::Support.camelize( @resource_name )
     end
@@ -43,28 +45,21 @@ module RESTRack
     def locate
       # Locate the correct controller of resource based on the request.
       # The resource requested must be a member of RESTRack application or a 404 error will be thrown by RESTRack::WebService.
+      RESTRack::WebService.log.debug "Locating Resource (Request ID: #{@request_id})"
       @resource = instantiate_controller
     end
 
     def call
       # Pass along the `call` method to the typed resource object, this must occur after a call to locate.
+      RESTRack::WebService.log.debug "Processing Request (Request ID: #{@request_id})"
       @resource.call
     end
 
     def output
       # Send out the typed resource's output, this must occur after a call to run.
+      RESTRack::WebService.log.debug "Retrieving Output (Request ID: #{@request_id})"
       @resource.output
     end
-
-    #def setup_controller()
-    #  # Get the controller name from the path stack, and get the path stack ready to satisfy the rest of the request.
-    #  # Parse out the controller of the resource being requested from the path.
-    #  ( empty, @resource_name, @id, @action, @path_stack ) = @path_stack.split('/', 5)
-    #  # Determine the response format
-    #  get_format if @format.nil?
-    #  # Set and return the controller
-    #  @resource_name = RESTRack::Support.camelize( @resource_name )
-    #end
 
     private
     def get_request_id
@@ -95,11 +90,11 @@ module RESTRack
 
     def instantiate_controller
       # Called from the locate method, this method dynamically finds the class based on the URI and instantiates an object of that class via the __init method on RESTRack::ResourceController.
-      #begin
+      begin
         return Kernel.const_get( RESTRack::CONFIG[:SERVICE_NAME].to_sym ).const_get( "#{@resource_name}Controller".to_sym ).__init(self)
-      #rescue
-      #  raise HTTP404ResourceNotFound
-      #end
+      rescue
+        raise HTTP404ResourceNotFound, "The resource #{RESTRack::CONFIG[:SERVICE_NAME]}::#{@resource_name}Controller could not be instantiated."
+      end
     end
 
   end # class ResourceRequest

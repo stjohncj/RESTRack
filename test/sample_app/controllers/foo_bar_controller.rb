@@ -1,44 +1,58 @@
 class SampleApp::FooBarController < RESTRack::ResourceController
 
-  has_relationship_to( :baz ) do |id|
-    '777'
+  has_direct_relationship_to( :baz, :as => :baz ) do |id|
+    if id =='144'
+      output = '777'
+    else
+      output = '666'
+    end
+    output # You can't "return" from a Proc!  It will do a "return" in the outer method.  Remember a "Proc" is not a Method.
+  end
+
+  has_direct_relationship_to( :bat, :as => :slugger ) do |id|
+    if id =='144'
+      output = '777'
+    else
+      output = '666'
+    end
+    output # You can't "return" from a Proc!  It will do a "return" in the outer method.  Remember a "Proc" is not a Method.
+  end
+
+  has_relationships_to( :baza, :as => :children ) do |id|
+    [1,2,3,4,5,6,7,8,9]
+  end
+
+  has_mapped_relationships_to( :bazu, :as => :maps ) do |id|
+    {
+      :first => 1,
+      :second => 2,
+      :third => 3
+    }
   end
 
   def index
-    puts 'In SampleApp::FooBarController class method: index'
     [1,2,3,4,5,6,7]
   end
   def create
-    puts 'In SampleApp::FooBarController class method: create'
     { :success => true }
   end
   def replace
-    puts 'In SampleApp::FooBarController instance method: replace'
     { :success => true }
   end
   def destroy
-    puts 'In SampleApp::FooBarController instance method: destroy'
     { :success => true }
   end
 
   def show(id)
-    puts 'In SampleApp::FooBarController instance method: show'
-    puts "id: #{id}"
     { :foo => 'bar', :baz => 123 }
   end
   def update(id)
-    puts 'In SampleApp::FooBarController instance method: update'
-    puts "id: #{id}"
     { :success => true }
   end
   def delete(id)
-    puts 'In SampleApp::FooBarController instance method: delete'
-    puts "id: #{id}"
     { :success => true }
   end
   def add(id)
-    puts 'In SampleApp::FooBarController instance method: add'
-    puts "id: #{id}"
     { :success => true }
   end
 

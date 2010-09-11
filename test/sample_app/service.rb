@@ -1,4 +1,5 @@
-require '../../rest_rack'
+# TODO: make this work as require 'restrack' when a gem
+require '../../restrack'
 
 module SampleApp; end
 class SampleApp::WebService < RESTRack::WebService; end
@@ -6,13 +7,11 @@ class SampleApp::WebService < RESTRack::WebService; end
 # Dynamically load all controllers
 Find.find(  File.join(File.dirname(__FILE__), 'controllers') ) do |file|
   next if File.extname(file) != '.rb'
-  STDOUT.puts "Loading #{file} ..."
   require file
 end
 
 # Dynamically load all models
 Find.find(  File.join(File.dirname(__FILE__), 'models') ) do |file|
   next if File.extname(file) != '.rb'
-  STDOUT.puts "Loading #{file} ..."
   require file
 end
