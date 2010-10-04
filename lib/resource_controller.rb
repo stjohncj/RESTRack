@@ -16,7 +16,9 @@ module RESTRack
 
     def call
       # Call the controller's action and return it in the proper format.
-      template( self.send(@resource_request.action, *@resource_request.id) )
+      args = []
+      args << @resource_request.id unless @resource_request.id.blank?
+      template( self.send(@resource_request.action, *args) )
     end
 
     #                    HTTP Verb: |    GET    |   PUT     |   POST    |   DELETE
@@ -36,7 +38,6 @@ module RESTRack
       raise HTTP405MethodNotAllowed, 'Method not provided on controller.'
     end
 
-# TODO: Combine repeated lines from below 3 methods into new method(s)
     protected # all internal methods are protected rather than private so that calling methods *could* be overriden if necessary.
     def self.has_direct_relationship_to(entity, opts, &get_entity_id_from_relation_id)
       # This method defines that there is a single link to a member from an entity collection.
@@ -46,13 +47,10 @@ module RESTRack
       define_method( entity_name.to_sym,
         Proc.new do
           @resource_request.id = yield @resource_request.id
-          @resource_request.resource_name = RESTRack::Support.camelize( entity.to_s )
           @resource_request.action = nil
           ( @resource_request.action, @resource_request.path_stack ) = @resource_request.path_stack.split('/', 3) unless @resource_request.path_stack.blank?
           format_id
-          setup_action
-          @resource_request.locate
-          @resource_request.call
+          self.call_relation(entity)
         end
       )
     end
@@ -64,17 +62,13 @@ module RESTRack
       define_method( entity_name.to_sym,
         Proc.new do
           entity_array = yield @resource_request.id
-          @resource_request.resource_name = RESTRack::Support.camelize( entity.to_s )
-          @resource_request.id     = nil
-          @resource_request.action = nil
+          @resource_request.action, @resource_request.id = nil, nil
           ( @resource_request.id, @resource_request.action, @resource_request.path_stack ) = @resource_request.path_stack.split('/', 3) unless @resource_request.path_stack.blank?
           format_id
           unless entity_array.include?( @resource_request.id )
             raise HTTP404ResourceNotFound, 'Relation entity does not belong to referring resource.'
           end
-          setup_action
-          @resource_request.locate
-          @resource_request.call
+          self.call_relation(entity)
         end
       )
     end
@@ -87,25 +81,24 @@ module RESTRack
       define_method( entity_name.to_sym,
         Proc.new do
           entity_map = yield @resource_request.id
-          @resource_request.resource_name = RESTRack::Support.camelize( entity.to_s )
           @resource_request.action = nil
           ( key, @resource_request.action, @resource_request.path_stack ) = @resource_request.path_stack.split('/', 3) unless @resource_request.path_stack.blank?
           format_id
           unless @resource_request.id = entity_map[key.to_sym]
             raise HTTP404ResourceNotFound, 'Relation entity does not belong to referring resource.'
           end
-          setup_action
-          @resource_request.locate
-          @resource_request.call
+          self.call_relation(entity)
         end
       )
     end
 
-    def self.keyed_with_type(klass)
-      @@key_type = klass
+    def call_relation(entity)
+      @resource_request.resource_name = RESTRack::Support.camelize( entity.to_s )
+      setup_action
+      @resource_request.locate
+      @resource_request.call
     end
 
-    # "private" methods below that are elevated to protected for potential overriden calling methods.
     def setup_action
       # If the action is not set with the request URI, determine the action from HTTP Verb.
       if @resource_request.action.blank?
@@ -123,14 +116,18 @@ module RESTRack
       end
     end
 
+    def self.keyed_with_type(klass)
+      # Allows decendent controllers to set a data type for the id other than the default.
+      @@key_type = klass
+    end
+
     def format_id
+      # This method is used to convert the id coming off of the path stack, which is in string form, into another data type if one has been set.
       unless @@key_type.nil?
         if @@key_type == Fixnum
           @resource_request.id = @resource_request.id.to_i
         elsif @@key_type == Float
           @resource_request.id = @resource_request.id.to_f
-        elsif @@key_type == String
-          @resource_request.id = @resource_request.id.to_s
         else
           raise HTTP500ServerError, "Invalid key identifier type specified on resource #{self.class.to_s}."
         end

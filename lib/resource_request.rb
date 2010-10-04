@@ -3,8 +3,6 @@ module RESTRack
     attr_reader :request, :request_id, :input, :get_query_string, :get_query_hash
     attr_accessor :content_type, :path_stack, :format, :resource_name, :action, :id
 
-# TODO: Load from app constants.yml the whitelist and/or (?just 'or'?) blacklist of root level resources. All resources are accessible from the root level if no config options are present.
-
     def initialize(opts)
       # Initialize the ResourceRequest by assigning a request_id and determining the path, format, and controller of the resource.
       # Accepting options just to allow us to override request_id for testing.
@@ -28,13 +26,8 @@ module RESTRack
       }).to_json
       RESTRack::WebService.request_log.debug "JSON Data In (Request ID: #{@request_id})\n" + input_str
 
-      # Path stack keeps track of what on the requets path is yet to be followed.
-      @path_stack = @request.path_info
-      # Determine the response format
-      get_format
-      # Parse out the controller of the resource being requested from the path.
-      # @path_stack will start with a forward slash here, so the first item returned will be an empty string.
-      ( empty_str, @resource_name, @id, @action, @path_stack ) = @path_stack.split('/', 5)
+      # Setup up the initial routing.
+      get_initial_route
       # Verify that initial resource in the request chain is accessible at the root.
       raise HTTP403Forbidden unless RESTRack::CONFIG[:ROOT_RESOURCE_ACCEPT].blank? or RESTRack::CONFIG[:ROOT_RESOURCE_ACCEPT].include?(@resource_name)
       raise HTTP403Forbidden if not RESTRack::CONFIG[:ROOT_RESOURCE_DENY].blank? and RESTRack::CONFIG[:ROOT_RESOURCE_DENY].include?(@resource_name)
@@ -68,6 +61,26 @@ module RESTRack
       return t.strftime('%s') + t.usec.to_s
     end
 
+    def get_initial_route
+      # Determine the initial resource to call and what format the request is in.
+      # Path stack keeps track of what on the requets path is yet to be followed.
+      @path_stack = @request.path_info
+      # Determine the response format
+      get_format
+      # @path_stack will start with a forward slash here, so the first item returned will be an empty string.
+      ( empty_str, @resource_name, @id, @action, @path_stack ) = @path_stack.split('/', 5)
+      # To allow default route for case when resource name is not provided but is assumed.
+      if [ :index, :replace, :create, :destroy ].include? @resource_name
+        @action = @resource_name
+        @resource_name = nil
+      end
+      if [ :show, :update, :add, :delete ].include? @id
+        @id = @resource_name
+        @resource_name = nil
+      end
+      @resource_name = RESTRack::CONFIG[:DEFAULT_RESOURCE] if @resource_name.blank?
+    end
+
     def get_format
       # Determine the format for the response.
       # Remove the extension from the URL if present, and use that to determine format.
@@ -91,6 +104,7 @@ module RESTRack
     def instantiate_controller
       # Called from the locate method, this method dynamically finds the class based on the URI and instantiates an object of that class via the __init method on RESTRack::ResourceController.
       begin
+        # TODO: Can I remove the need to define :SERVICE_NAME in constants.yaml by loading it from self.class in RESTRack::WebService or restrack.rb?
         return Kernel.const_get( RESTRack::CONFIG[:SERVICE_NAME].to_sym ).const_get( "#{@resource_name}Controller".to_sym ).__init(self)
       rescue
         raise HTTP404ResourceNotFound, "The resource #{RESTRack::CONFIG[:SERVICE_NAME]}::#{@resource_name}Controller could not be instantiated."

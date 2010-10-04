@@ -14,6 +14,8 @@ module RESTRack
       # Open the logs on spin up.
       @@log         ||= Logger.new( RESTRack::CONFIG[:LOG] )
       @@request_log ||= Logger.new( RESTRack::CONFIG[:REQUEST_LOG] )
+      # Establish the namespace pointer.
+      RESTRack::CONFIG[:SERVICE_NAME] = self.class.to_s.split('::')[0].to_sym
     end
 
     def call( env )

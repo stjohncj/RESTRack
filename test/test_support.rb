@@ -1,7 +1,6 @@
 require 'rubygems'
 require 'test/unit'
-require 'lib/support'
-require 'restrack'
+require File.expand_path(File.join(File.dirname(__FILE__),'..','restrack'))
 
 module RESTRack
   class TestSupport < Test::Unit::TestCase
@@ -9,15 +8,11 @@ module RESTRack
     def test_decamelize_camelize
       camel = 'FooBarBaz'
       camel2 = RESTRack::Support.camelize( RESTRack::Support.decamelize(camel) )
-      puts 'camel: ' + camel
-      puts 'camel2: ' + camel2
       assert_equal camel, camel2
 
       camel = 'FOOBARBaz'
       # Above should be 'FOOBARBaz' always, even if FOO and BAR are separate acronyms
       camel2 = RESTRack::Support.camelize( RESTRack::Support.decamelize(camel) )
-      puts 'camel: ' + camel
-      puts 'camel2: ' + camel2
       assert_equal camel, camel2
     end
 
@@ -43,10 +38,13 @@ module RESTRack
 
     def test_constants
       assert_nothing_raised do
-        puts RESTRack::CONFIG[:LOG].to_sym.to_s
-        puts RESTRack::CONFIG[:REQUEST_LOG].to_sym.to_s
+        RESTRack::CONFIG[:LOG].to_sym.to_s
+        RESTRack::CONFIG[:REQUEST_LOG].to_sym.to_s
+        RESTRack::CONFIG[:DEFAULT_FORMAT].to_sym.to_s
+        assert RESTRack::CONFIG[:ROOT_RESOURCE_ACCEPT].blank? or RESTRack::CONFIG[:ROOT_RESOURCE_ACCEPT].class == Array
+        assert RESTRack::CONFIG[:ROOT_RESOURCE_DENY].blank? or RESTRack::CONFIG[:ROOT_RESOURCE_DENY].class == Array
       end
     end
-# TODO: Test ROOT_RESOURCE_ACCEPT and ROOT_RESOURCE_DENY
+
   end
 end

@@ -1,31 +1,13 @@
 require 'rubygems'
 require 'test/unit'
 require 'rack/test'
-require 'service'
+require File.expand_path(File.join(File.dirname(__FILE__),'..','service'))
 require 'pp'
 
-class SampleApp::TestFooBarController < Test::Unit::TestCase
+class SampleApp::TestControllers < Test::Unit::TestCase
 
   def setup
     @ws = SampleApp::WebService.new
-  end
-
-  def test_show_root_resource_denied
-    env = Rack::MockRequest.env_for('/baz/144', {
-      :method => 'GET'
-    })
-    output = ''
-    assert_raise HTTP403Forbidden do
-      output = @ws.call(env)
-    end
-
-    env = Rack::MockRequest.env_for('/bat/144', {
-      :method => 'GET'
-    })
-    output = ''
-    assert_raise HTTP403Forbidden do
-      output = @ws.call(env)
-    end
   end
 
   def test_show

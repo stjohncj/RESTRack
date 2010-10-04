@@ -1,6 +1,15 @@
-:SERVICE_NAME:    :SampleApp                # This is the name of your service, and will become the primary module of the application.
-:LOG:             '/var/log/restrack/sample_app.log'
-:REQUEST_LOG:     '/var/log/restrack/sample_app.request.log'
-:DEFAULT_FORMAT:  :JSON                     # Supported formats are :JSON and :XML
-:ROOT_RESOURCE_ACCEPT:    [ 'foo_bar' ]                    # These are the resources which can be accessed from the root of your web service. If left empty, all resources are available at the root.
-:ROOT_RESOURCE_DENY:      [ 'baz' ]                        # These are the resources which cannot be accessed from the root of your web service. Use either this or ROOT_RESOURCE_ACCEPT as a blacklist or whitelist to establish routing (relationships defined in resource controllers define further routing).
+
+# Application log path definition
+:LOG:                     '/var/log/restrack/sample_app.log'
+# Request log path definition
+:REQUEST_LOG:             '/var/log/restrack/sample_app.request.log'
+
+# Supported formats are :JSON and :XML
+:DEFAULT_FORMAT:          :JSON
+# The resource which will handle root level requests where the name is not specified.  Best for users of this not to implement method_missing in their default controller, unless they are checking for bad URI.
+:DEFAULT_RESOURCE:        'bazu'
+
+# These are the resources which can be accessed from the root of your web service. If left empty, all resources are available at the root.
+:ROOT_RESOURCE_ACCEPT:    [ 'foo_bar' ]
+# These are the resources which cannot be accessed from the root of your web service. Use either this or ROOT_RESOURCE_ACCEPT as a blacklist or whitelist to establish routing (relationships defined in resource controllers define further routing).
+:ROOT_RESOURCE_DENY:      [ 'baz' ]
