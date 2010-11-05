@@ -18,7 +18,7 @@ module RESTRack
       # Call the controller's action and return it in the proper format.
       args = []
       args << @resource_request.id unless @resource_request.id.blank?
-      template( self.send(@resource_request.action, *args) )
+      package( self.send(@resource_request.action, *args) )
     end
 
     #                    HTTP Verb: |    GET    |   PUT     |   POST    |   DELETE
@@ -44,6 +44,7 @@ module RESTRack
       # The second parameter is an options hash to support setting the local name of the relation via ':as => :foo'.
       # The third parameter to the method is a Proc which accepts the calling entity's id and returns the relation's id of which we are trying to link.
       entity_name = opts[:as] || entity
+      # TODO: Would accepting the block as a function parameter with &blockname and creating a lambda work, and would it let the consumer use "return" within their block?
       define_method( entity_name.to_sym,
         Proc.new do
           @resource_request.id = yield @resource_request.id
@@ -136,16 +137,25 @@ module RESTRack
       end
     end
 
-    def template(data, content_type = nil)
+    def package(data, content_type = nil)
       # This handles outputing properly formatted content based on the file extension in the URL.
       @resource_request.content_type = content_type
+      # TODO: Do I need a format to MIME type mapping?
       case @resource_request.format
       when :JSON
         @output = data.to_json
         @resource_request.content_type ||= 'application/json'
-      when :XML then
-        @output = builder_up(data)
+      when :XML
+        if File.exists? builder_file
+          @output = builder_up(data)
+        else
+          # TODO: should it be @output = REXML::Document.new XmlSimple.xml_out data ?
+          @output = XmlSimple.xml_out(data)
+        end
         @resource_request.content_type ||= 'text/xml'
+      when :BIN # TODO: Handle more formats...what about images etc?
+        @output = data
+        @resource_request.content_type ||= 'application/octet-stream'
       end
     end
 
@@ -157,8 +167,12 @@ module RESTRack
       xml.instruct!
       # Search in templates/controller/action.xml.builder for the XML template
       # TODO: make sure it works from any execution path, i.e. you can fire up the web service from from different directories and template files are still found.
-      eval( File.new( "templates/#{@resource_request.resource_name}/#{@action}.xml.builder" ).read )
+      eval( File.new( builder_file ).read )
       return buffer
+    end
+
+    def builder_file
+      "templates/#{@resource_request.resource_name}/#{@action}.xml.builder"
     end
 
   end # class ResourceController

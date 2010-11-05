@@ -13,6 +13,6 @@
 :DEFAULT_RESOURCE:        'bazu'
 
 # These are the resources which can be accessed from the root of your web service. If left empty, all resources are available at the root.
-:ROOT_RESOURCE_ACCEPT:    [ 'foo_bar' ]
+#:ROOT_RESOURCE_ACCEPT:    []
 # These are the resources which cannot be accessed from the root of your web service. Use either this or ROOT_RESOURCE_ACCEPT as a blacklist or whitelist to establish routing (relationships defined in resource controllers define further routing).
 :ROOT_RESOURCE_DENY:      [ 'baz' ]

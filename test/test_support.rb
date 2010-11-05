@@ -41,8 +41,9 @@ module RESTRack
         RESTRack::CONFIG[:LOG].to_sym.to_s
         RESTRack::CONFIG[:REQUEST_LOG].to_sym.to_s
         RESTRack::CONFIG[:DEFAULT_FORMAT].to_sym.to_s
-        assert RESTRack::CONFIG[:ROOT_RESOURCE_ACCEPT].blank? or RESTRack::CONFIG[:ROOT_RESOURCE_ACCEPT].class == Array
-        assert RESTRack::CONFIG[:ROOT_RESOURCE_DENY].blank? or RESTRack::CONFIG[:ROOT_RESOURCE_DENY].class == Array
+        RESTRack::CONFIG[:DEFAULT_RESOURCE].to_sym.to_s
+        assert RESTRack::CONFIG[:ROOT_RESOURCE_ACCEPT].blank? || RESTRack::CONFIG[:ROOT_RESOURCE_ACCEPT].class == Array
+        assert RESTRack::CONFIG[:ROOT_RESOURCE_DENY].blank? || RESTRack::CONFIG[:ROOT_RESOURCE_DENY].class == Array
       end
     end
 

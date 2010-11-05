@@ -1,7 +1,7 @@
 module RESTRack
   class WebService
 
-# TODO: Implement auth hooks
+# TODO: Implement auth hooks or document how user would implement
 # TODO: Work on logging, add to proper places, make all output work.
 # TODO: Test IP logging
 

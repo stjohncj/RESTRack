@@ -1,14 +1,12 @@
 %w[
-  rubygems
   logger
-  json
   find
+  rubygems
+  json
+  xmlsimple
+  mime/types
 ].each do |file|
   require file
-end
-
-module RESTRack
-  CONFIG = YAML.load_file('config/constants.yaml')
 end
 
 # Dynamically load all files in lib

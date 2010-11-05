@@ -11,6 +11,7 @@ module RESTRack
 
       # Gather input params
       input_str = @request.body.read
+      # TODO: Do we really need these?  They are already accessible...
       @get_query_hash = @request.GET
       @get_query_string = @request.query_string
 
@@ -95,7 +96,8 @@ module RESTRack
         # Get the format type requested, or use the default if none or unsupported was provided.
         @format = RESTRack::CONFIG[:DEFAULT_FORMAT]
         @format = :JSON if extension == 'json'
-        @format = :XML if extension == 'xml'
+        @format = :XML  if extension == 'xml'
+        # TODO: HANDLE FORMATS BETTER THAN THIS, do I need an extension to format mapping?
       else
         @format = get_query_hash[format].upcase.to_sym
       end
@@ -104,7 +106,6 @@ module RESTRack
     def instantiate_controller
       # Called from the locate method, this method dynamically finds the class based on the URI and instantiates an object of that class via the __init method on RESTRack::ResourceController.
       begin
-        # TODO: Can I remove the need to define :SERVICE_NAME in constants.yaml by loading it from self.class in RESTRack::WebService or restrack.rb?
         return Kernel.const_get( RESTRack::CONFIG[:SERVICE_NAME].to_sym ).const_get( "#{@resource_name}Controller".to_sym ).__init(self)
       rescue
         raise HTTP404ResourceNotFound, "The resource #{RESTRack::CONFIG[:SERVICE_NAME]}::#{@resource_name}Controller could not be instantiated."

@@ -20,7 +20,7 @@ Find.find(  File.join(File.dirname(__FILE__), 'models') ) do |file|
   require file
 end
 
-puts "sample_app RESTRack::CONFIG:\n"
+puts "sample_app_2 RESTRack::CONFIG:\n"
 config = RESTRack::CONFIG.keys.map {|c| c.to_s }.sort
 config.each do |key|
   puts "\t" + key + ' => ' + RESTRack::CONFIG[key.to_sym].to_s
