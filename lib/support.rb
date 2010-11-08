@@ -1,6 +1,7 @@
 module RESTRack
   module Support
     class << self
+      # TODO: Are camelize/decamelize provided somewhere standard other than Rails?
       def camelize(str)
         str.split('_').collect { |s| s.split(//)[0].upcase + s[1,s.length-1] }.join
       end

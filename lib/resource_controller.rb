@@ -42,7 +42,8 @@ module RESTRack
     def self.has_direct_relationship_to(entity, opts, &get_entity_id_from_relation_id)
       # This method defines that there is a single link to a member from an entity collection.
       # The second parameter is an options hash to support setting the local name of the relation via ':as => :foo'.
-      # The third parameter to the method is a Proc which accepts the calling entity's id and returns the relation's id of which we are trying to link.
+      # The third parameter to the method is a Proc which accepts the calling entity's id and returns the id of the relation to which we're establishing the link.
+      # This adds an accessor instance method whose name is the entity's class.
       entity_name = opts[:as] || entity
       # TODO: Would accepting the block as a function parameter with &blockname and creating a lambda work, and would it let the consumer use "return" within their block?
       define_method( entity_name.to_sym,
@@ -58,7 +59,7 @@ module RESTRack
 
     def self.has_relationships_to(entity, opts, &get_entity_id_from_relation_id)
       # This method defines that there are multiple links to members from an entity collection (an array of entity identifiers).
-      # Controller class' initialize method should set up an Array named from the decamelized version of the relation class name, containing the id of each relation.
+      # This adds an accessor instance method whose name is the entity's class.
       entity_name = opts[:as] || entity
       define_method( entity_name.to_sym,
         Proc.new do
@@ -76,8 +77,7 @@ module RESTRack
 
     def self.has_mapped_relationships_to(entity, opts, &get_entity_id_from_relation_id)
       # This method defines that there are mapped links to members from an entity collection (a hash of entity identifiers).
-      # Controller class' initialize method should set up an Hash named from the decamelized version of the relation class name, containing the id of each relation as values.
-      # Adding accessor instance method with name from entity's Class
+      # This adds an accessor instance method whose name is the entity's class.
       entity_name = opts[:as] || entity
       define_method( entity_name.to_sym,
         Proc.new do

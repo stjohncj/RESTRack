@@ -7,7 +7,7 @@
   mime/types
 ].each do |file|
   require file
-end
+end # TODO: Is mime/types being used?
 
 # Dynamically load all files in lib
 Find.find(  File.join(File.dirname(__FILE__), 'lib') ) do |file|

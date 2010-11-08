@@ -4,6 +4,7 @@ module RESTRack
 # TODO: Implement auth hooks or document how user would implement
 # TODO: Work on logging, add to proper places, make all output work.
 # TODO: Test IP logging
+# TODO: Test and warn - :DEFAULT_RESOURCE should be a member of :ROOT_RESOURCE_ACCEPT
 
     class << self
       def log; @@log; end

@@ -46,4 +46,15 @@ class SampleApp::TestResourceRequest < Test::Unit::TestCase
     assert_not_equal 403, output[0]
   end
 
+  def test_default_resource
+    # This should be handled by bazu_controller
+    env = Rack::MockRequest.env_for('/', {
+      :method => 'GET'
+    })
+    output = ''
+    assert_nothing_raised do
+      output = @ws.call(env)
+    end
+    assert_equal 200, output[0]
+  end
 end

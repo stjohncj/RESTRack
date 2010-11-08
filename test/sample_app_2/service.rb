@@ -6,6 +6,10 @@ class SampleApp::WebService < RESTRack::WebService; end
 
 module RESTRack
   CONFIG = YAML.load_file(File.join(File.dirname(__FILE__), 'config/constants.yaml'))
+  if CONFIG[:ROOT_RESOURCE_ACCEPT].is_a?(Array) and CONFIG[:ROOT_RESOURCE_ACCEPT].length == 1 and CONFIG[:ROOT_RESOURCE_ACCEPT][0].lstrip.rstrip == ''
+    CONFIG[:ROOT_RESOURCE_ACCEPT] = nil
+    WebService.log.warn 'Improper format for RESTRack::CONFIG[:ROOT_RESOURCE_ACCEPT], should be nil or empty array not array containing empty string.'
+  end
 end
 
 # Dynamically load all controllers
