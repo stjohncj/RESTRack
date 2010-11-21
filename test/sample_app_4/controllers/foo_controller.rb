@@ -7,7 +7,6 @@ class SampleApp::FooController < RESTRack::ResourceController
 
   def show_text(id)
     @resource_request.mime_type = RESTRack.mime_type_for('text')
-    puts 'test: ' + RESTRack.mime_type_for('text').to_s
     data = "Hello #{id}!"
   end
 
