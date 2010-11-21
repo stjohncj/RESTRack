@@ -1,5 +1,5 @@
 class SampleApp::FooBarController < RESTRack::ResourceController
- 
+
   has_direct_relationship_to( :baz, :as => :baz ) do |id|
     if id =='144'
       output = '777'
@@ -44,6 +44,9 @@ class SampleApp::FooBarController < RESTRack::ResourceController
   end
 
   def show(id)
+    if id == '1234567890'
+      return { :foo => 'bar', :baz => 123, :more => { :one => 1, :two => [1,2], :three => :deep_fu } }
+    end
     { :foo => 'bar', :baz => 123 }
   end
   def update(id)

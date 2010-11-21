@@ -45,10 +45,9 @@ module RESTRack
       # The third parameter to the method is a Proc which accepts the calling entity's id and returns the id of the relation to which we're establishing the link.
       # This adds an accessor instance method whose name is the entity's class.
       entity_name = opts[:as] || entity
-      # TODO: Would accepting the block as a function parameter with &blockname and creating a lambda work, and would it let the consumer use "return" within their block?
       define_method( entity_name.to_sym,
         Proc.new do
-          @resource_request.id = yield @resource_request.id
+          @resource_request.id = get_entity_id_from_relation_id.call(@resource_request.id)
           @resource_request.action = nil
           ( @resource_request.action, @resource_request.path_stack ) = @resource_request.path_stack.split('/', 3) unless @resource_request.path_stack.blank?
           format_id
@@ -63,7 +62,7 @@ module RESTRack
       entity_name = opts[:as] || entity
       define_method( entity_name.to_sym,
         Proc.new do
-          entity_array = yield @resource_request.id
+          entity_array = get_entity_id_from_relation_id.call(@resource_request.id)
           @resource_request.action, @resource_request.id = nil, nil
           ( @resource_request.id, @resource_request.action, @resource_request.path_stack ) = @resource_request.path_stack.split('/', 3) unless @resource_request.path_stack.blank?
           format_id
@@ -81,7 +80,7 @@ module RESTRack
       entity_name = opts[:as] || entity
       define_method( entity_name.to_sym,
         Proc.new do
-          entity_map = yield @resource_request.id
+          entity_map = get_entity_id_from_relation_id.call(@resource_request.id)
           @resource_request.action = nil
           ( key, @resource_request.action, @resource_request.path_stack ) = @resource_request.path_stack.split('/', 3) unless @resource_request.path_stack.blank?
           format_id
@@ -94,7 +93,7 @@ module RESTRack
     end
 
     def call_relation(entity)
-      @resource_request.resource_name = RESTRack::Support.camelize( entity.to_s )
+      @resource_request.resource_name = entity.to_s.camelize
       setup_action
       @resource_request.locate
       @resource_request.call
@@ -137,25 +136,23 @@ module RESTRack
       end
     end
 
-    def package(data, content_type = nil)
+    def package(data)
       # This handles outputing properly formatted content based on the file extension in the URL.
-      @resource_request.content_type = content_type
-      # TODO: Do I need a format to MIME type mapping?
-      case @resource_request.format
-      when :JSON
+      if @resource_request.mime_type.like?( RESTRack.mime_type_for( :JSON ) )
         @output = data.to_json
-        @resource_request.content_type ||= 'application/json'
-      when :XML
+      elsif @resource_request.mime_type.like?( RESTRack.mime_type_for( :XML ) )
         if File.exists? builder_file
           @output = builder_up(data)
         else
           # TODO: should it be @output = REXML::Document.new XmlSimple.xml_out data ?
           @output = XmlSimple.xml_out(data)
         end
-        @resource_request.content_type ||= 'text/xml'
-      when :BIN # TODO: Handle more formats...what about images etc?
+      elsif @resource_request.mime_type.like?(RESTRack.mime_type_for( :YAML ) )
+        @output = YAML.dump(data)
+      elsif @resource_request.mime_type.like?(RESTRack.mime_type_for( :TEXT ) )
+        @output = data.to_s
+      else
         @output = data
-        @resource_request.content_type ||= 'application/octet-stream'
       end
     end
 
@@ -172,7 +169,7 @@ module RESTRack
     end
 
     def builder_file
-      "templates/#{@resource_request.resource_name}/#{@action}.xml.builder"
+      "#{RESTRack::CONFIG[:ROOT]}/views/#{@resource_request.resource_name.underscore}/#{@resource_request.action}.xml.builder"
     end
 
   end # class ResourceController

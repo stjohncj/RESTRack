@@ -10,9 +10,10 @@
 # Supported formats are :JSON, :XML, :YAML, :BIN, :TEXT
 :DEFAULT_FORMAT:          :JSON
 # The resource which will handle root level requests where the name is not specified.  Best for users of this not to implement method_missing in their default controller, unless they are checking for bad URI.
-:DEFAULT_RESOURCE:        'bazu'
+# This setting ('bazu') won't work because of :ROOT_RESOURCE_ACCEPT VALUE (:DEFAULT_RESOURCE should be a member of :ROOT_RESOURCE_ACCEPT).
+:DEFAULT_RESOURCE:        'bazu' 
 
 # These are the resources which can be accessed from the root of your web service. If left empty, all resources are available at the root.
-#:ROOT_RESOURCE_ACCEPT:    []
+:ROOT_RESOURCE_ACCEPT:    [ 'foo_bar' ]
 # These are the resources which cannot be accessed from the root of your web service. Use either this or ROOT_RESOURCE_ACCEPT as a blacklist or whitelist to establish routing (relationships defined in resource controllers define further routing).
 :ROOT_RESOURCE_DENY:      [ 'baz' ]

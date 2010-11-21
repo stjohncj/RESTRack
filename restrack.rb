@@ -3,11 +3,14 @@
   find
   rubygems
   json
+  yaml
   xmlsimple
+  builder
+  active_support/inflector
   mime/types
 ].each do |file|
   require file
-end # TODO: Is mime/types being used?
+end
 
 # Dynamically load all files in lib
 Find.find(  File.join(File.dirname(__FILE__), 'lib') ) do |file|
@@ -15,6 +18,7 @@ Find.find(  File.join(File.dirname(__FILE__), 'lib') ) do |file|
   require file
 end
 
-# We're letting consumers do raise HTTP400BadRequest
-#    versus raise RESTRack::HTTPStatus::HTTP400BadRequest
+# We're letting consumers do `raise HTTP400BadRequest`
+#    versus `raise RESTRack::HTTPStatus::HTTP400BadRequest`
 include HTTPStatus
+include ActiveSupport::Inflector

@@ -21,20 +21,4 @@ module RESTRack
     config
   end
 
-  def self.mime_type_for(format)
-    MIME::Types.type_for(format.to_s.downcase)[0]
-  end
-
 end
-
-
-# Courtesy of Rails' ActiveSupport, thank you DHH et al.
-class Object
-  def blank?
-    respond_to?(:empty?) ? empty? : !self
-  end
-end
-
-# We will support ".text" as an extension
-MIME::Types['text/plain'][0].extensions << 'text'
-MIME::Types.index_extensions( MIME::Types['text/plain'][0] )
