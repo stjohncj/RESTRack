@@ -15,22 +15,9 @@ module RESTRack
       }).to_json
 
       RESTRack.log.debug "Reading POST Input (Request ID: #{@request_id})"
+
       # Pull input data from POST body
-      unless @request.content_type.blank?
-        request_mime_type = MIME::Type.new( @request.content_type )
-        if request_mime_type.like?( RESTRack.mime_type_for( :JSON ) )
-          @input = JSON.parse( @request.body.read )
-        elsif request_mime_type.like?( RESTRack.mime_type_for( :XML ) )
-          @input = XmlSimple.xml_out( @request.body.read )
-        elsif request_mime_type.like?( RESTRack.mime_type_for( :YAML ) )
-          @input = YAML.parse( @request.body.read )
-        elsif request_mime_type.like?( RESTRack.mime_type_for( :TEXT ) )
-          @input = @request.body.read.to_s
-        else
-          @input = @request.body.read
-        end
-        RESTRack.request_log.debug "#{request_mime_type.to_s} Data In (Request ID: #{@request_id})\n" + @input.to_json
-      end
+      @input = read( @request )
 
       # Setup up the initial routing.
       (@path_stack, extension)      = split_extension_from( @request.path_info )
@@ -71,6 +58,26 @@ module RESTRack
       # TODO: Should this / can this be a more unique identifier?
       t = Time.now
       return t.strftime('%s') + ':' + t.usec.to_s
+    end
+
+    def read(request)
+      input = ''
+      unless request.content_type.blank?
+        request_mime_type = MIME::Type.new( request.content_type )
+        if request_mime_type.like?( RESTRack.mime_type_for( :JSON ) )
+          input = JSON.parse( request.body.read )
+        elsif request_mime_type.like?( RESTRack.mime_type_for( :XML ) )
+          input = XmlSimple.xml_out( request.body.read )
+        elsif request_mime_type.like?( RESTRack.mime_type_for( :YAML ) )
+          input = YAML.parse( request.body.read )
+        elsif request_mime_type.like?( RESTRack.mime_type_for( :TEXT ) )
+          input = request.body.read.to_s
+        else
+          input = request.body.read
+        end
+        RESTRack.request_log.debug "#{request_mime_type.to_s} Data In (Request ID: #{request_id})\n" + input.to_json
+      end
+      input
     end
 
     def split_extension_from(path_stack)
