@@ -18,13 +18,13 @@ module RESTRack
       # Pull input data from POST body
       unless @request.content_type.blank?
         request_mime_type = MIME::Type.new( @request.content_type )
-        if request_mime_type.like?( MIME::Types['application/json'][0] )
+        if request_mime_type.like?( RESTRack.mime_type_for( :JSON ) )
           @input = JSON.parse( @request.body.read )
-        elsif request_mime_type.like?( MIME::Types['application/xml'][0] )
+        elsif request_mime_type.like?( RESTRack.mime_type_for( :XML ) )
           @input = XmlSimple.xml_out( @request.body.read )
-        elsif request_mime_type.like?( MIME::Types['text/x-yaml'][0] )
+        elsif request_mime_type.like?( RESTRack.mime_type_for( :YAML ) )
           @input = YAML.parse( @request.body.read )
-        elsif request_mime_type.like?( MIME::Types['text/plain'][0] )
+        elsif request_mime_type.like?( RESTRack.mime_type_for( :TEXT ) )
           @input = @request.body.read.to_s
         else
           @input = @request.body.read
@@ -33,12 +33,19 @@ module RESTRack
       end
 
       # Setup up the initial routing.
-      get_initial_route
+      #get_initial_route
+      (@path_stack, extension)      = split_extension_from( @request.path_info )
+      @mime_type                    = get_mime_type_from( extension )
+      (@resource_name, @path_stack) = get_initial_resource_from( @path_stack )
+      (@id, @action, @path_stack)   = get_id_and_action_from( @path_stack )
+
       # Verify that initial resource in the request chain is accessible at the root.
       raise HTTP403Forbidden unless RESTRack::CONFIG[:ROOT_RESOURCE_ACCEPT].blank? or RESTRack::CONFIG[:ROOT_RESOURCE_ACCEPT].include?(@resource_name)
       raise HTTP403Forbidden if not RESTRack::CONFIG[:ROOT_RESOURCE_DENY].blank? and RESTRack::CONFIG[:ROOT_RESOURCE_DENY].include?(@resource_name)
+
       # Set and return the controller
-      @resource_name = @resource_name.camelize
+      # TODO: REMOVE
+      #@resource_name = @resource_name.camelize
     end
 
     def locate
@@ -71,6 +78,52 @@ module RESTRack
       return t.strftime('%s') + ':' + t.usec.to_s
     end
 
+    def split_extension_from(path_stack)
+      # Remove the extension from the URL if present, that will be used to determine content-type.
+      extension = ''
+      unless path_stack.nil?
+        path_stack = path_stack.sub(/\.([^.]*)$/) do |s|
+          extension = $1.downcase
+          '' # Return an empty string as the substitution so that the extension is removed from `path_stack`
+        end
+      end
+      [path_stack, extension]
+    end
+
+    def get_mime_type_from(extension)
+      unless extension == ''
+        mime_type = RESTRack.mime_type_for( extension )
+      end
+      if mime_type.nil?
+        if RESTRack::CONFIG[:DEFAULT_FORMAT]
+          mime_type = RESTRack.mime_type_for( RESTRack::CONFIG[:DEFAULT_FORMAT].to_s.downcase )
+        else
+          mime_type = RESTRack.mime_type_for( :JSON )
+          # TODO: Should this be an HTTP Error response?
+        end
+      end
+      mime_type
+    end
+
+    def get_initial_resource_from(orig_path_stack)
+      ( empty_str, resource_name, path_stack ) = orig_path_stack.split('/', 3)
+      if resource_name.blank? or not RESTRack.resource_exists? resource_name # treat as if request to default resource
+        raise HTTP404ResourceNotFound if RESTRack::CONFIG[:DEFAULT_RESOURCE].blank?
+        path_stack = orig_path_stack.sub(/^\//, '')
+        resource_name = RESTRack::CONFIG[:DEFAULT_RESOURCE]
+      end
+      [resource_name, path_stack]
+    end
+
+    def get_id_and_action_from(path_stack)
+      ( id, action, path_stack ) = (path_stack || '').split('/', 3)
+      if [ :index, :replace, :create, :destroy ].include? id
+        action = id
+        id = nil
+      end
+      [id, action, path_stack]
+    end
+#---- TODO: REMOVE BELOW JUNK
     def get_initial_route
       # Determine the initial resource to call and what format the request is in.
       # Path stack keeps track of what on the requets path is yet to be followed.
@@ -79,6 +132,17 @@ module RESTRack
       get_format
       # @path_stack will start with a forward slash here, so the first item returned will be an empty string.
       ( empty_str, @resource_name, @id, @action, @path_stack ) = @path_stack.split('/', 5)
+
+      # XXX: NEW HERE
+      if not RESTRack.class_exists? @resource_name # treat as if request to default resource
+        raise HTTP404ResourceNotFound if RESTRack::CONFIG[:DEFAULT_RESOURCE].blank?
+        @path_stack = @action + '/' + @path_stack unless @action.blank?
+        @action = @id
+        @id = @resource_name
+        @resource_name = RESTRack::CONFIG[:DEFAULT_RESOURCE]
+      end
+      # BELOW CODE NOW NEEDS REFACTORING, PERHAPS INTO A METHOD THAT CAN BE CALLED FROM RELATION METHODS IN CONTROLLER
+
       # To allow default route for case when resource name is not provided but is assumed.
       if [ :index, :replace, :create, :destroy ].include? @resource_name
         @action = @resource_name
@@ -115,13 +179,15 @@ module RESTRack
         end
       end
     end
-
+#----
     def instantiate_controller
       # Called from the locate method, this method dynamically finds the class based on the URI and instantiates an object of that class via the __init method on RESTRack::ResourceController.
       begin
-        return Kernel.const_get( RESTRack::CONFIG[:SERVICE_NAME].to_sym ).const_get( "#{@resource_name}Controller".to_sym ).__init(self)
+        return RESTRack.controller_class_for( @resource_name ).__init(self)
+        # TODO: REMOVE
+        #return Kernel.const_get( RESTRack::CONFIG[:SERVICE_NAME].to_sym ).const_get( RESTRack.controller_name(@resource_name).to_sym ).__init(self)
       rescue
-        raise HTTP404ResourceNotFound, "The resource #{RESTRack::CONFIG[:SERVICE_NAME]}::#{@resource_name}Controller could not be instantiated."
+        raise HTTP404ResourceNotFound, "The resource #{RESTRack::CONFIG[:SERVICE_NAME]}::#{RESTRack.controller_name(@resource_name)} could not be instantiated."
       end
     end
 

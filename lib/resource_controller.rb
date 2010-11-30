@@ -18,7 +18,7 @@ module RESTRack
       # Call the controller's action and return it in the proper format.
       args = []
       args << @resource_request.id unless @resource_request.id.blank?
-      package( self.send(@resource_request.action, *args) )
+      package( self.send(@resource_request.action.to_sym, *args) )
     end
 
     #                    HTTP Verb: |    GET    |   PUT     |   POST    |   DELETE
@@ -39,7 +39,24 @@ module RESTRack
     end
 
     protected # all internal methods are protected rather than private so that calling methods *could* be overriden if necessary.
-    def self.has_direct_relationship_to(entity, opts, &get_entity_id_from_relation_id)
+    # TODO: Test this!!!!!
+    def self.has_relationship_to(entity, opts = {})
+      entity_name = opts[:as] || entity
+      define_method( entity_name.to_sym,
+        Proc.new do
+          @resource_request.action = nil
+          ( @resource_request.id, @resource_request.action, @resource_request.path_stack ) = @resource_request.path_stack.split('/', 3) unless @resource_request.path_stack.blank?
+          if [ :index, :replace, :create, :destroy ].include? @resource_request.id
+            @resource_request.action = @resource_request.id
+            @resource_request.id = nil
+          end
+          format_id
+          self.call_relation(entity)
+        end
+      )
+    end
+
+    def self.has_direct_relationship_to(entity, opts = {}, &get_entity_id_from_relation_id)
       # This method defines that there is a single link to a member from an entity collection.
       # The second parameter is an options hash to support setting the local name of the relation via ':as => :foo'.
       # The third parameter to the method is a Proc which accepts the calling entity's id and returns the id of the relation to which we're establishing the link.
@@ -56,7 +73,8 @@ module RESTRack
       )
     end
 
-    def self.has_relationships_to(entity, opts, &get_entity_id_from_relation_id)
+  # TODO: Should this be named "has_direct_relationships_to"?
+    def self.has_relationships_to(entity, opts = {}, &get_entity_id_from_relation_id)
       # This method defines that there are multiple links to members from an entity collection (an array of entity identifiers).
       # This adds an accessor instance method whose name is the entity's class.
       entity_name = opts[:as] || entity
@@ -74,7 +92,7 @@ module RESTRack
       )
     end
 
-    def self.has_mapped_relationships_to(entity, opts, &get_entity_id_from_relation_id)
+    def self.has_mapped_relationships_to(entity, opts = {}, &get_entity_id_from_relation_id)
       # This method defines that there are mapped links to members from an entity collection (a hash of entity identifiers).
       # This adds an accessor instance method whose name is the entity's class.
       entity_name = opts[:as] || entity

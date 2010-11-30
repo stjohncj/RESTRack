@@ -15,10 +15,12 @@ Find.find(  File.join(File.dirname(__FILE__), 'controllers') ) do |file|
   require file
 end
 
-# Dynamically load all models
-Find.find(  File.join(File.dirname(__FILE__), 'models') ) do |file|
-  next if File.extname(file) != '.rb'
-  require file
+if File.directory?( File.join(File.dirname(__FILE__), 'models') )
+  # Dynamically load all models
+  Find.find(  File.join(File.dirname(__FILE__), 'models') ) do |file|
+    next if File.extname(file) != '.rb'
+    require file
+  end
 end
 
 puts "sample_app_3 RESTRack::CONFIG:\n"

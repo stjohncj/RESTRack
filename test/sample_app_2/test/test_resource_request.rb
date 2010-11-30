@@ -55,6 +55,17 @@ class SampleApp::TestResourceRequest < Test::Unit::TestCase
     assert_nothing_raised do
       output = @ws.call(env)
     end
+    # no index method defined/allowed
+    assert_equal 405, output[0]
+
+    # This should be handled by bazu_controller
+    env = Rack::MockRequest.env_for('/123', {
+      :method => 'GET'
+    })
+    output = ''
+    assert_nothing_raised do
+      output = @ws.call(env)
+    end
     assert_equal 200, output[0]
   end
 end

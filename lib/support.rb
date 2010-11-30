@@ -13,10 +13,10 @@ module RESTRack
     # Do config validations
     if config[:ROOT_RESOURCE_ACCEPT].is_a?(Array) and config[:ROOT_RESOURCE_ACCEPT].length == 1 and config[:ROOT_RESOURCE_ACCEPT][0].lstrip.rstrip == ''
       config[:ROOT_RESOURCE_ACCEPT] = nil
-      log.warn 'Improper format for RESTRack::CONFIG[:ROOT_RESOURCE_ACCEPT], should be nil or empty array not array containing empty string.'
+      @@log.warn 'Improper format for RESTRack::CONFIG[:ROOT_RESOURCE_ACCEPT], should be nil or empty array not array containing empty string.'
     end
     unless config[:DEFAULT_RESOURCE].blank? or ( not config[:ROOT_RESOURCE_ACCEPT].blank? and config[:ROOT_RESOURCE_ACCEPT].include?( config[:DEFAULT_RESOURCE] ) )
-      log.warn 'RESTRack::CONFIG[:DEFAULT_RESOURCE] should be a member of RESTRack::CONFIG[:ROOT_RESOURCE_ACCEPT].'
+      @@log.warn 'RESTRack::CONFIG[:DEFAULT_RESOURCE] should be a member of RESTRack::CONFIG[:ROOT_RESOURCE_ACCEPT].'
     end
     config
   end
@@ -25,8 +25,22 @@ module RESTRack
     MIME::Types.type_for(format.to_s.downcase)[0]
   end
 
-end
+  def self.resource_exists?(resource_name)
+    klass = controller_class_for( resource_name )
+    return klass.is_a?(Class)
+  rescue NameError
+    return false
+  end
 
+  def self.controller_class_for(resource_name)
+    Kernel.const_get( RESTRack::CONFIG[:SERVICE_NAME].to_sym ).const_get( controller_name(resource_name).to_sym )
+  end
+
+  def self.controller_name(resource_name)
+    "#{resource_name.camelize}Controller".to_sym
+  end
+
+end
 
 # Courtesy of Rails' ActiveSupport, thank you DHH et al.
 class Object

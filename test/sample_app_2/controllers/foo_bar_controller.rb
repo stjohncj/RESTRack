@@ -1,6 +1,6 @@
 class SampleApp::FooBarController < RESTRack::ResourceController
- 
-  has_direct_relationship_to( :baz, :as => :baz ) do |id|
+
+  has_direct_relationship_to( :baz ) do |id|
     if id =='144'
       output = '777'
     else

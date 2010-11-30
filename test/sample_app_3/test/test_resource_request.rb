@@ -18,6 +18,7 @@ class SampleApp::TestResourceRequest < Test::Unit::TestCase
     env = Rack::MockRequest.env_for('/baz/144', {
       :method => 'GET'
     })
+    output = ''
     assert_nothing_raised do
       output = @ws.call(env)
     end
