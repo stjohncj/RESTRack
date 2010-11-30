@@ -44,7 +44,7 @@ module RESTRack
       entity_name = opts[:as] || entity
       define_method( entity_name.to_sym,
         Proc.new do
-          @resource_request.action = nil
+          @resource_request.id, @resource_request.action = nil, nil
           ( @resource_request.id, @resource_request.action, @resource_request.path_stack ) = @resource_request.path_stack.split('/', 3) unless @resource_request.path_stack.blank?
           if [ :index, :replace, :create, :destroy ].include? @resource_request.id
             @resource_request.action = @resource_request.id
@@ -81,7 +81,7 @@ module RESTRack
       define_method( entity_name.to_sym,
         Proc.new do
           entity_array = get_entity_id_from_relation_id.call(@resource_request.id)
-          @resource_request.action, @resource_request.id = nil, nil
+          @resource_request.id, @resource_request.action = nil, nil
           ( @resource_request.id, @resource_request.action, @resource_request.path_stack ) = @resource_request.path_stack.split('/', 3) unless @resource_request.path_stack.blank?
           format_id
           unless entity_array.include?( @resource_request.id )
@@ -141,7 +141,8 @@ module RESTRack
 
     def format_id
       # This method is used to convert the id coming off of the path stack, which is in string form, into another data type if one has been set.
-      unless @@key_type.nil?
+      @@key_type ||= nil
+      unless @@key_type.blank?
         if @@key_type == Fixnum
           @resource_request.id = @resource_request.id.to_i
         elsif @@key_type == Float

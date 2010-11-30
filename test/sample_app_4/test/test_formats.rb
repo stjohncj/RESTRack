@@ -43,7 +43,7 @@ class SampleApp::TestFormats < Test::Unit::TestCase
     assert_nothing_raised do
       output = @ws.call(env)
     end
-    puts output.pretty_inspect
+    assert_equal output[2].length, 26529
   end
 
 end
