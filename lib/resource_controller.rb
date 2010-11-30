@@ -39,7 +39,6 @@ module RESTRack
     end
 
     protected # all internal methods are protected rather than private so that calling methods *could* be overriden if necessary.
-    # TODO: Test this!!!!!
     def self.has_relationship_to(entity, opts = {})
       entity_name = opts[:as] || entity
       define_method( entity_name.to_sym,
@@ -164,6 +163,7 @@ module RESTRack
           @output = builder_up(data)
         else
           # TODO: should it be @output = REXML::Document.new XmlSimple.xml_out data ?
+          # I read today 11/29/2010 that REXML is no good, not sure on reliability of source.
           @output = XmlSimple.xml_out(data)
         end
       elsif @resource_request.mime_type.like?(RESTRack.mime_type_for( :YAML ) )
