@@ -15,11 +15,21 @@
   - Why RESTRack when there is Rails?
     
 
-
-
 == Usage:
 
 
+
+== REST action method names
+=== RESTRack:
+    #                    HTTP Verb: |    GET    |   PUT     |   POST      |   DELETE
+    # Collection URI (/widgets/):   |   index   |   replace |   create    |   destroy
+    # Element URI (/widgets/42):    |   show    |   update  |   add       |   delete
+  * Note destroy method works on a collection, whereas that of Rails works on an single element.
+
+=== Rails
+    #                    HTTP Verb: |    GET    |   PUT     |   POST      |   DELETE
+    # Collection URI (/widgets/):   |   index   |           |   create    |   
+    # Element URI (/widgets/42):    |   show    |   update  |             |   destroy
 
 
 == License:
