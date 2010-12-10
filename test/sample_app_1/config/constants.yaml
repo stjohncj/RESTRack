@@ -1,3 +1,5 @@
+#GENERATOR-CONST# -DO NOT REMOVE OR CHANGE THIS LINE- Application-Namespace => SampleApp
+#
 # = constants.yaml
 # This is where RESTRack applications define the constants relevant to their particular
 # application that are used by the RESTRack base classes.

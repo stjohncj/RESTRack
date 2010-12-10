@@ -1,10 +1,7 @@
-# for development only
-$:.unshift File.expand_path(File.join(File.dirname(__FILE__),'../..'))
-#####
 require 'restrack'
 
-module SampleApp; end
-class SampleApp::WebService < RESTRack::WebService; end
+module <%= @service_name %>; end
+class <%= @service_name %>::WebService < RESTRack::WebService; end
 
 RESTRack::CONFIG = RESTRack::load_config(File.join(File.dirname(__FILE__), 'config/constants.yaml'))
 RESTRack::CONFIG[:ROOT] = File.dirname(__FILE__)
@@ -22,10 +19,3 @@ if File.directory?( File.join(File.dirname(__FILE__), 'models') )
     require file
   end
 end
-
-puts "sample_app_1 RESTRack::CONFIG:\n"
-config = RESTRack::CONFIG.keys.map {|c| c.to_s }.sort
-config.each do |key|
-  puts "\t" + key + ' => ' + RESTRack::CONFIG[key.to_sym].to_s
-end
-puts "\n"
