@@ -1,9 +1,15 @@
 require 'erb'
+require 'fileutils'
 
 module RESTRack
   class Generator
     class << self
-# TODO: RESTRack executable (restrack/bin/restrack)
+      template = {
+        :service    => 'service.rb.erb',
+        :constants  => 'constants.yaml.erb',
+        :controller => 'controller.rb.erb'
+      }
+      
       def generate_controller(name)
         template = get_template_for( :controller )
         resultant_string = template.result( get_binding_for_controller( name ) )
@@ -11,15 +17,24 @@ module RESTRack
       end
   
       def generate_service(name)
+        File.makedirs("#{name}/config")
+        File.makedirs("#{name}/controllers")
+        File.makedirs("#{name}/models")
+        File.makedirs("#{name}/test")
+        File.makedirs("#{name}/views")
         template = get_template_for( :service )
         resultant_string = template.result( get_binding_for_service( name ) )
-        File.open("#{name}.rb", 'w') {|f| f.puts resultant_string }
+        File.open("#{name}/#{name}.rb", 'w') {|f| f.puts resultant_string }
+        
+        template = get_template_for( :constants )
+        resultant_string = template.result( get_binding_for_service( name ) )
+        File.open("#{name}/#{name}.rb", 'w') {|f| f.puts resultant_string }
       end
   
       private
   
-      def get_template_for(symbol)
-        template = ERB.new File.new(File.join(File.dirname(__FILE__),"generator/#{symbol.to_s}")).read, nil, "%"
+      def get_template_for(type)
+        template = ERB.new File.new(File.join(File.dirname(__FILE__),"generator/#{template[type]}")).read, nil, "%"
       end
   
       def get_binding_for_controller(name)
