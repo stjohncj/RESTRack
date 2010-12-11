@@ -1,9 +1,0 @@
-RESTRack:
-    #                    HTTP Verb: |    GET    |   PUT     |   POST      |   DELETE
-    # Collection URI (/widgets/):   |   index   |   replace |   create    |   destroy * Note destroy method works on a collection, whereas that of Rails works on an single element.
-    # Element URI (/widgets/42):    |   show    |   update  |   add       |   delete
-    
-Rails
-    #                    HTTP Verb: |    GET    |   PUT     |   POST      |   DELETE
-    # Collection URI (/widgets/):   |   index   |           |   create    |   
-    # Element URI (/widgets/42):    |   show    |   update  |             |   destroy

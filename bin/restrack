@@ -1,0 +1,21 @@
+#!/usr/bin/env ruby
+
+require 'generator'
+#require 'server'
+
+verb = ARGV[0]
+noun = ARGV[1]
+
+case verb.to_sym
+when :generate
+  name = noun
+  case noun.to_sym
+  when :service
+    RESTRack::Generator.generate_service( noun )
+  when :controller
+    RESTRack::Generator.generate_controller( noun )
+  end
+when :server
+  port = noun
+  #RESTRack::Server.start_server( noun || 3333 )
+end
