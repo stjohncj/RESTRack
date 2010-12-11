@@ -1,6 +1,6 @@
 #!/usr/bin/env ruby
 
-require 'generator'
+require File.expand_path(File.join(File.dirname(__FILE__), '../lib/generator'))
 #require 'server'
 
 verb = ARGV[0]
@@ -8,14 +8,16 @@ noun = ARGV[1]
 
 case verb.to_sym
 when :generate
-  name = noun
+  name = ARGV[2]
   case noun.to_sym
   when :service
-    RESTRack::Generator.generate_service( noun )
+    puts "Generating new RESTRack service #{name}..."
+    RESTRack::Generator.generate_service( name )
   when :controller
-    RESTRack::Generator.generate_controller( noun )
+    puts "Generating new controller #{name}..."
+    RESTRack::Generator.generate_controller( name )
   end
+  puts 'Creation is complete.'
 when :server
-  port = noun
   #RESTRack::Server.start_server( noun || 3333 )
 end

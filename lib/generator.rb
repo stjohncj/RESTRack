@@ -1,40 +1,44 @@
 require 'erb'
 require 'fileutils'
+require 'rubygems'
+require 'active_support/inflector'
 
 module RESTRack
   class Generator
+    TEMPLATE = {
+      :service    => 'service.rb.erb',
+      :constants  => 'constants.yaml.erb',
+      :controller => 'controller.rb.erb'
+    }
+    
     class << self
-      template = {
-        :service    => 'service.rb.erb',
-        :constants  => 'constants.yaml.erb',
-        :controller => 'controller.rb.erb'
-      }
       
       def generate_controller(name)
         template = get_template_for( :controller )
         resultant_string = template.result( get_binding_for_controller( name ) )
-        File.open("#{name}.rb", 'w') {|f| f.puts resultant_string }
+        File.open("#{name}/controllers/#{name}_controller.rb", 'w') {|f| f.puts resultant_string }
       end
   
       def generate_service(name)
-        File.makedirs("#{name}/config")
-        File.makedirs("#{name}/controllers")
-        File.makedirs("#{name}/models")
-        File.makedirs("#{name}/test")
-        File.makedirs("#{name}/views")
+        FileUtils.makedirs("#{name}/config")
+        FileUtils.makedirs("#{name}/controllers")
+        FileUtils.makedirs("#{name}/models")
+        FileUtils.makedirs("#{name}/test")
+        FileUtils.makedirs("#{name}/views")
         template = get_template_for( :service )
         resultant_string = template.result( get_binding_for_service( name ) )
-        File.open("#{name}/#{name}.rb", 'w') {|f| f.puts resultant_string }
+        File.open("#{name}/loader.rb", 'w') {|f| f.puts resultant_string }
         
         template = get_template_for( :constants )
         resultant_string = template.result( get_binding_for_service( name ) )
-        File.open("#{name}/#{name}.rb", 'w') {|f| f.puts resultant_string }
+        File.open("#{name}/config/constants.yaml", 'w') {|f| f.puts resultant_string }
       end
   
       private
   
       def get_template_for(type)
-        template = ERB.new File.new(File.join(File.dirname(__FILE__),"generator/#{template[type]}")).read, nil, "%"
+        template_file = File.new(File.join(File.dirname(__FILE__),"generator/#{TEMPLATE[type]}"))
+        template = ERB.new( template_file.read, nil, "%" )
       end
   
       def get_binding_for_controller(name)
