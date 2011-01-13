@@ -18,7 +18,7 @@ class SampleApp::FooBarController < RESTRack::ResourceController
     output # You can't "return" from a Proc!  It will do a "return" in the outer method.  Remember a "Proc" is not a Method.
   end
 
-  has_relationships_to( :baza, :as => :children ) do |id|
+  has_direct_relationships_to( :baza, :as => :children ) do |id|
     [1,2,3,4,5,6,7,8,9]
   end
 

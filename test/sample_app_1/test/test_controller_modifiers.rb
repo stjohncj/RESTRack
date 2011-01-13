@@ -74,7 +74,7 @@ class SampleApp::TestControllerModifiers < Test::Unit::TestCase
     assert_equal test_val, output[2]
   end
 
-  def test_has_relationships_to
+  def test_has_direct_relationships_to
     env = Rack::MockRequest.env_for('/foo_bar/133/children/1', {
       :method => 'GET'
     })

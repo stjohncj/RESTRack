@@ -40,6 +40,7 @@ module RESTRack
 
     protected # all internal methods are protected rather than private so that calling methods *could* be overriden if necessary.
     def self.has_relationship_to(entity, opts = {})
+      # This method allows one to access a related resource, without providing a direct link to specific relation(s).
       entity_name = opts[:as] || entity
       define_method( entity_name.to_sym,
         Proc.new do
@@ -72,8 +73,7 @@ module RESTRack
       )
     end
 
-  # TODO: Should this be named "has_direct_relationships_to"?
-    def self.has_relationships_to(entity, opts = {}, &get_entity_id_from_relation_id)
+    def self.has_direct_relationships_to(entity, opts = {}, &get_entity_id_from_relation_id)
       # This method defines that there are multiple links to members from an entity collection (an array of entity identifiers).
       # This adds an accessor instance method whose name is the entity's class.
       entity_name = opts[:as] || entity
