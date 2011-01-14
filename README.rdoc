@@ -1,18 +1,12 @@
 = RESTRack
 
 == Description:
-
-
+  RESTRack is an Rack-based MVC framework tailored specifically to RESTful data services.
 
 == Installation:
   <sudo> gem install restrack
 
-
-== Background:
-
-  RESTRack is an Rack-based MVC framework tailored specifically to RESTful data services.
-
-  - Why RESTRack when there is Rails?
+== Why RESTRack when there is Rails?
     
 
 == Usage:
@@ -24,8 +18,8 @@
 == REST action method names
 === RESTRack:
     #                    HTTP Verb: |    GET    |   PUT     |   POST      |   DELETE
-    # Collection URI (/widgets/):   |   index   |   replace |   create    |   destroy
-    # Element URI (/widgets/42):    |   show    |   update  |   add       |   delete
+    # Collection URI (/widgets/):   |   index   |   replace |   create    |   drop
+    # Element URI (/widgets/42):    |   show    |   update  |   add       |   destroy
   * Note destroy method works on a collection, whereas that of Rails works on an single element.
 
 === Rails

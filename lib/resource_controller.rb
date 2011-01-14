@@ -22,17 +22,17 @@ module RESTRack
     end
 
     #                    HTTP Verb: |    GET    |   PUT     |   POST    |   DELETE
-    # Collection URI (/widgets/):   |   index   |   replace |   create  |   destroy
-    # Element URI   (/widgets/42):  |   show    |   update  |   add     |   delete
+    # Collection URI (/widgets/):   |   index   |   replace |   create  |   drop
+    # Element URI   (/widgets/42):  |   show    |   update  |   add     |   destroy
 
     #def index;       end
     #def replace;     end
     #def create;      end
-    #def destroy;     end
+    #def drop;        end
     #def show(id);    end
     #def update(id);  end
     #def add(id);     end
-    #def delete(id);  end
+    #def destroy(id); end
 
     def method_missing(method_sym, *arguments, &block)
       raise HTTP405MethodNotAllowed, 'Method not provided on controller.'
@@ -110,6 +110,8 @@ module RESTRack
     end
 
     def call_relation(entity)
+      # Call the child relation (next entity in the path stack)
+      # common logic to all relationship methods
       @resource_request.resource_name = entity.to_s.camelize
       setup_action
       @resource_request.locate
@@ -126,7 +128,7 @@ module RESTRack
         elsif @resource_request.request.post?
           @resource_request.action = @resource_request.id.blank? ? :create  : :add
         elsif @resource_request.request.delete?
-          @resource_request.action = @resource_request.id.blank? ? :destroy : :delete
+          @resource_request.action = @resource_request.id.blank? ? :drop    : :destroy
         else
           raise HTTP405MethodNotAllowed, 'Action not provided or found and unknown HTTP request method.'
         end
@@ -162,8 +164,6 @@ module RESTRack
         if File.exists? builder_file
           @output = builder_up(data)
         else
-          # TODO: should it be @output = REXML::Document.new XmlSimple.xml_out data ?
-          # I read today 11/29/2010 that REXML is no good, not sure on reliability of source.
           @output = XmlSimple.xml_out(data)
         end
       elsif @resource_request.mime_type.like?(RESTRack.mime_type_for( :YAML ) )
@@ -179,10 +179,7 @@ module RESTRack
       # Use Builder to generate the XML
       buffer = ''
       xml = Builder::XmlMarkup.new(:target => buffer)
-      # TODO: Should xml.instruct! go here instead of each file?
       xml.instruct!
-      # Search in templates/controller/action.xml.builder for the XML template
-      # TODO: make sure it works from any execution path, i.e. you can fire up the web service from from different directories and template files are still found.
       eval( File.new( builder_file ).read )
       return buffer
     end

@@ -22,3 +22,7 @@ end
 #    versus `raise RESTRack::HTTPStatus::HTTP400BadRequest`
 include HTTPStatus
 include ActiveSupport::Inflector
+
+
+
+# TODO: RESTRackClient, RESTRackBalancerClient

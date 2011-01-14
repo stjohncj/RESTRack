@@ -39,7 +39,7 @@ class SampleApp::FooBarController < RESTRack::ResourceController
   def replace
     { :success => true }
   end
-  def destroy
+  def drop
     { :success => true }
   end
 
@@ -49,7 +49,7 @@ class SampleApp::FooBarController < RESTRack::ResourceController
   def update(id)
     { :success => true }
   end
-  def delete(id)
+  def destroy(id)
     { :success => true }
   end
   def add(id)

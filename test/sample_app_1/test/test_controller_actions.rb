@@ -46,7 +46,7 @@ class SampleApp::TestControllerActions < Test::Unit::TestCase
     assert_equal test_val, output[2]
   end
 
-  def test_delete
+  def test_destroy
     env = Rack::MockRequest.env_for('/foo_bar/144', {
       :method => 'DELETE'
     })
@@ -95,7 +95,7 @@ class SampleApp::TestControllerActions < Test::Unit::TestCase
     assert_equal test_val, output[2]
   end
 
-  def test_destroy
+  def test_drop
     env = Rack::MockRequest.env_for('/foo_bar', {
       :method => 'DELETE'
     })

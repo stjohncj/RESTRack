@@ -55,9 +55,10 @@ module RESTRack
 
     private
     def get_request_id
-      # TODO: Should this / can this be a more unique identifier?
+      # TODO: Should this be a more unique identifier?
+      # Or should this be more easily readable as a time?
       t = Time.now
-      return t.strftime('%s') + ':' + t.usec.to_s
+      return t.strftime('%s') + '.' + t.usec.to_s
     end
 
     def read(request)
@@ -101,7 +102,6 @@ module RESTRack
           mime_type = RESTRack.mime_type_for( RESTRack::CONFIG[:DEFAULT_FORMAT].to_s.downcase )
         else
           mime_type = RESTRack.mime_type_for( :JSON )
-          # TODO: Should this be an HTTP Error response?
         end
       end
       mime_type
