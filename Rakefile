@@ -1,10 +1,10 @@
 require 'rake'
 require 'rake/testtask'
 
-task :default => [:test]
+task :default => [:test_all]
 
 desc 'Run all tests.'
-Rake::TestTask.new('test') { |t|
+Rake::TestTask.new('test_all') { |t|
   t.pattern = 'test/**/test_*.rb'
 }
 

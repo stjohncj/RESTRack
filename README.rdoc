@@ -16,7 +16,9 @@
     
 
 == Usage:
-
+  - restrack generate service foo_bar
+  - restrack generate controller baz
+  - restrack server 3456
 
 
 == REST action method names

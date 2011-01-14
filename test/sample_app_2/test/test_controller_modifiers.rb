@@ -1,7 +1,7 @@
 require 'rubygems'
 require 'test/unit'
 require 'rack/test'
-require File.expand_path(File.join(File.dirname(__FILE__),'..','sample_app_2'))
+require File.expand_path(File.join(File.dirname(__FILE__),'..','loader'))
 require 'pp'
 
 class SampleApp::TestControllerModifiers < Test::Unit::TestCase

@@ -16,7 +16,7 @@ module RESTRack
       def generate_controller(name)
         template = get_template_for( :controller )
         resultant_string = template.result( get_binding_for_controller( name ) )
-        File.open("#{name}/controllers/#{name}_controller.rb", 'w') {|f| f.puts resultant_string }
+        File.open("#{base_dir}/controllers/#{name}_controller.rb", 'w') {|f| f.puts resultant_string }
       end
   
       def generate_service(name)
@@ -53,33 +53,28 @@ module RESTRack
       end
   
       def get_service_name
-        # TODO: REFACTOR W/ RESCUE AND USING BASE_DIR
-        file = nil
-        if File.exists?( File.join( File.dirname(__FILE__), 'config/constants.yaml') )
-          file = File.join( File.dirname(__FILE__), 'config/constants.yaml')
-          # XXX: return File.dirname(__FILE__).split('/')[-1]
-        elsif File.exists?( File.join( File.dirname(__FILE__), '../config/constants.yaml') )
-          file = File.join( File.dirname(__FILE__), '../config/constants.yaml')
-          # XXX: return File.dirname(__FILE__).split('/')[-2]
+        line = ''
+        begin
+          File.open(File.join(base_dir, 'config/constants.yaml')) { |f| line = f.gets }
+        rescue
+          raise File.join(base_dir, 'config/constants.yaml') + ' not found or could not be opened!'
         end
-        unless file.nil?
-          File.open( file ) do |f|
-            line = f.gets
-            service_name = line.match(/#GENERATOR-CONST#.*Application-Namespace\s*=>\s*(.+)/)[0]
-            return service_name
-          end
-        else
-          raise 'Service name couldn\'t be determined.'
+        begin
+          check = line.match(/#GENERATOR-CONST#.*Application-Namespace\s*=>\s*(.+)/)[0]
+          service_name = $1
+        rescue
+          raise '#GENERATOR-CONST# line has been removed or modified in config/constants.yaml.'
         end
+        return service_name
       end
   
       def base_dir
         # TODO: Should this walk up the dir structure indefinitely?
         base_dir = nil
-        if File.exists?( File.join( File.dirname(__FILE__), 'config/constants.yaml') )
-          base_dir = File.dirname(__FILE__)
-        elsif File.exists?( File.join( File.dirname(__FILE__), '../config/constants.yaml') )
-          base_dir = File.join( File.dirname(__FILE__), '..')
+        if File.exists?( File.join( Dir.pwd, 'config/constants.yaml') )
+          base_dir = Dir.pwd
+        elsif File.exists?( File.join( Dir.pwd, '../config/constants.yaml') )
+          base_dir = File.join( Dir.pwd, '..')
         end
         base_dir
       end
