@@ -1,4 +1,5 @@
 %w[
+  rack
   logger
   find
   rubygems

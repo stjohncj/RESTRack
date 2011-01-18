@@ -10,11 +10,9 @@ module RESTRack
       @request_id = opts[:request_id] || get_request_id
 
       # Write input details to logs
-      RESTRack.request_log.info "Request ID: #{@request_id}\n" + ({
-        'ip' => @request.ip
-      }).to_json
+      RESTRack.request_log.info "{#{@request_id}} #{@request.path_info} requested from #{@request.ip}"
 
-      RESTRack.log.debug "Reading POST Input (Request ID: #{@request_id})"
+      RESTRack.log.debug "{#{@request_id}} Reading POST Input"
 
       # Pull input data from POST body
       @input = read( @request )
@@ -33,19 +31,19 @@ module RESTRack
     def locate
       # Locate the correct controller of resource based on the request.
       # The resource requested must be a member of RESTRack application or a 404 error will be thrown by RESTRack::WebService.
-      RESTRack.log.debug "Locating Resource (Request ID: #{@request_id})"
+      RESTRack.log.debug "{#{@request_id}} Locating Resource"
       @resource = instantiate_controller
     end
 
     def call
       # Pass along the `call` method to the typed resource object, this must occur after a call to locate.
-      RESTRack.log.debug "Processing Request (Request ID: #{@request_id})"
+      RESTRack.log.debug "{#{@request_id}} Processing Request"
       @resource.call
     end
 
     def output
       # Send out the typed resource's output, this must occur after a call to run.
-      RESTRack.log.debug "Retrieving Output (Request ID: #{@request_id})"
+      RESTRack.log.debug "{#{@request_id}} Retrieving Output"
       @resource.output
     end
 
@@ -55,10 +53,8 @@ module RESTRack
 
     private
     def get_request_id
-      # TODO: Should this be a more unique identifier?
-      # Or should this be more easily readable as a time?
       t = Time.now
-      return t.strftime('%s') + '.' + t.usec.to_s
+      return t.strftime('%FT%T') + '.' + t.usec.to_s
     end
 
     def read(request)
@@ -76,7 +72,7 @@ module RESTRack
         else
           input = request.body.read
         end
-        RESTRack.request_log.debug "#{request_mime_type.to_s} Data In (Request ID: #{request_id})\n" + input.to_json
+        RESTRack.request_log.debug "{#{@request_id}} #{request_mime_type.to_s} data in\n" + input.to_json
       end
       input
     end

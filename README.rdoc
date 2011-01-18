@@ -1,12 +1,15 @@
 = RESTRack
 
 == Description:
-  RESTRack is an Rack-based MVC framework tailored specifically to RESTful data services.
+  RESTRack is an Rack-based MVC framework tailored specifically to RESTful data
+  services.
 
 == Installation:
   <sudo> gem install restrack
 
+
 == Why RESTRack when there is Rails?
+
     
 
 == Usage:
@@ -16,16 +19,42 @@
 
 
 == REST action method names
+  All default RESTful controller method names align with their Rails
+  counterparts, with more actions supported.
+
 === RESTRack:
-    #                    HTTP Verb: |    GET    |   PUT     |   POST      |   DELETE
-    # Collection URI (/widgets/):   |   index   |   replace |   create    |   drop
-    # Element URI (/widgets/42):    |   show    |   update  |   add       |   destroy
-  * Note destroy method works on a collection, whereas that of Rails works on an single element.
+    #                    HTTP Verb: |   GET   |   PUT    |   POST   |   DELETE
+    #   Collection URI (/widgets/): |  index  |  replace |  create  |  drop
+    #   Element URI (/widgets/42):  |  show   |  update  |  add     |  destroy
+  * Note destroy method works on a collection, whereas that of Rails works on a
+  single element.
 
 === Rails
-    #                    HTTP Verb: |    GET    |   PUT     |   POST      |   DELETE
-    # Collection URI (/widgets/):   |   index   |           |   create    |   
-    # Element URI (/widgets/42):    |   show    |   update  |             |   destroy
+    #                    HTTP Verb: |   GET   |   PUT    |   POST   |   DELETE
+    #   Collection URI (/widgets/): |  index  |          |  create  |   
+    #   Element URI (/widgets/42):  |  show   |  update  |          |  destroy
+
+
+== How-Tos
+  === Authentication
+  
+  === Logging Level
+  
+  === XML Serialization
+    ==== With Builder
+    ==== With XmlSimple
+          @output = XmlSimple.xml_out(data, 'AttrPrefix' => true)
+  === Inputs
+    ==== GET params
+    ==== POST data
+
+  
+
+== Caveats
+  RESTRack uses Maik Schmidt's XmlSimple to serialize simple data structures to
+  XML for you automatically.  When using Ruby 1.8.X, hash keys of type Symbol
+  will cause errors.  You will want to use keys of type String, or convert them
+  prior to serialization.
 
 
 == License:

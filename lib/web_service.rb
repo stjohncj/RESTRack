@@ -1,9 +1,11 @@
 module RESTRack
   class WebService
 
-# TODO: Implement auth hooks or document how user would implement
 # TODO: Work on logging, add to proper places, make all output work.
 # TODO: Test IP logging
+# TODO: Fix this: WARN -- : RESTRack::CONFIG[:DEFAULT_RESOURCE] should be a member of RESTRack::CONFIG[:ROOT_RESOURCE_ACCEPT].
+#         it happens on default config for new app
+# TODO: Add Logger levels to config/constants.yaml
 
     def initialize
       # Establish the namespace pointer.

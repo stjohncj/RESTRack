@@ -14,9 +14,12 @@ module RESTRack
     class << self
       
       def generate_controller(name)
+        # Generate controller file
         template = get_template_for( :controller )
         resultant_string = template.result( get_binding_for_controller( name ) )
         File.open("#{base_dir}/controllers/#{name}_controller.rb", 'w') {|f| f.puts resultant_string }
+        # Generate view folder for controller
+        FileUtils.makedirs("#{name}/views")
       end
   
       def generate_service(name)
@@ -69,14 +72,18 @@ module RESTRack
       end
   
       def base_dir
-        # TODO: Should this walk up the dir structure indefinitely?
         base_dir = nil
-        if File.exists?( File.join( Dir.pwd, 'config/constants.yaml') )
-          base_dir = Dir.pwd
-        elsif File.exists?( File.join( Dir.pwd, '../config/constants.yaml') )
-          base_dir = File.join( Dir.pwd, '..')
+        this_path = File.join( Dir.pwd, 'config/constants.yaml')
+        while this_path != '/config/constants.yaml'
+          if File.exists?( this_path )
+            base_dir = Dir.pwd
+            break
+          else
+            this_path = File.join('..', this_path)
+          end
         end
-        base_dir
+        raise 'The config/constants.yaml file could not found when determining base_dir!' unless base_dir
+        return base_dir
       end
     
     end # class << self

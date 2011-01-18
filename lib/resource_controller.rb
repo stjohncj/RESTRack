@@ -164,7 +164,7 @@ module RESTRack
         if File.exists? builder_file
           @output = builder_up(data)
         else
-          @output = XmlSimple.xml_out(data)
+          @output = XmlSimple.xml_out(data, 'AttrPrefix' => true)
         end
       elsif @resource_request.mime_type.like?(RESTRack.mime_type_for( :YAML ) )
         @output = YAML.dump(data)
