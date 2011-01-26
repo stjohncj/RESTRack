@@ -1,0 +1,24 @@
+#GENERATOR-CONST# -DO NOT REMOVE OR CHANGE THIS LINE- Application-Namespace => <%= @service_name %>
+#
+# = constants.yaml
+# This is where RESTRack applications define the constants relevant to their particular
+# application that are used by the RESTRack base classes.
+
+# Application log path definition
+:LOG:                     '/var/log/<%= @service_name %>/<%= @service_name %>.log'
+# Request log path definition
+:REQUEST_LOG:             '/var/log/<%= @service_name %>/<%= @service_name %>.request.log'
+
+# Logger object levels
+:LOG_LEVEL:               :DEBUG
+:REQUEST_LOG_LEVEL:       :DEBUG
+
+# Supported formats are :JSON, :XML, :YAML, :BIN, :TEXT
+:DEFAULT_FORMAT:          :JSON
+# The resource which will handle root level requests where the name is not specified.  Best for users of this not to implement method_missing in their default controller, unless they are checking for bad URI.
+:DEFAULT_RESOURCE:        nil
+
+# These are the resources which can be accessed from the root of your web service. If left empty, all resources are available at the root.
+:ROOT_RESOURCE_ACCEPT:    []
+# These are the resources which cannot be accessed from the root of your web service. Use either this or ROOT_RESOURCE_ACCEPT as a blacklist or whitelist to establish routing (relationships defined in resource controllers define further routing).
+:ROOT_RESOURCE_DENY:      []
