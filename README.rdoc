@@ -47,6 +47,7 @@
 == How-Tos
 
   ...yet to be done...
+  === Authentication Suggestions
 
   === Logging/Logging Level
   

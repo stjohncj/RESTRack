@@ -7,12 +7,14 @@ Bundler::GemHelper.install_tasks
 task :default => [:test_all]
 
 desc 'Run all tests.'
-Rake::TestTask.new('test_all') { |t|
-  t.pattern = 'test/**/test_*.rb'
-}
+task :test_all do
+  for n in 0..4
+    Rake::Task['test'+n.to_s].invoke
+  end
+end
 
 desc 'Run base tests.'
-Rake::TestTask.new('test_base') { |t|
+Rake::TestTask.new('test0') { |t|
   t.pattern = 'test/test_*.rb'
 }
 

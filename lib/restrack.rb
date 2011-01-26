@@ -16,7 +16,6 @@ end
 # Dynamically load all files in lib
 Find.find(  File.join(File.dirname(__FILE__)) ) do |file|
   next if File.extname(file) != '.rb'
-  puts 'loading file ' + file
   require file
 end
 
