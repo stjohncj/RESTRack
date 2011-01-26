@@ -2,8 +2,14 @@
 
 == Description:
   RESTRack is a Rack based MVC framework that makes it extremely easy to
-  develop RESTful data services. It is inspired by Rails, and follows some of
-  its conventions.  It aims at being lightweight and easy to use.
+  develop RESTful data services. It is inspired by Rails, and follows a few of
+  its conventions.  But it has no routes file, routing relationships are done
+  through supplying custom code blocks to class methods such as
+  'has_relationship_to', 'has_mapped_relationships_to',
+  'has_direct_relationship_to', and 'has_direct_relationships_to'. RESTRack aims
+  at being lightweight and easy to use.  RESTRack will automatically render JSON
+  and XML for the data structures you return in your actions (any structure
+  parsable by the json and xml-simple gems, respectively).
   
 
 == Installation:
