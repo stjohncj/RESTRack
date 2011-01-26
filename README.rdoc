@@ -26,8 +26,6 @@
     #                    HTTP Verb: |   GET   |   PUT    |   POST   |   DELETE
     #   Collection URI (/widgets/): |  index  |  replace |  create  |  drop
     #   Element URI (/widgets/42):  |  show   |  update  |  add     |  destroy
-  * Note destroy method works on a collection, whereas that of Rails works on a
-  single element.
 
 === Rails
     #                    HTTP Verb: |   GET   |   PUT    |   POST   |   DELETE
@@ -48,13 +46,6 @@
     ==== GET params
     ==== POST data
 
-  
-
-== Caveats
-  RESTRack uses Maik Schmidt's XmlSimple to serialize simple data structures to
-  XML for you automatically.  When using Ruby 1.8.X, hash keys of type Symbol
-  will cause errors.  You will want to use keys of type String, or convert them
-  prior to serialization.
 
 
 == License:
