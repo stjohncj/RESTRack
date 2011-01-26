@@ -2,8 +2,8 @@
 
 == Description:
   RESTRack is an Rack based MVC framework that makes it extremely easy to develop RESTful
-data services. It is inspired by Rails, and follows some of its conventions, but
-aims at being lightweight and easy to use.
+  data services. It is inspired by Rails, and follows some of its conventions, but
+  aims at being lightweight and easy to use.
   
 
 == Installation:
