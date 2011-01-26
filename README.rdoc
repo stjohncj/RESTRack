@@ -1,15 +1,20 @@
 = RESTRack
 
 == Description:
-  RESTRack is a Rack based MVC framework that makes it extremely easy to
+    RESTRack is a Rack based MVC framework that makes it extremely easy to
   develop RESTful data services. It is inspired by Rails, and follows a few of
   its conventions.  But it has no routes file, routing relationships are done
   through supplying custom code blocks to class methods such as
   'has_relationship_to', 'has_mapped_relationships_to',
-  'has_direct_relationship_to', and 'has_direct_relationships_to'. RESTRack aims
-  at being lightweight and easy to use.  RESTRack will automatically render JSON
-  and XML for the data structures you return in your actions (any structure
-  parsable by the json and xml-simple gems, respectively).
+  'has_direct_relationship_to', and 'has_direct_relationships_to'.
+    RESTRack aims at being lightweight and easy to use.  RESTRack will
+  automatically render JSON and XML for the data structures you return in your
+  actions (any structure parsable by the 'json' and 'xml-simple' gems,
+  respectively).
+    If you supply a view for a controller action, you do that using a builder
+  file (view/<controller>/<action>.xml.builder).  XML format requests will then
+  render the view template with the builder gem, rather than generating XML with
+  XmlSimple.
   
 
 == Installation:
@@ -17,7 +22,11 @@
 
 
 == Why RESTRack when there is Rails?
-
+  Rails is a powerful tool for full web applications.  RESTRack is targetted at
+  making development of lightweight data services as easy as possible, while
+  still giving you a performant and extensible framework.  The primary goal of
+  the framework was to add as little as possible to the framework to give the
+  web developer a good application space for developing JSON or XML services.
     
 
 == Usage:
@@ -28,23 +37,18 @@
 
 == REST action method names
   All default RESTful controller method names align with their Rails
-  counterparts, with more actions supported.
+  counterparts, with two additional actions being supported(*).
 
-=== RESTRack:
     #                    HTTP Verb: |   GET   |   PUT    |   POST   |   DELETE
-    #   Collection URI (/widgets/): |  index  |  replace |  create  |  drop
-    #   Element URI (/widgets/42):  |  show   |  update  |  add     |  destroy
-
-=== Rails
-    #                    HTTP Verb: |   GET   |   PUT    |   POST   |   DELETE
-    #   Collection URI (/widgets/): |  index  |          |  create  |   
-    #   Element URI (/widgets/42):  |  show   |  update  |          |  destroy
+    #   Collection URI (/widgets/): |  index  |  replace |  create  |  *drop
+    #   Element URI (/widgets/42):  |  show   |  update  |  *add    |  destroy
 
 
 == How-Tos
-  === Authentication
-  
-  === Logging Level
+
+  ...yet to be done...
+
+  === Logging/Logging Level
   
   === XML Serialization
     ==== With Builder
