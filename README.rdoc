@@ -1,9 +1,7 @@
 = RESTRack
 
 == Description:
-  RESTRack is an Rack based MVC framework that makes it extremely easy to develop RESTful
-  data services. It is inspired by Rails, and follows some of its conventions, but
-  aims at being lightweight and easy to use.
+  RESTRack is an Rack based MVC framework that makes it extremely easy to develop RESTful data services. It is inspired by Rails, and follows some of its conventions.  It aims at being lightweight and easy to use.
   
 
 == Installation:
@@ -21,8 +19,7 @@
 
 
 == REST action method names
-  All default RESTful controller method names align with their Rails
-  counterparts, with more actions supported.
+  All default RESTful controller method names align with their Rails counterparts, with more actions supported.
 
 === RESTRack:
     #                    HTTP Verb: |   GET   |   PUT    |   POST   |   DELETE
