@@ -22,7 +22,7 @@
 
 
 == Why RESTRack when there is Rails?
-  Rails is a powerful tool for full web applications.  RESTRack is targetted at
+  Rails is a powerful tool for full web applications.  RESTRack is targeted at
   making development of lightweight data services as easy as possible, while
   still giving you a performant and extensible framework.  The primary goal of
   the framework was to add as little as possible to the framework to give the

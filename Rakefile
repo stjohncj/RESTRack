@@ -11,6 +11,11 @@ Rake::TestTask.new('test_all') { |t|
   t.pattern = 'test/**/test_*.rb'
 }
 
+desc 'Run base tests.'
+Rake::TestTask.new('test_base') { |t|
+  t.pattern = 'test/test_*.rb'
+}
+
 desc 'Run sample_app_1 tests.'
 Rake::TestTask.new('test1') { |t|
   t.pattern = 'test/sample_app_1/**/test_*.rb'

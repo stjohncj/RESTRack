@@ -13,8 +13,8 @@ module RESTRack
     
     class << self
       
+      # Generate controller file
       def generate_controller(name)
-        # Generate controller file
         template = get_template_for( :controller )
         resultant_string = template.result( get_binding_for_controller( name ) )
         File.open("#{base_dir}/controllers/#{name}_controller.rb", 'w') {|f| f.puts resultant_string }
@@ -22,6 +22,7 @@ module RESTRack
         FileUtils.makedirs("#{name}/views")
       end
   
+      # Generate a new RESTRack service
       def generate_service(name)
         FileUtils.makedirs("#{name}/config")
         FileUtils.makedirs("#{name}/controllers")

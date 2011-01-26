@@ -1,4 +1,7 @@
 module RESTRack
+  require 'mime/types'
+  require 'yaml'
+  require 'logger'
 
   class << self
     def log; @@log; end
@@ -44,8 +47,8 @@ module RESTRack
 
 end
 
-# Courtesy of Rails' ActiveSupport, thank you DHH et al.
 class Object
+  # Courtesy of Rails' ActiveSupport, thank you DHH et al.
   def blank?
     respond_to?(:empty?) ? empty? : !self
   end
