@@ -7,7 +7,7 @@
   through supplying custom code blocks to class methods such as
   'has_relationship_to', 'has_mapped_relationships_to',
   'has_direct_relationship_to', and 'has_direct_relationships_to'.
-    RESTRack aims at being lightweight and easy to use.  RESTRack will
+    RESTRack aims at being lightweight and easy to use.  It will
   automatically render JSON and XML for the data structures you return in your
   actions (any structure parsable by the 'json' and 'xml-simple' gems,
   respectively).
