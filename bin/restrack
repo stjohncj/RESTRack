@@ -1,7 +1,6 @@
 #!/usr/bin/env ruby
-
-require File.expand_path(File.join(File.dirname(__FILE__), '../lib/generator'))
-#require 'server'
+require 'rubygems'
+require 'restrack'
 
 verb = ARGV[0]
 noun = ARGV[1]
@@ -19,5 +18,6 @@ when :generate
   end
   puts 'Creation is complete.'
 when :server
-  #RESTRack::Server.start_server( noun || 3333 )
+  options = { :Port => noun || 9292, :config => 'config.ru' }
+  Rack::Server.start( options )
 end

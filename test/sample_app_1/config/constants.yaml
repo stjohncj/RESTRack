@@ -9,6 +9,10 @@
 # Request log path definition
 :REQUEST_LOG:             '/var/log/restrack/sample_app.request.log'
 
+# Logger object levels
+:LOG_LEVEL:               :DEBUG     # Logger object level
+:REQUEST_LOG_LEVEL:       :DEBUG     # Logger object level
+
 # Supported formats are :JSON, :XML, :YAML, :BIN, :TEXT
 :DEFAULT_FORMAT:          :JSON
 # The resource which will handle root level requests where the name is not specified.  Best for users of this not to implement method_missing in their default controller, unless they are checking for bad URI.

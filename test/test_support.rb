@@ -1,6 +1,6 @@
 require 'rubygems'
 require 'test/unit'
-require File.expand_path(File.join(File.dirname(__FILE__),'..','restrack'))
+require File.expand_path(File.join(File.dirname(__FILE__),'../lib/restrack'))
 
 module RESTRack
   class TestSupport < Test::Unit::TestCase

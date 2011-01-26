@@ -1,3 +1,5 @@
+#GENERATOR-CONST# -DO NOT REMOVE OR CHANGE THIS LINE- Application-Namespace => SampleApp
+#
 # = constants.yaml
 # This is where RESTRack applications define the constants relevant to their particular
 # application that are used by the RESTRack base classes.
@@ -6,6 +8,10 @@
 :LOG:                     '/var/log/restrack/sample_app.log'
 # Request log path definition
 :REQUEST_LOG:             '/var/log/restrack/sample_app.request.log'
+
+# Logger object levels
+:LOG_LEVEL:               :WARN     # Logger object level
+:REQUEST_LOG_LEVEL:       :WARN     # Logger object level
 
 # Supported formats are :JSON, :XML, :YAML, :BIN, :TEXT
 :DEFAULT_FORMAT:          :JSON
