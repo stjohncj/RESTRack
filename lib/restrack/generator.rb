@@ -7,6 +7,7 @@ module RESTRack
   class Generator
     TEMPLATE = {
       :service    => 'loader.rb.erb',
+      :rackup     => 'config.ru.erb',
       :constants  => 'constants.yaml.erb',
       :controller => 'controller.rb.erb'
     }
@@ -33,6 +34,10 @@ module RESTRack
         template = get_template_for( :service )
         resultant_string = template.result( get_binding_for_service( name ) )
         File.open("#{name}/loader.rb", 'w') {|f| f.puts resultant_string }
+        
+        template = get_template_for( :rackup )
+        resultant_string = template.result( get_binding_for_service( name ) )
+        File.open("#{name}/config.ru", 'w') {|f| f.puts resultant_string }
         
         template = get_template_for( :constants )
         resultant_string = template.result( get_binding_for_service( name ) )
