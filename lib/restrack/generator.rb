@@ -29,7 +29,7 @@ module RESTRack
       # grouping of controller types and/or overarching functionality.
       def generate_descendant_controller(name, parent)
         template = get_template_for( :descendant_controller )
-        resultant_string = template.result( get_binding_for_controller( name ) )
+        resultant_string = template.result( get_binding_for_descendant_controller( name, parent ) )
         File.open("#{base_dir}/controllers/#{name}_controller.rb", 'w') {|f| f.puts resultant_string }
         # Generate view folder for controller
         FileUtils.makedirs("#{base_dir}/views/#{name}")
