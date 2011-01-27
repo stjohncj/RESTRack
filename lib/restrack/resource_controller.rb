@@ -1,10 +1,12 @@
 module RESTRack
-  # All RESTRack controllers descend from ResourceController.
   
+  # All RESTRack controllers should descend from ResourceController.  This class
+  # provides the methods for your controllers.
+  #
   #                    HTTP Verb: |    GET    |   PUT     |   POST    |   DELETE
   # Collection URI (/widgets/):   |   index   |   replace |   create  |   drop
   # Element URI   (/widgets/42):  |   show    |   update  |   add     |   destroy
-
+  #
   #def index;       end
   #def replace;     end
   #def create;      end

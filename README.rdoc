@@ -28,6 +28,10 @@
   the framework was to add as little as possible to the framework to give the
   web developer a good application space for developing JSON or XML services.
     
+  Rails 3 instantiates approximately 80K more objects than RESTRack to do a
+  nothing or hello world type response with the default setup.  Trimming Rails
+  down to just ActionController, by eliminating ActiveRecord, ActionMailer, and
+  ActiveResource, it still instantiates over 47K more objects.
 
 == Usage:
   - restrack generate service foo_bar

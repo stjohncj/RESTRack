@@ -8,7 +8,7 @@ Gem::Specification.new do |s|
   s.platform    = Gem::Platform::RUBY
   s.authors     = ['Chris St. John']
   s.email       = ['chris@stjohnstudios.com']
-  s.homepage    = 'http://github.com/stjohncj'
+  s.homepage    = 'http://github.com/stjohncj/RESTRack'
   s.summary     = %q{A lightweight MVC framework developed specifically for JSON and XML REST services.}
   s.description = %q{RESTRack is a Rack based MVC framework that makes it extremely easy to
   develop RESTful data services. It is inspired by Rails, and follows a few of
@@ -32,6 +32,8 @@ Gem::Specification.new do |s|
   s.executables   = `git ls-files -- bin/*`.split("\n").map{ |f| File.basename(f) }
   s.require_paths = ["lib"]
   
+  s.add_runtime_dependency 'rack'
+  s.add_runtime_dependency 'i18n'
   s.add_runtime_dependency 'json'
   s.add_runtime_dependency 'xml-simple', '>= 1.0.13'
   s.add_runtime_dependency 'builder'

@@ -2,10 +2,20 @@
 require 'rubygems'
 require 'restrack'
 
-verb = ARGV[0]
+verb = ARGV[0].to_sym
 noun = ARGV[1]
 
-case verb.to_sym
+
+# Establish aliases
+case verb
+when :gen, :g
+  verb = :generate
+when :s
+  verb = :server
+end
+puts '1'
+# Do the task
+case verb
 when :generate
   name = ARGV[2]
   case noun.to_sym
@@ -13,8 +23,17 @@ when :generate
     puts "Generating new RESTRack service #{name}..."
     RESTRack::Generator.generate_service( name )
   when :controller
-    puts "Generating new controller #{name}..."
-    RESTRack::Generator.generate_controller( name )
+    predicate  = ARGV[3].to_sym
+    puts 'predicate: ' + predicate.to_s
+    case predicate
+    when :descendant_from
+      parent = ARGV[4].to_sym
+      puts "Generating new controller #{name} which is descendant from #{parent}..."
+      RESTRack::Generator.generate_descendant_controller( name, parent )
+    else
+      puts "Generating new controller #{name}..."
+      RESTRack::Generator.generate_controller( name )
+    end
   end
   puts 'Creation is complete.'
 when :server

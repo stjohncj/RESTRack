@@ -5,11 +5,13 @@ require 'active_support/inflector'
 
 module RESTRack
   class Generator
+    
     TEMPLATE = {
-      :service    => 'loader.rb.erb',
-      :rackup     => 'config.ru.erb',
-      :constants  => 'constants.yaml.erb',
-      :controller => 'controller.rb.erb'
+      :service                => 'loader.rb.erb',
+      :rackup                 => 'config.ru.erb',
+      :constants              => 'constants.yaml.erb',
+      :controller             => 'controller.rb.erb',
+      :descendant_controller  => 'descendant_controller.rb.erb'
     }
     
     class << self
@@ -20,7 +22,17 @@ module RESTRack
         resultant_string = template.result( get_binding_for_controller( name ) )
         File.open("#{base_dir}/controllers/#{name}_controller.rb", 'w') {|f| f.puts resultant_string }
         # Generate view folder for controller
-        FileUtils.makedirs("#{name}/views")
+        FileUtils.makedirs("#{base_dir}/views/#{name}")
+      end
+      
+      # Generate controller file the descends from specified parent, to enable
+      # grouping of controller types and/or overarching functionality.
+      def generate_descendant_controller(name, parent)
+        template = get_template_for( :descendant_controller )
+        resultant_string = template.result( get_binding_for_controller( name ) )
+        File.open("#{base_dir}/controllers/#{name}_controller.rb", 'w') {|f| f.puts resultant_string }
+        # Generate view folder for controller
+        FileUtils.makedirs("#{base_dir}/views/#{name}")
       end
   
       # Generate a new RESTRack service
@@ -53,6 +65,13 @@ module RESTRack
   
       def get_binding_for_controller(name)
         @name = name
+        @service_name = get_service_name
+        binding
+      end
+      
+      def get_binding_for_descendant_controller(name, parent)
+        @name = name
+        @parent = parent
         @service_name = get_service_name
         binding
       end
