@@ -33,6 +33,7 @@ Gem::Specification.new do |s|
   s.require_paths = ["lib"]
   
   s.add_runtime_dependency 'rack'
+  s.add_runtime_dependency 'rack-test'
   s.add_runtime_dependency 'i18n'
   s.add_runtime_dependency 'json'
   s.add_runtime_dependency 'xml-simple', '>= 1.0.13'

@@ -42,12 +42,14 @@ module RESTRack
       raise HTTP405MethodNotAllowed, 'Method not provided on controller.'
     end
 
-    protected # all internal methods are protected rather than private so that calling methods *could* be overriden if necessary.
+    protected
+    # all internal methods are protected rather than private so that calling methods *could* be overriden if necessary.
+    
     # This method allows one to access a related resource, without providing a direct link to specific relation(s).
     def self.has_relationship_to(entity, opts = {})
       entity_name = opts[:as] || entity
       define_method( entity_name.to_sym,
-        Proc.new do
+        Proc.new do |old_id| # The parent resource's id will come along for the ride when the new bridging method is called magically from ResourceController#call
           @resource_request.id, @resource_request.action = nil, nil
           ( @resource_request.id, @resource_request.action, @resource_request.path_stack ) = @resource_request.path_stack.split('/', 3) unless @resource_request.path_stack.blank?
           if [ :index, :replace, :create, :destroy ].include? @resource_request.id
@@ -67,7 +69,7 @@ module RESTRack
     def self.has_direct_relationship_to(entity, opts = {}, &get_entity_id_from_relation_id)
       entity_name = opts[:as] || entity
       define_method( entity_name.to_sym,
-        Proc.new do
+        Proc.new do |old_id| # The parent resource's id will come along for the ride when the new bridging method is called magically from ResourceController#call
           @resource_request.id = get_entity_id_from_relation_id.call(@resource_request.id)
           @resource_request.action = nil
           ( @resource_request.action, @resource_request.path_stack ) = @resource_request.path_stack.split('/', 3) unless @resource_request.path_stack.blank?
@@ -82,7 +84,7 @@ module RESTRack
     def self.has_direct_relationships_to(entity, opts = {}, &get_entity_id_from_relation_id)
       entity_name = opts[:as] || entity
       define_method( entity_name.to_sym,
-        Proc.new do
+        Proc.new do |old_id| # The parent resource's id will come along for the ride when the new bridging method is called magically from ResourceController#call
           entity_array = get_entity_id_from_relation_id.call(@resource_request.id)
           @resource_request.id, @resource_request.action = nil, nil
           ( @resource_request.id, @resource_request.action, @resource_request.path_stack ) = @resource_request.path_stack.split('/', 3) unless @resource_request.path_stack.blank?
@@ -100,7 +102,7 @@ module RESTRack
     def self.has_mapped_relationships_to(entity, opts = {}, &get_entity_id_from_relation_id)
       entity_name = opts[:as] || entity
       define_method( entity_name.to_sym,
-        Proc.new do
+        Proc.new do |old_id| # The parent resource's id will come along for the ride when the new bridging method is called magically from ResourceController#call
           entity_map = get_entity_id_from_relation_id.call(@resource_request.id)
           @resource_request.action = nil
           ( key, @resource_request.action, @resource_request.path_stack ) = @resource_request.path_stack.split('/', 3) unless @resource_request.path_stack.blank?
@@ -146,6 +148,7 @@ module RESTRack
 
     # This method is used to convert the id coming off of the path stack, which is in string form, into another data type if one has been set.
     def format_id
+      return nil unless @resource_request.id
       @@key_type ||= nil
       unless @@key_type.blank?
         if @@key_type == Fixnum

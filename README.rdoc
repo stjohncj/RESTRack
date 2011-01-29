@@ -22,21 +22,28 @@
 
 
 == Why RESTRack when there is Rails?
-  Rails is a powerful tool for full web applications.  RESTRack is targeted at
+    Rails is a powerful tool for full web applications.  RESTRack is targeted at
   making development of lightweight data services as easy as possible, while
   still giving you a performant and extensible framework.  The primary goal of
   the framework was to add as little as possible to the framework to give the
   web developer a good application space for developing JSON or XML services.
     
-  Rails 3 instantiates approximately 80K more objects than RESTRack to do a
-  nothing or hello world type response with the default setup.  Trimming Rails
+    Rails 3 instantiates approximately 80K more objects than RESTRack to do a
+  hello world or nothing type response with the default setup.  Trimming Rails
   down to just ActionController, by eliminating ActiveRecord, ActionMailer, and
-  ActiveResource, it still instantiates over 47K more objects.
+  ActiveResource, it still instantiates over 47K more objects than RESTRack.
 
-== Usage:
+
+== CLI Usage:
   - restrack generate service foo_bar
+    - restrack gen serv foo_bar
+    - restrack g s foo_bar
   - restrack generate controller baz
+    - restrack gen cont baz
+    - restrack g c baz
+  - restrack server # default rackup port 9292
   - restrack server 3456
+    - restrack s 3456
 
 
 == REST action method names
@@ -48,21 +55,95 @@
     #   Element URI (/widgets/42):  |  show   |  update  |  *add    |  destroy
 
 
+== URLs and Controller relationships
+    RESTRack enforces a strict URL pattern through the contruct of controller
+  relationships, rather than a routing file.  Defining a controller for a
+  resource means that you plan to expose that resource to requests to your
+  service.  Defining a controller relationship means that you plan to expose a
+  path from this resource to another.
+  
+  # TODO: rename has_relationship_to to pass_through_to, then
+  # rename has_direct_relationship* to has_relationship*
+  
+    An open, or pass-through, path can be defined via the 'has_relationship_to'
+  class method for resource controllers.  This exposes URL
+  patterns like the following:
+  GET /foo/123/bar/234      <= simple pass-through from Foo 123 to show Bar 234
+  GET /foo/123/bar          <= simple pass-through from Foo 123 to Bar index
+  
+    A direct path to a single related resource's controller can be defined with
+  the 'has_direct_relationship_to' method.  This allows you to define a
+  one-to-one relationship from this resource to a related resource, which means
+  that the id of the related resource is implied through the id of the caller.
+  The caller has one and only one relation through a custom code block passed to
+  'has_direct_relationship_to'.  The code block takes the caller resource's id
+  and evaluates to the relation resource's id, for example a PeopleController
+  might define a one-to-one relationship like so:
+        has_direct_relationship_to( :people, :as spouse ) do |id|
+          People.find(id).spouse.id
+        end
+  This exposes URL patterns like
+  the following:
+  GET     /people/Sally/spouse  <= direct route to show Sally's spouse
+  PUT     /people/Henry/spouse  <= direct route to update Henry's spouse
+  POST    /people/Jane/spouse   <= direct route to add Jane's spouse
+  
+    A direct path to many related resources' controller can be defined with the
+  'has_direct_relationships_to' method.  This allows you to define one-to-many
+  relationships.  It works similar to 'has_direct_relationship_to', except that
+  the code block passed to it should evaluate to an array of the related child
+  ids.  Each resource in the parent's relation list is then accessed through its
+  array index (zero-based) in the URL.  An example of exposing the list of a
+  People resource's children in this manner follows:
+        has_direct_relationships_to( :people, :as => children ) do |id|
+          People.find(id).children.collect {|child| child.id}
+        end
+  GET     /people/Nancy/children/0      <= direct route to show child 0
+  DELETE  /people/Robert/children/100   <= direct route to destroy child 100
+  
+    Multiple named one-to-many relationships can be exposed with the
+  'has_mapped_relationships_to' method.  This allows you to define many named or
+  keyword paths to related resources.  The method's code block should accepts
+  the parent id and return a hash where the keys are your relationship names and
+  the values are the child resource ids.  For example, within a PeopleController
+  the following definition:
+        has_mapped_relationships_to( :people ) do |id|
+          {
+            'father'    => People.find(id).father.id,
+            'mother'    => People.find(id).mother.id,
+            'boss'      => People.find(id).boss.id,
+            'assistant' => People.find(id).assistant.id
+          }
+        end
+  This would expose the following URL patterns:
+  GET     /people/Fred/father     => show the father of Fred
+  PUT     /people/Fred/assistant  => update Fred's assistant
+  POST    /people/Fred/boss       => add Fred's boss
+  DELETE  /people/Luke/mother     => destroy Luke's father
+
 == How-Tos
 
-  ...yet to be done...
-  === Authentication Suggestions
-
   === Logging/Logging Level
+    RESTRack logs to two logs, the standard log (or error log) and the request
+  log.  Paths and logging levels for these can be configured in
+  config/constants.yaml.  RESTRack uses Logger from Ruby-stdlib.
   
   === XML Serialization
-    ==== With Builder
     ==== With XmlSimple
+      RESTRack will attempt to serialize the data structures that your action
+    methods return automatically using the xml-simple gem:
           @output = XmlSimple.xml_out(data, 'AttrPrefix' => true)
+          
+    ==== With Builder
+      Custom XML serialization can be done by providing Builder gem templates in
+    views/<controller>/<action>.xml.builder.
+    
   === Inputs
     ==== GET params
     ==== POST data
 
+  === TODO: Authentication/Authorization Suggestions
+    ...yet to be done...
 
 
 == License:

@@ -1,6 +1,9 @@
 class SampleApp::FooBarController < RESTRack::ResourceController
 
-  has_direct_relationship_to( :baz, :as => :baz ) do |id|
+  has_relationship_to( :bata )
+  has_relationship_to( :bata, :as => :other_bata )
+
+  has_direct_relationship_to( :baz ) do |id|
     if id =='144'
       output = '777'
     else
@@ -57,6 +60,11 @@ class SampleApp::FooBarController < RESTRack::ResourceController
   end
   def add(id)
     { :success => true }
+  end
+
+  def echo
+    puts '-------------------------------->>>' + @resource_request.input.pretty_inspect
+    return @resource_request.input
   end
 
 end

@@ -10,7 +10,6 @@ class SampleApp::TestFormats < Test::Unit::TestCase
     @ws = SampleApp::WebService.new
   end
 
-  # Test YAML, text, and an image format
   def test_yaml
     env = Rack::MockRequest.env_for('/foo/123/show_yaml', {
       :method => 'GET'
@@ -19,6 +18,7 @@ class SampleApp::TestFormats < Test::Unit::TestCase
     assert_nothing_raised do
       output = @ws.call(env)
     end
+    assert_equal 'text/x-yaml', output[1]['Content-Type']
     test_val = YAML.dump( { :foo => '123', :baz => 'bat' } )
     assert_equal test_val, output[2]
   end
@@ -31,6 +31,7 @@ class SampleApp::TestFormats < Test::Unit::TestCase
     assert_nothing_raised do
       output = @ws.call(env)
     end
+    assert_equal 'text/plain', output[1]['Content-Type']
     test_val = 'Hello 123!'
     assert_equal test_val, output[2]
   end
@@ -43,7 +44,8 @@ class SampleApp::TestFormats < Test::Unit::TestCase
     assert_nothing_raised do
       output = @ws.call(env)
     end
-    assert_equal output[2].length, 26529
+    assert_equal 'image/png', output[1]['Content-Type']
+    assert output[2].length
   end
 
 end
