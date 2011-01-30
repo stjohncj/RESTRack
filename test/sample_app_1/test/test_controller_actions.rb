@@ -107,6 +107,30 @@ class SampleApp::TestControllerActions < Test::Unit::TestCase
     assert_equal test_val, output[2]
   end
 
+  def test_custom_entity_action
+    env = Rack::MockRequest.env_for('/foo_bar/7476/custom_entity', {
+      :method => 'GET'
+    })
+    output = ''
+    assert_nothing_raised do
+      output = @ws.call(env)
+    end
+    test_val = '7476'.to_json
+    assert_equal test_val, output[2]
+  end
+  
+  def test_custom_collection_action
+    skip
+    env = Rack::MockRequest.env_for('/foo_bar/custom_collection', {
+      :method => 'GET'
+    })
+    output = ''
+    assert_nothing_raised do
+      output = @ws.call(env)
+    end
+    test_val = [1,1,2,3,5,8,13,21,34].to_json
+    assert_equal test_val, output[2]
+  end
 
   def test_missing
     env = Rack::MockRequest.env_for('/foo_bar/144/missing', {

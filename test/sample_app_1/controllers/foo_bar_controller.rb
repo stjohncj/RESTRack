@@ -66,5 +66,13 @@ class SampleApp::FooBarController < RESTRack::ResourceController
     puts '-------------------------------->>>' + @resource_request.input.pretty_inspect
     return @resource_request.input
   end
+  
+  def custom_entity(id)
+    return id
+  end
+  
+  def custom_collection
+    return [1,1,2,3,5,8,13,21,34]
+  end
 
 end

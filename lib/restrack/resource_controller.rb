@@ -27,11 +27,11 @@ module RESTRack
     end
     def __init(resource_request)
       @resource_request = resource_request
-      setup_action
+      #setup_action
       self
     end
 
-    # Call the controller's action and return it in the proper format.
+    # Call the controller's action and return output in the proper format.
     def call
       args = []
       args << @resource_request.id unless @resource_request.id.blank?
@@ -52,12 +52,13 @@ module RESTRack
         Proc.new do |old_id| # The parent resource's id will come along for the ride when the new bridging method is called magically from ResourceController#call
           @resource_request.id, @resource_request.action = nil, nil
           ( @resource_request.id, @resource_request.action, @resource_request.path_stack ) = @resource_request.path_stack.split('/', 3) unless @resource_request.path_stack.blank?
+          # TODO: Can all methods be checked here?  (support custom methods)
           if [ :index, :replace, :create, :destroy ].include? @resource_request.id
             @resource_request.action = @resource_request.id
             @resource_request.id = nil
           end
           format_id
-          self.call_relation(entity)
+          @resource_request.call_relation(entity)
         end
       )
     end
@@ -74,11 +75,12 @@ module RESTRack
           @resource_request.action = nil
           ( @resource_request.action, @resource_request.path_stack ) = @resource_request.path_stack.split('/', 3) unless @resource_request.path_stack.blank?
           format_id
-          self.call_relation(entity)
+          @resource_request.call_relation(entity)
         end
       )
     end
 
+    # TODO: This should be has_relationships_to and has_direct_relationships_to will behave slightly differently
     # This method defines that there are multiple links to members from an entity collection (an array of entity identifiers).
     # This adds an accessor instance method whose name is the entity's class.
     def self.has_direct_relationships_to(entity, opts = {}, &get_entity_id_from_relation_id)
@@ -92,7 +94,7 @@ module RESTRack
           unless entity_array.include?( @resource_request.id )
             raise HTTP404ResourceNotFound, 'Relation entity does not belong to referring resource.'
           end
-          self.call_relation(entity)
+          @resource_request.call_relation(entity)
         end
       )
     end
@@ -110,35 +112,9 @@ module RESTRack
           unless @resource_request.id = entity_map[key.to_sym]
             raise HTTP404ResourceNotFound, 'Relation entity does not belong to referring resource.'
           end
-          self.call_relation(entity)
+          @resource_request.call_relation(entity)
         end
       )
-    end
-
-    # Call the child relation (next entity in the path stack)
-    # common logic to all relationship methods
-    def call_relation(entity)
-      @resource_request.resource_name = entity.to_s.camelize
-      setup_action
-      @resource_request.locate
-      @resource_request.call
-    end
-
-    # If the action is not set with the request URI, determine the action from HTTP Verb.
-    def setup_action
-      if @resource_request.action.blank?
-        if @resource_request.request.get?
-          @resource_request.action = @resource_request.id.blank? ? :index   : :show
-        elsif @resource_request.request.put?
-          @resource_request.action = @resource_request.id.blank? ? :replace : :update
-        elsif @resource_request.request.post?
-          @resource_request.action = @resource_request.id.blank? ? :create  : :add
-        elsif @resource_request.request.delete?
-          @resource_request.action = @resource_request.id.blank? ? :drop    : :destroy
-        else
-          raise HTTP405MethodNotAllowed, 'Action not provided or found and unknown HTTP request method.'
-        end
-      end
     end
 
     # Allows decendent controllers to set a data type for the id other than the default.
@@ -193,7 +169,7 @@ module RESTRack
 
     # Builds the path to the builder file for the current controller action.
     def builder_file
-      "#{RESTRack::CONFIG[:ROOT]}/views/#{@resource_request.resource_name.underscore}/#{@resource_request.action}.xml.builder"
+      "#{RESTRack::CONFIG[:ROOT]}/views/#{self.class.to_s.underscore.chomp('_controller')}/#{@resource_request.action}.xml.builder"
     end
 
   end # class ResourceController
