@@ -62,24 +62,21 @@
   service.  Defining a controller relationship means that you plan to expose a
   path from this resource to another.
   
-  # TODO: rename has_relationship_to to pass_through_to, then
-  # rename has_direct_relationship* to has_relationship*
-  
-    An open, or pass-through, path can be defined via the 'has_relationship_to'
+    An open, or pass-through, path can be defined via the 'pass_through_to'
   class method for resource controllers.  This exposes URL
   patterns like the following:
   GET /foo/123/bar/234      <= simple pass-through from Foo 123 to show Bar 234
   GET /foo/123/bar          <= simple pass-through from Foo 123 to Bar index
   
     A direct path to a single related resource's controller can be defined with
-  the 'has_direct_relationship_to' method.  This allows you to define a
+  the 'has_relationship_to' method.  This allows you to define a
   one-to-one relationship from this resource to a related resource, which means
   that the id of the related resource is implied through the id of the caller.
   The caller has one and only one relation through a custom code block passed to
-  'has_direct_relationship_to'.  The code block takes the caller resource's id
+  'has_relationship_to'.  The code block takes the caller resource's id
   and evaluates to the relation resource's id, for example a PeopleController
   might define a one-to-one relationship like so:
-        has_direct_relationship_to( :people, :as spouse ) do |id|
+        has_relationship_to( :people, :as spouse ) do |id|
           People.find(id).spouse.id
         end
   This exposes URL patterns like
@@ -90,8 +87,8 @@
   
   # TODO: need has_relationships_to and has_direct_relationships_to
     A direct path to many related resources' controller can be defined with the
-  'has_direct_relationships_to' method.  This allows you to define one-to-many
-  relationships.  It works similar to 'has_direct_relationship_to', except that
+  'has_relationships_to' method.  This allows you to define one-to-many
+  relationships.  It works similar to 'has_relationship_to', except that
   the code block passed to it should evaluate to an array of the related child
   ids.  Each resource in the parent's relation list is then accessed through its
   array index (zero-based) in the URL.  An example of exposing the list of a
@@ -117,10 +114,10 @@
           }
         end
   This would expose the following URL patterns:
-  GET     /people/Fred/father     => show the father of Fred
-  PUT     /people/Fred/assistant  => update Fred's assistant
-  POST    /people/Fred/boss       => add Fred's boss
-  DELETE  /people/Luke/mother     => destroy Luke's father
+  GET     /people/Fred/people/father     => show the father of Fred
+  PUT     /people/Fred/people/assistant  => update Fred's assistant
+  POST    /people/Fred/people/boss       => add Fred's boss
+  DELETE  /people/Luke/people/mother     => destroy Luke's father
 
 
   Resource id data types can be defined with the keyed_with_type class method
