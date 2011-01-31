@@ -1,9 +1,9 @@
 class SampleApp::FooBarController < RESTRack::ResourceController
 
-  has_relationship_to( :bata )
-  has_relationship_to( :bata, :as => :other_bata )
+  pass_through_to( :bata )
+  pass_through_to( :bata, :as => :other_bata )
 
-  has_direct_relationship_to( :baz ) do |id|
+  has_relationship_to( :baz ) do |id|
     if id =='144'
       output = '777'
     else
@@ -12,7 +12,7 @@ class SampleApp::FooBarController < RESTRack::ResourceController
     output # You can't "return" from a Proc!  It will do a "return" in the outer method.  Remember a "Proc" is not a Method.
   end
 
-  has_direct_relationship_to( :bat, :as => :slugger ) do |id|
+  has_relationship_to( :bat, :as => :slugger ) do |id|
     if id =='144'
       output = '777'
     else
@@ -21,8 +21,12 @@ class SampleApp::FooBarController < RESTRack::ResourceController
     output # You can't "return" from a Proc!  It will do a "return" in the outer method.  Remember a "Proc" is not a Method.
   end
 
-  has_direct_relationships_to( :baza, :as => :children ) do |id|
+  has_relationships_to( :baza, :as => :children ) do |id|
     [1,2,3,4,5,6,7,8,9]
+  end
+  
+  has_defined_relationships_to( :baza, :as => :def ) do |id|
+    [1,8,9,17]
   end
 
   has_mapped_relationships_to( :bazu, :as => :maps ) do |id|
@@ -63,7 +67,7 @@ class SampleApp::FooBarController < RESTRack::ResourceController
   end
 
   def echo
-    puts '-------------------------------->>>' + @resource_request.input.pretty_inspect
+puts '-------------------------------->>>' + @resource_request.input.pretty_inspect
     return @resource_request.input
   end
   

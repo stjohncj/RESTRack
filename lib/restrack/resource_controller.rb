@@ -7,14 +7,6 @@ module RESTRack
   # Collection URI (/widgets/):   |   index   |   replace |   create  |   drop
   # Element URI   (/widgets/42):  |   show    |   update  |   add     |   destroy
   #
-  #def index;       end
-  #def replace;     end
-  #def create;      end
-  #def drop;        end
-  #def show(id);    end
-  #def update(id);  end
-  #def add(id);     end
-  #def destroy(id); end
   
   class ResourceController
     attr_reader :input, :output
@@ -27,38 +19,40 @@ module RESTRack
     end
     def __init(resource_request)
       @resource_request = resource_request
-      #setup_action
       self
     end
 
     # Call the controller's action and return output in the proper format.
     def call
+      self.determine_action
       args = []
-      args << @resource_request.id unless @resource_request.id.blank?
-      package( self.send(@resource_request.action.to_sym, *args) )
+      args << @id unless @id.blank?
+      package( self.send(@action.to_sym, *args) )
     end
 
     def method_missing(method_sym, *arguments, &block)
       raise HTTP405MethodNotAllowed, 'Method not provided on controller.'
     end
+  
+    # Methods to be overridden in descendant controllers, defined here for determine_action lookup.
+    def index;       end
+    def replace;     end
+    def create;      end
+    def drop;        end
+    def show(id);    end
+    def update(id);  end
+    def add(id);     end
+    def destroy(id); end
 
     protected
     # all internal methods are protected rather than private so that calling methods *could* be overriden if necessary.
     
     # This method allows one to access a related resource, without providing a direct link to specific relation(s).
-    def self.has_relationship_to(entity, opts = {})
+    def self.pass_through_to(entity, opts = {})
       entity_name = opts[:as] || entity
       define_method( entity_name.to_sym,
-        Proc.new do |old_id| # The parent resource's id will come along for the ride when the new bridging method is called magically from ResourceController#call
-          @resource_request.id, @resource_request.action = nil, nil
-          ( @resource_request.id, @resource_request.action, @resource_request.path_stack ) = @resource_request.path_stack.split('/', 3) unless @resource_request.path_stack.blank?
-          # TODO: Can all methods be checked here?  (support custom methods)
-          if [ :index, :replace, :create, :destroy ].include? @resource_request.id
-            @resource_request.action = @resource_request.id
-            @resource_request.id = nil
-          end
-          format_id
-          @resource_request.call_relation(entity)
+        Proc.new do |calling_id| # The calling resource's id will come along for the ride when the new bridging method is called magically from ResourceController#call
+          @resource_request.call_controller(entity)
         end
       )
     end
@@ -67,34 +61,48 @@ module RESTRack
     # The second parameter is an options hash to support setting the local name of the relation via ':as => :foo'.
     # The third parameter to the method is a Proc which accepts the calling entity's id and returns the id of the relation to which we're establishing the link.
     # This adds an accessor instance method whose name is the entity's class.
-    def self.has_direct_relationship_to(entity, opts = {}, &get_entity_id_from_relation_id)
+    def self.has_relationship_to(entity, opts = {}, &get_entity_id_from_relation_id)
       entity_name = opts[:as] || entity
       define_method( entity_name.to_sym,
-        Proc.new do |old_id| # The parent resource's id will come along for the ride when the new bridging method is called magically from ResourceController#call
-          @resource_request.id = get_entity_id_from_relation_id.call(@resource_request.id)
-          @resource_request.action = nil
-          ( @resource_request.action, @resource_request.path_stack ) = @resource_request.path_stack.split('/', 3) unless @resource_request.path_stack.blank?
-          format_id
-          @resource_request.call_relation(entity)
+        Proc.new do |calling_id| # The calling resource's id will come along for the ride when the new bridging method is called magically from ResourceController#call
+          id = get_entity_id_from_relation_id.call(@id)
+          @resource_request.url_chain.unshift(id)
+          @resource_request.call_controller(entity)
         end
       )
     end
 
-    # TODO: This should be has_relationships_to and has_direct_relationships_to will behave slightly differently
     # This method defines that there are multiple links to members from an entity collection (an array of entity identifiers).
     # This adds an accessor instance method whose name is the entity's class.
-    def self.has_direct_relationships_to(entity, opts = {}, &get_entity_id_from_relation_id)
+    def self.has_relationships_to(entity, opts = {}, &get_entity_id_from_relation_id)
       entity_name = opts[:as] || entity
       define_method( entity_name.to_sym,
         Proc.new do |old_id| # The parent resource's id will come along for the ride when the new bridging method is called magically from ResourceController#call
-          entity_array = get_entity_id_from_relation_id.call(@resource_request.id)
-          @resource_request.id, @resource_request.action = nil, nil
-          ( @resource_request.id, @resource_request.action, @resource_request.path_stack ) = @resource_request.path_stack.split('/', 3) unless @resource_request.path_stack.blank?
-          format_id
-          unless entity_array.include?( @resource_request.id )
+          entity_array = get_entity_id_from_relation_id.call(@id)
+          index = @resource_request.url_chain.shift # TODO: Trap error on no index supplied
+          unless index < entity_array.length
+            raise HTTP404ResourceNotFound, 'You requested an item by index and the index was larger than this item\'s list of relations\' length.'
+          end
+          id = entity_array[index]
+          @resource_request.url_chain.unshift(id)
+          @resource_request.call_controller(entity)
+        end
+      )
+    end
+    
+    # This method defines that there are multiple links to members from an entity collection (an array of entity identifiers).
+    # This adds an accessor instance method whose name is the entity's class.
+    def self.has_defined_relationships_to(entity, opts = {}, &get_entity_id_from_relation_id)
+      entity_name = opts[:as] || entity
+      define_method( entity_name.to_sym,
+        Proc.new do |old_id| # The parent resource's id will come along for the ride when the new bridging method is called magically from ResourceController#call
+          entity_array = get_entity_id_from_relation_id.call(@id)
+          id = @resource_request.url_chain.shift # TODO: Trap error on no id supplied in url
+          unless entity_array.include?( id )
             raise HTTP404ResourceNotFound, 'Relation entity does not belong to referring resource.'
           end
-          @resource_request.call_relation(entity)
+          @resource_request.url_chain.unshift(id)
+          @resource_request.call_controller(entity)
         end
       )
     end
@@ -105,38 +113,18 @@ module RESTRack
       entity_name = opts[:as] || entity
       define_method( entity_name.to_sym,
         Proc.new do |old_id| # The parent resource's id will come along for the ride when the new bridging method is called magically from ResourceController#call
-          entity_map = get_entity_id_from_relation_id.call(@resource_request.id)
-          @resource_request.action = nil
-          ( key, @resource_request.action, @resource_request.path_stack ) = @resource_request.path_stack.split('/', 3) unless @resource_request.path_stack.blank?
-          format_id
-          unless @resource_request.id = entity_map[key.to_sym]
-            raise HTTP404ResourceNotFound, 'Relation entity does not belong to referring resource.'
-          end
-          @resource_request.call_relation(entity)
+          entity_map = get_entity_id_from_relation_id.call(@id)
+          key = @resource_request.url_chain.shift
+          id = entity_map[key.to_sym]
+          @resource_request.url_chain.unshift(id)
+          @resource_request.call_controller(entity)
         end
       )
     end
 
     # Allows decendent controllers to set a data type for the id other than the default.
     def self.keyed_with_type(klass)
-      @@key_type = klass
-    end
-
-    # This method is used to convert the id coming off of the path stack, which is in string form, into another data type if one has been set.
-    def format_id
-      return nil unless @resource_request.id
-      @@key_type ||= nil
-      unless @@key_type.blank?
-        if @@key_type == Fixnum
-          @resource_request.id = @resource_request.id.to_i
-        elsif @@key_type == Float
-          @resource_request.id = @resource_request.id.to_f
-        else
-          raise HTTP500ServerError, "Invalid key identifier type specified on resource #{self.class.to_s}."
-        end
-      else
-        @@key_type = String
-      end
+      @key_type = klass
     end
 
     # This handles outputing properly formatted content based on the file extension in the URL.
@@ -169,7 +157,64 @@ module RESTRack
 
     # Builds the path to the builder file for the current controller action.
     def builder_file
-      "#{RESTRack::CONFIG[:ROOT]}/views/#{self.class.to_s.underscore.chomp('_controller')}/#{@resource_request.action}.xml.builder"
+      "#{RESTRack::CONFIG[:ROOT]}/views/#{self.class.to_s.underscore.chomp('_controller')}/#{@action}.xml.builder"
+    end
+
+    # Find the action, and id if relevant, that the controller must call.
+    def determine_action
+      term = @resource_request.url_chain.shift
+      if term.nil?
+        @id = nil
+        @action = nil
+      elsif self.methods.include?( term.to_sym )
+        @id = nil
+        @action = term.to_sym
+      else
+        @id = term.to_sym
+        term = @resource_request.url_chain.shift
+        if term.nil?
+          @action = nil
+        elsif self.methods.include?( term.to_sym )
+          @action = term.to_sym
+        else
+          raise HTTP405MethodNotAllowed, 'Action not provided or found and unknown HTTP request method.'
+        end
+      end
+      format_id
+      # If the action is not set with the request URI, determine the action from HTTP Verb.
+      get_action_from_context if @action.blank?
+    end
+
+    # This method is used to convert the id coming off of the path stack, which is in string form, into another data type if one has been set.
+    def format_id
+      return nil unless @id
+      @key_type ||= nil
+      unless @key_type.blank?
+        if @key_type == Fixnum
+          @id = @id.to_i
+        elsif @key_type == Float
+          @id = @id.to_f
+        else
+          raise HTTP500ServerError, "Invalid key identifier type specified on resource #{self.class.to_s}."
+        end
+      else
+        @key_type = String
+      end
+    end
+    
+    # Get action from HTTP verb
+    def get_action_from_context
+      if @resource_request.request.get?
+        @action = @id.blank? ? :index   : :show
+      elsif @resource_request.request.put?
+        @action = @id.blank? ? :replace : :update
+      elsif @resource_request.request.post?
+        @action = @id.blank? ? :create  : :add
+      elsif @resource_request.request.delete?
+        @action = @id.blank? ? :drop    : :destroy
+      else
+        raise HTTP405MethodNotAllowed, 'Action not provided or found and unknown HTTP request method.'
+      end
     end
 
   end # class ResourceController

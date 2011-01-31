@@ -10,7 +10,7 @@ class SampleApp::TestControllerModifiers < Test::Unit::TestCase
     @ws = SampleApp::WebService.new
   end
 
-  def test_has_relationship_to
+  def test_pass_through_to
     env = Rack::MockRequest.env_for('/foo/123/bar', {
       :method => 'GET'
     })

@@ -9,22 +9,6 @@ class SampleApp::TestResourceRequest < Test::Unit::TestCase
     @ws = SampleApp::WebService.new # init logs
   end
 
-  def test_locate
-    env = Rack::MockRequest.env_for('/foo_bar', {
-      :method => 'POST',
-      :params => %Q|[
-        {
-          "bar": ""
-        }
-      ]|
-    })
-    request = Rack::Request.new(env)
-    assert_nothing_raised do
-      resource_request = RESTRack::ResourceRequest.new(:request => request)
-      resource_request.locate
-    end
-  end
-
   def test_initialize
     env = Rack::MockRequest.env_for('/foo_bar', {
       :method => 'POST',

@@ -120,7 +120,6 @@ class SampleApp::TestControllerActions < Test::Unit::TestCase
   end
   
   def test_custom_collection_action
-    skip
     env = Rack::MockRequest.env_for('/foo_bar/custom_collection', {
       :method => 'GET'
     })
@@ -140,6 +139,7 @@ class SampleApp::TestControllerActions < Test::Unit::TestCase
     assert_nothing_raised do
       output = @ws.call(env)
     end
+    pp output
     assert_equal 405, output[0]
   end
 

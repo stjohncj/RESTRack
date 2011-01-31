@@ -1,7 +1,7 @@
 class SampleApp::FooController < RESTRack::ResourceController
 
-  has_relationship_to( :bar )
-  has_relationship_to( :baz, :as => :bazzz )
+  pass_through_to( :bar )
+  pass_through_to( :baz, :as => :bazzz )
 
   def show_yaml(id)
     @resource_request.mime_type = RESTRack.mime_type_for('yaml')
