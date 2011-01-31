@@ -30,8 +30,8 @@ class SampleApp::TestFormats < Test::Unit::TestCase
     assert_nothing_raised do
       output = @ws.call(env)
     end
-    test_val = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><data><foo>bar</foo><baz>123</baz></data>"
-    assert_equal test_val, output[2]
+    test_val = [1,2,3,4,5,6,7]
+    assert_equal test_val, XmlSimple.xml_in(output[2])
 
     env = Rack::MockRequest.env_for('/foo_bar.xml', {
       :method => 'GET'

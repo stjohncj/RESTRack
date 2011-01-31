@@ -9,7 +9,8 @@ module RESTRack
   #
   
   class ResourceController
-    attr_reader :input, :output
+    # TODO: Check input and output
+    attr_reader :input, :output, :action, :id
 
     # Base initialization method for resources and storage of request input
     # This method should not be overriden in decendent classes.
@@ -27,7 +28,7 @@ module RESTRack
       self.determine_action
       args = []
       args << @id unless @id.blank?
-      package( self.send(@action.to_sym, *args) )
+      self.send(@action.to_sym, *args)
     end
 
     def method_missing(method_sym, *arguments, &block)
@@ -127,39 +128,6 @@ module RESTRack
       @key_type = klass
     end
 
-    # This handles outputing properly formatted content based on the file extension in the URL.
-    def package(data)
-      if @resource_request.mime_type.like?( RESTRack.mime_type_for( :JSON ) )
-        @output = data.to_json
-      elsif @resource_request.mime_type.like?( RESTRack.mime_type_for( :XML ) )
-        if File.exists? builder_file
-          @output = builder_up(data)
-        else
-          @output = XmlSimple.xml_out(data, 'AttrPrefix' => true)
-        end
-      elsif @resource_request.mime_type.like?(RESTRack.mime_type_for( :YAML ) )
-        @output = YAML.dump(data)
-      elsif @resource_request.mime_type.like?(RESTRack.mime_type_for( :TEXT ) )
-        @output = data.to_s
-      else
-        @output = data
-      end
-    end
-
-    # Use Builder to generate the XML.
-    def builder_up(data)
-      buffer = ''
-      xml = Builder::XmlMarkup.new(:target => buffer)
-      xml.instruct!
-      eval( File.new( builder_file ).read )
-      return buffer
-    end
-
-    # Builds the path to the builder file for the current controller action.
-    def builder_file
-      "#{RESTRack::CONFIG[:ROOT]}/views/#{self.class.to_s.underscore.chomp('_controller')}/#{@action}.xml.builder"
-    end
-
     # Find the action, and id if relevant, that the controller must call.
     def determine_action
       term = @resource_request.url_chain.shift
@@ -170,7 +138,7 @@ module RESTRack
         @id = nil
         @action = term.to_sym
       else
-        @id = term.to_sym
+        @id = term
         term = @resource_request.url_chain.shift
         if term.nil?
           @action = nil

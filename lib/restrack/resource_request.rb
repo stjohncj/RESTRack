@@ -27,11 +27,11 @@ module RESTRack
       end
       @mime_type = get_mime_type_from( extension )
       # Pull first controller from URL
-      controller_name = @url_chain.shift
+      @active_controller_name = @url_chain.shift
       # Verify that initial resource in the request chain is accessible at the root.
-      raise HTTP403Forbidden unless RESTRack::CONFIG[:ROOT_RESOURCE_ACCEPT].blank? or RESTRack::CONFIG[:ROOT_RESOURCE_ACCEPT].include?(controller_name)
-      raise HTTP403Forbidden if not RESTRack::CONFIG[:ROOT_RESOURCE_DENY].blank? and RESTRack::CONFIG[:ROOT_RESOURCE_DENY].include?(controller_name)
-      @active_controller = instantiate_controller( controller_name )
+      raise HTTP403Forbidden unless RESTRack::CONFIG[:ROOT_RESOURCE_ACCEPT].blank? or RESTRack::CONFIG[:ROOT_RESOURCE_ACCEPT].include?(@active_controller_name)
+      raise HTTP403Forbidden if not RESTRack::CONFIG[:ROOT_RESOURCE_DENY].blank? and RESTRack::CONFIG[:ROOT_RESOURCE_DENY].include?(@active_controller_name)
+      @active_controller = instantiate_controller( @active_controller_name )
     end
 
     def content_type
@@ -41,12 +41,13 @@ module RESTRack
     # Send out the typed resource's output, this must occur after a call to run.
     def response
       RESTRack.log.debug "{#{@request_id}} Retrieving Output"
-      @active_controller.call
+      package( @active_controller.call )
     end
 
     # Call the next entity in the path stack.
     # Method called by controller relationship methods.
     def call_controller(controller_name)
+      @active_controller_name = controller_name
       @active_controller = instantiate_controller( controller_name.to_s.camelize )
       @active_controller.call
     end
@@ -101,6 +102,41 @@ module RESTRack
       rescue
         raise HTTP404ResourceNotFound, "The resource #{RESTRack::CONFIG[:SERVICE_NAME]}::#{RESTRack.controller_name(controller_name)} could not be instantiated."
       end
+    end
+
+    # This handles outputing properly formatted content based on the file extension in the URL.
+    def package(data)
+      if @mime_type.like?( RESTRack.mime_type_for( :JSON ) )
+        @output = data.to_json
+      elsif @mime_type.like?( RESTRack.mime_type_for( :XML ) )
+        if File.exists? builder_file
+          puts builder_file + ' exists'
+          @output = builder_up(data)
+        else
+          puts builder_file + ' doesn\'t exist'
+          @output = XmlSimple.xml_out(data, 'AttrPrefix' => true)
+        end
+      elsif @mime_type.like?(RESTRack.mime_type_for( :YAML ) )
+        @output = YAML.dump(data)
+      elsif @mime_type.like?(RESTRack.mime_type_for( :TEXT ) )
+        @output = data.to_s
+      else
+        @output = data
+      end
+    end
+
+    # Use Builder to generate the XML.
+    def builder_up(data)
+      buffer = ''
+      xml = Builder::XmlMarkup.new(:target => buffer)
+      xml.instruct!
+      eval( File.new( builder_file ).read )
+      return buffer
+    end
+
+    # Builds the path to the builder file for the current controller action.
+    def builder_file
+      "#{RESTRack::CONFIG[:ROOT]}/views/#{@active_controller_name}/#{@active_controller.action}.xml.builder"
     end
 
   end # class ResourceRequest
