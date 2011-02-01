@@ -17,7 +17,7 @@ module RESTRack
       # Setup up the initial routing.
       @url_chain = @request.path_info.split('/')
       @url_chain.shift if @url_chain[0] == ''
-      # Determine MIME type from extension
+      # Pull extension from URL
       extension = ''
       unless @url_chain[-1].nil?
         @url_chain[-1] = @url_chain[-1].sub(/\.([^.]*)$/) do |s|
@@ -25,6 +25,7 @@ module RESTRack
           '' # Return an empty string as the substitution so that the extension is removed from `@url_chain[-1]`
         end
       end
+      # Determine MIME type from extension
       @mime_type = get_mime_type_from( extension )
       # Pull first controller from URL
       @active_controller_name = @url_chain.shift
@@ -61,17 +62,16 @@ module RESTRack
     # Pull input data from POST body
     def read(request)
       input = ''
-      unless request.content_type.blank?
+      if request.content_type.blank?
+        input = request.body.read
+      else
         request_mime_type = MIME::Type.new( request.content_type )
         if request_mime_type.like?( RESTRack.mime_type_for( :JSON ) )
           input = JSON.parse( request.body.read )
         elsif request_mime_type.like?( RESTRack.mime_type_for( :XML ) )
-          # TODO: CHECK THIS!  xml_out? or xml_in
-          input = XmlSimple.xml_out( request.body.read )
+          input = XmlSimple.xml_in( request.body.read )
         elsif request_mime_type.like?( RESTRack.mime_type_for( :YAML ) )
           input = YAML.parse( request.body.read )
-        elsif request_mime_type.like?( RESTRack.mime_type_for( :TEXT ) )
-          input = request.body.read.to_s
         else
           input = request.body.read
         end
@@ -80,6 +80,7 @@ module RESTRack
       input
     end
 
+    # Determine the MIME type of the request from the extension provided.
     def get_mime_type_from(extension)
       unless extension == ''
         mime_type = RESTRack.mime_type_for( extension )
@@ -110,17 +111,17 @@ module RESTRack
         @output = data.to_json
       elsif @mime_type.like?( RESTRack.mime_type_for( :XML ) )
         if File.exists? builder_file
-          puts builder_file + ' exists'
           @output = builder_up(data)
         else
-          puts builder_file + ' doesn\'t exist'
-          @output = XmlSimple.xml_out(data, 'AttrPrefix' => true)
+          @output = XmlSimple.xml_out(data, 'AttrPrefix' => true, 'XmlDeclaration' => true)
         end
       elsif @mime_type.like?(RESTRack.mime_type_for( :YAML ) )
         @output = YAML.dump(data)
       elsif @mime_type.like?(RESTRack.mime_type_for( :TEXT ) )
         @output = data.to_s
       else
+puts '-----------------------1'
+pp data
         @output = data
       end
     end

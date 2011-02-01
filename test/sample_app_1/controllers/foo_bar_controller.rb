@@ -67,7 +67,6 @@ class SampleApp::FooBarController < RESTRack::ResourceController
   end
 
   def echo
-puts '-------------------------------->>>' + @resource_request.input.pretty_inspect
     return @resource_request.input
   end
   

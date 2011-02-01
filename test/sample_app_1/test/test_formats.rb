@@ -30,8 +30,8 @@ class SampleApp::TestFormats < Test::Unit::TestCase
     assert_nothing_raised do
       output = @ws.call(env)
     end
-    test_val = [1,2,3,4,5,6,7]
-    assert_equal test_val, XmlSimple.xml_in(output[2])
+    test_val = XmlSimple.xml_out([1,2,3,4,5,6,7], 'AttrPrefix' => true, 'XmlDeclaration' => true)
+    assert_equal test_val, output[2]
 
     env = Rack::MockRequest.env_for('/foo_bar.xml', {
       :method => 'GET'
@@ -40,7 +40,7 @@ class SampleApp::TestFormats < Test::Unit::TestCase
     assert_nothing_raised do
       output = @ws.call(env)
     end
-    test_val = XmlSimple.xml_out([1,2,3,4,5,6,7])
+    test_val = XmlSimple.xml_out([1,2,3,4,5,6,7], 'AttrPrefix' => true, 'XmlDeclaration' => true)
     assert_equal test_val, output[2]
   end
 

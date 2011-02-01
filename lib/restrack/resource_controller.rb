@@ -9,8 +9,7 @@ module RESTRack
   #
   
   class ResourceController
-    # TODO: Check input and output
-    attr_reader :input, :output, :action, :id
+    attr_reader :action, :id
 
     # Base initialization method for resources and storage of request input
     # This method should not be overriden in decendent classes.
@@ -80,7 +79,11 @@ module RESTRack
       define_method( entity_name.to_sym,
         Proc.new do |old_id| # The parent resource's id will come along for the ride when the new bridging method is called magically from ResourceController#call
           entity_array = get_entity_id_from_relation_id.call(@id)
-          index = @resource_request.url_chain.shift # TODO: Trap error on no index supplied
+          begin
+            index = @resource_request.url_chain.shift.to_i
+          rescue
+            raise HTTP400BadRequest, 'You requested an item by index and the index was not a valid number.'
+          end
           unless index < entity_array.length
             raise HTTP404ResourceNotFound, 'You requested an item by index and the index was larger than this item\'s list of relations\' length.'
           end
@@ -134,7 +137,8 @@ module RESTRack
       if term.nil?
         @id = nil
         @action = nil
-      elsif self.methods.include?( term.to_sym )
+      # id terms can be pushed on the url_stack which are not of type String by relationship handlers
+      elsif term.is_a? String and self.methods.include?( term.to_sym )
         @id = nil
         @action = term.to_sym
       else
@@ -148,26 +152,27 @@ module RESTRack
           raise HTTP405MethodNotAllowed, 'Action not provided or found and unknown HTTP request method.'
         end
       end
-      format_id
+      @id = format_string_id(@id) if @id.is_a? String
       # If the action is not set with the request URI, determine the action from HTTP Verb.
       get_action_from_context if @action.blank?
     end
 
     # This method is used to convert the id coming off of the path stack, which is in string form, into another data type if one has been set.
-    def format_id
-      return nil unless @id
+    def format_string_id(id)
+      return nil unless id
       @key_type ||= nil
       unless @key_type.blank?
         if @key_type == Fixnum
-          @id = @id.to_i
+          id = id.to_i
         elsif @key_type == Float
-          @id = @id.to_f
+          id = id.to_f
         else
           raise HTTP500ServerError, "Invalid key identifier type specified on resource #{self.class.to_s}."
         end
       else
         @key_type = String
       end
+      id
     end
     
     # Get action from HTTP verb

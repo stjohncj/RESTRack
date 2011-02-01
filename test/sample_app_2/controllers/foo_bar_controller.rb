@@ -19,7 +19,7 @@ class SampleApp::FooBarController < RESTRack::ResourceController
   end
 
   has_relationships_to( :baza, :as => :children ) do |id|
-    [1,2,3,4,5,6,7,8,9]
+    [0,1,2,3,4,5,6,7,8,9]
   end
 
   has_mapped_relationships_to( :bazu, :as => :maps ) do |id|

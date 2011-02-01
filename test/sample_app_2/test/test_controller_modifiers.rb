@@ -18,7 +18,7 @@ class SampleApp::TestControllerModifiers < Test::Unit::TestCase
     assert_nothing_raised do
       output = @ws.call(env)
     end
-    test_val = { :BAZ => 'HOLA!' }.to_json
+    test_val = { :BAZ => 'ALOHA!' }.to_json
     assert_equal test_val, output[2]
 
     env = Rack::MockRequest.env_for('/foo_bar/133/baz', {
@@ -38,7 +38,7 @@ class SampleApp::TestControllerModifiers < Test::Unit::TestCase
     assert_nothing_raised do
       output = @ws.call(env)
     end
-    test_val = { :BAZ => 'HOLA!' }.to_json
+    test_val = { :BAZ => 'ALOHA!' }.to_json
     assert_equal test_val, output[2]
   end
 
@@ -81,7 +81,7 @@ class SampleApp::TestControllerModifiers < Test::Unit::TestCase
     assert_nothing_raised do
       output = @ws.call(env)
     end
-    test_val = '1'
+    test_val = 1.to_json
     assert_equal test_val, output[2]
 
     env = Rack::MockRequest.env_for('/foo_bar/133/maps/second', {
@@ -91,7 +91,7 @@ class SampleApp::TestControllerModifiers < Test::Unit::TestCase
     assert_nothing_raised do
       output = @ws.call(env)
     end
-    test_val = '0'
+    test_val = 0.to_json
     assert_equal test_val, output[2]
 
     env = Rack::MockRequest.env_for('/foo_bar/133/maps/third', {
@@ -101,7 +101,7 @@ class SampleApp::TestControllerModifiers < Test::Unit::TestCase
     assert_nothing_raised do
       output = @ws.call(env)
     end
-    test_val = '0'
+    test_val = 0.to_json
     assert_equal test_val, output[2]
   end
 
