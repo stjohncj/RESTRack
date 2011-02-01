@@ -14,6 +14,7 @@ class SampleApp::TestResourceRequest < Test::Unit::TestCase
 ## These are the resources which cannot be accessed from the root of your web service. Use either this or ROOT_RESOURCE_ACCEPT as a blacklist or whitelist to establish routing (relationships defined in resource controllers define further routing).
 #:ROOT_RESOURCE_DENY:      [ 'baz' ]
   def test_root_resource_denied
+    skip
     env = Rack::MockRequest.env_for('/baz/144', {
       :method => 'GET'
     })
@@ -35,6 +36,7 @@ class SampleApp::TestResourceRequest < Test::Unit::TestCase
   end
 
   def test_root_resource_accept
+    skip
     env = Rack::MockRequest.env_for('/foo_bar/144', {
       :method => 'GET'
     })

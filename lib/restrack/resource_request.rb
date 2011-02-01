@@ -28,11 +28,17 @@ module RESTRack
       # Determine MIME type from extension
       @mime_type = get_mime_type_from( extension )
       # Pull first controller from URL
-      @active_controller_name = @url_chain.shift
-      # Verify that initial resource in the request chain is accessible at the root.
-      raise HTTP403Forbidden unless RESTRack::CONFIG[:ROOT_RESOURCE_ACCEPT].blank? or RESTRack::CONFIG[:ROOT_RESOURCE_ACCEPT].include?(@active_controller_name)
-      raise HTTP403Forbidden if not RESTRack::CONFIG[:ROOT_RESOURCE_DENY].blank? and RESTRack::CONFIG[:ROOT_RESOURCE_DENY].include?(@active_controller_name)
-      @active_controller = instantiate_controller( @active_controller_name )
+      @active_resource_name = @url_chain.shift
+      unless @active_resource_name.nil? or RESTRack.controller_exists?(@active_resource_name)
+        @url_chain.unshift( @active_resource_name )
+      end
+      if @active_resource_name.nil? or not RESTRack.controller_exists?(@active_resource_name)
+        raise HTTP404ResourceNotFound unless RESTRack::CONFIG[:DEFAULT_RESOURCE]
+        @active_resource_name = RESTRack::CONFIG[:DEFAULT_RESOURCE] 
+      end
+      raise HTTP403Forbidden unless RESTRack::CONFIG[:ROOT_RESOURCE_ACCEPT].blank? or RESTRack::CONFIG[:ROOT_RESOURCE_ACCEPT].include?(@active_resource_name)
+      raise HTTP403Forbidden if not RESTRack::CONFIG[:ROOT_RESOURCE_DENY].blank? and RESTRack::CONFIG[:ROOT_RESOURCE_DENY].include?(@active_resource_name)
+      @active_controller = instantiate_controller( @active_resource_name )
     end
 
     def content_type
@@ -47,9 +53,9 @@ module RESTRack
 
     # Call the next entity in the path stack.
     # Method called by controller relationship methods.
-    def call_controller(controller_name)
-      @active_controller_name = controller_name
-      @active_controller = instantiate_controller( controller_name.to_s.camelize )
+    def call_controller(resource_name)
+      @active_resource_name = resource_name
+      @active_controller = instantiate_controller( resource_name.to_s.camelize )
       @active_controller.call
     end
 
@@ -96,12 +102,12 @@ module RESTRack
     end
 
     # Called from the locate method, this method dynamically finds the class based on the URI and instantiates an object of that class via the __init method on RESTRack::ResourceController.
-    def instantiate_controller( controller_name )
-      RESTRack.log.debug "{#{@request_id}} Locating Resource #{controller_name}"
+    def instantiate_controller( resource_name )
+      RESTRack.log.debug "{#{@request_id}} Locating Resource #{resource_name}"
       begin
-        return RESTRack.controller_class_for( controller_name ).__init(self)
+        return RESTRack.controller_class_for( resource_name ).__init(self)
       rescue
-        raise HTTP404ResourceNotFound, "The resource #{RESTRack::CONFIG[:SERVICE_NAME]}::#{RESTRack.controller_name(controller_name)} could not be instantiated."
+        raise HTTP404ResourceNotFound, "The resource #{RESTRack::CONFIG[:SERVICE_NAME]}::#{RESTRack.controller_name(resource_name)} could not be instantiated."
       end
     end
 
@@ -120,8 +126,6 @@ module RESTRack
       elsif @mime_type.like?(RESTRack.mime_type_for( :TEXT ) )
         @output = data.to_s
       else
-puts '-----------------------1'
-pp data
         @output = data
       end
     end
@@ -137,7 +141,7 @@ pp data
 
     # Builds the path to the builder file for the current controller action.
     def builder_file
-      "#{RESTRack::CONFIG[:ROOT]}/views/#{@active_controller_name}/#{@active_controller.action}.xml.builder"
+      "#{RESTRack::CONFIG[:ROOT]}/views/#{@active_resource_name}/#{@active_controller.action}.xml.builder"
     end
 
   end # class ResourceRequest

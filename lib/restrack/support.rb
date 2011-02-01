@@ -36,6 +36,11 @@ module RESTRack
   rescue NameError
     return false
   end
+  
+  def self.controller_exists?(resource_name)
+    Kernel.const_get( RESTRack::CONFIG[:SERVICE_NAME].to_sym ).const_defined?( controller_name(resource_name).to_sym )
+  end
+  
 # TODO: Fix tthis mess
   def self.controller_class_for(resource_name)
     Kernel.const_get( RESTRack::CONFIG[:SERVICE_NAME].to_sym ).const_get( controller_name(resource_name).to_sym )

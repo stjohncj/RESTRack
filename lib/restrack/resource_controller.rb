@@ -30,22 +30,21 @@ module RESTRack
       self.send(@action.to_sym, *args)
     end
 
+    #def index;       end
+    #def replace;     end
+    #def create;      end
+    #def drop;        end
+    #def show(id);    end
+    #def update(id);  end
+    #def add(id);     end
+    #def destroy(id); end
+    
     def method_missing(method_sym, *arguments, &block)
       raise HTTP405MethodNotAllowed, 'Method not provided on controller.'
     end
-  
-    # Methods to be overridden in descendant controllers, defined here for determine_action lookup.
-    def index;       end
-    def replace;     end
-    def create;      end
-    def drop;        end
-    def show(id);    end
-    def update(id);  end
-    def add(id);     end
-    def destroy(id); end
 
-    protected
     # all internal methods are protected rather than private so that calling methods *could* be overriden if necessary.
+    protected
     
     # This method allows one to access a related resource, without providing a direct link to specific relation(s).
     def self.pass_through_to(entity, opts = {})

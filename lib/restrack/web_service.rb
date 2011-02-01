@@ -12,9 +12,6 @@ module RESTRack
       begin
         resource_request = RESTRack::ResourceRequest.new( :request => request )
         response = resource_request.response
-        #resource_request.locate
-        #resource_request.call
-        #response = resource_request.output
         return valid resource_request, response
       rescue Exception => exception
         return caught resource_request, exception
