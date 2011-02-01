@@ -133,10 +133,13 @@
   config/constants.yaml.  RESTRack uses Logger from Ruby-stdlib.
   
   === XML Serialization
+    RESTRack will convert the data structures that your actions return to JSON
+  by default.  You can change the default by setting :DEFAULT_FORMAT to :XML in
+  config/constants.yml.
+  
     ==== With XmlSimple
       RESTRack will attempt to serialize the data structures that your action
-    methods return automatically using the xml-simple gem:
-          @output = XmlSimple.xml_out(data, 'AttrPrefix' => true)
+    methods return automatically using the xml-simple gem.
           
     ==== With Builder
       Custom XML serialization can be done by providing Builder gem templates in
@@ -146,9 +149,13 @@
     ==== GET params
     ==== POST data
 
+  === TODO: :DEFAULT_RESOURCE
+    ...yet to be done...
+  === TODO: :ROOT_RESOURCE_ACCEPT/:ROOT_RESOURCE_DENY
+    ...yet to be done...
   === TODO: Authentication/Authorization Suggestions
     ...yet to be done...
-
+  
 
 == License:
 
