@@ -163,7 +163,6 @@ module RESTRack
     def self.format_string_id(id)
       return nil unless id
       # default key type of resources is String
-      # TODO: Should this be set by service in config/constants.yaml?
       self.key_type ||= String
       unless self.key_type.blank? or self.key_type.ancestors.include?(String)
         if self.key_type.ancestors.include?(Integer)

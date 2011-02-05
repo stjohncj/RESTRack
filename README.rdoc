@@ -60,9 +60,9 @@
   
     A direct path to a single related resource's controller can be defined with the 'has_relationship_to' method.  This
   allows you to define a one-to-one relationship from this resource to a related resource, which means that the id of
-  the related resource is implied through the id of the caller.  The caller has one and only one relation through a
-  custom code block passed to 'has_relationship_to'.  The code block takes the caller resource's id and evaluates to the
-  relation resource's id, for example a PeopleController might define a one-to-one relationship like so:
+  the related resource is implied through the id of the caller.  The caller has one relation through a custom code block
+  passed to 'has_relationship_to'.  The code block takes the caller resource's id and evaluates to the relation
+  resource's id, for example a PeopleController might define a one-to-one relationship like so:
         has_relationship_to( :people, :as spouse ) do |id|
           People.find(id).spouse.id
         end
