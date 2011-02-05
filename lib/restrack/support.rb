@@ -30,28 +30,24 @@ module RESTRack
     MIME::Types.type_for(format.to_s.downcase)[0]
   end
 
-  def self.resource_exists?(resource_name)
-    klass = controller_class_for( resource_name )
-    return klass.is_a?(Class)
-  rescue NameError
-    return false
-  end
-  
   def self.controller_exists?(resource_name)
-    Kernel.const_get( RESTRack::CONFIG[:SERVICE_NAME].to_sym ).const_defined?( controller_name(resource_name).to_sym )
+    begin
+      return Kernel.const_get( RESTRack::CONFIG[:SERVICE_NAME].to_sym ).const_defined?( controller_name(resource_name).to_sym )
+    rescue # constants can't start with numerics
+      return false
+    end
   end
   
-# TODO: Fix tthis mess
   def self.controller_class_for(resource_name)
     Kernel.const_get( RESTRack::CONFIG[:SERVICE_NAME].to_sym ).const_get( controller_name(resource_name).to_sym )
   end
 
   def self.controller_name(resource_name)
-    "#{resource_name.camelize}Controller".to_sym
+    "#{resource_name.to_s.camelize}Controller".to_sym
   end
   
-  def self.controller_has_action(resource_name, action)
-    Kernel.const_get( RESTRack::CONFIG[:SERVICE_NAME].to_sym ).const_get( controller_name(resource_name).to_sym ).const_defined?( action.to_sym )
+  def self.controller_has_action?(resource_name, action)
+    controller_class_for(resource_name).const_defined?( action.to_sym )
   end
 
 end

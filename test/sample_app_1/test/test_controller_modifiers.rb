@@ -60,7 +60,7 @@ class SampleApp::TestControllerModifiers < Test::Unit::TestCase
     assert_nothing_raised do
       output = @ws.call(env)
     end
-    test_val = { :BAZ => 'HOLA!' }.to_json
+    test_val = { :BAZ => 'ALOHA!' }.to_json
     assert_equal test_val, output[2]
   
     env = Rack::MockRequest.env_for('/foo_bar/133/baz', {
@@ -80,7 +80,7 @@ class SampleApp::TestControllerModifiers < Test::Unit::TestCase
     assert_nothing_raised do
       output = @ws.call(env)
     end
-    test_val = { :BAZ => 'HOLA!' }.to_json
+    test_val = { :BAZ => 'ALOHA!' }.to_json
     assert_equal test_val, output[2]
     
     #------
@@ -92,7 +92,7 @@ class SampleApp::TestControllerModifiers < Test::Unit::TestCase
     assert_nothing_raised do
       output = @ws.call(env)
     end
-    test_val = { :WOM => 'BAT!' }.to_json
+    test_val = { :WOM => 'NOBAT!' }.to_json
     assert_equal test_val, output[2]
   
     env = Rack::MockRequest.env_for('/foo_bar/133/slugger', {
@@ -112,12 +112,12 @@ class SampleApp::TestControllerModifiers < Test::Unit::TestCase
     assert_nothing_raised do
       output = @ws.call(env)
     end
-    test_val = { :WOM => 'BAT!' }.to_json
+    test_val = { :WOM => 'NOBAT!' }.to_json
     assert_equal test_val, output[2]
   end
   
   def test_has_relationships_to
-    env = Rack::MockRequest.env_for('/foo_bar/133/children/1', {
+    env = Rack::MockRequest.env_for('/foo_bar/133/children/0', {
       :method => 'GET'
     })
     output = ''
@@ -127,7 +127,7 @@ class SampleApp::TestControllerModifiers < Test::Unit::TestCase
     test_val = { :BAZA => 'YESSIR' }.to_json
     assert_equal test_val, output[2]
   
-    env = Rack::MockRequest.env_for('/foo_bar/133/children/8', {
+    env = Rack::MockRequest.env_for('/foo_bar/133/children/7', {
       :method => 'GET'
     })
     output = ''
@@ -169,7 +169,7 @@ class SampleApp::TestControllerModifiers < Test::Unit::TestCase
     end
     test_val = { :NOWAY => 'JOSE' }.to_json
     assert_equal test_val, output[2]
-  
+    
     # this should 404
     env = Rack::MockRequest.env_for('/foo_bar/133/def/11', {
       :method => 'GET'
@@ -215,7 +215,7 @@ class SampleApp::TestControllerModifiers < Test::Unit::TestCase
   
   def test_keyed_with_type
     # baza controller exercises this option
-    env = Rack::MockRequest.env_for('/foo_bar/133/children/1', {
+    env = Rack::MockRequest.env_for('/foo_bar/133/children/0', {
       :method => 'GET'
     })
     output = ''

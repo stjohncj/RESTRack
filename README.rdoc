@@ -1,20 +1,15 @@
 = RESTRack
 
 == Description:
-    RESTRack is a Rack based MVC framework that makes it extremely easy to
-  develop RESTful data services. It is inspired by Rails, and follows a few of
-  its conventions.  But it has no routes file, routing relationships are done
-  through supplying custom code blocks to class methods such as
-  'has_relationship_to', 'has_mapped_relationships_to',
+    RESTRack is a Rack based MVC framework that makes it extremely easy to develop RESTful data services. It is inspired
+  by Rails, and follows a few of its conventions.  But it has no routes file, routing relationships are done through
+  supplying custom code blocks to class methods such as 'has_relationship_to', 'has_mapped_relationships_to',
   'has_direct_relationship_to', and 'has_direct_relationships_to'.
-    RESTRack aims at being lightweight and easy to use.  It will
-  automatically render JSON and XML for the data structures you return in your
-  actions (any structure parsable by the 'json' and 'xml-simple' gems,
-  respectively).
-    If you supply a view for a controller action, you do that using a builder
-  file (view/<controller>/<action>.xml.builder).  XML format requests will then
-  render the view template with the builder gem, rather than generating XML with
-  XmlSimple.
+    RESTRack aims at being lightweight and easy to use.  It will automatically render JSON and XML for the data
+  structures you return in your actions (any structure parsable by the 'json' and 'xml-simple' gems, respectively).
+    If you supply a view for a controller action, you do that using a builder file
+  (view/<controller>/<action>.xml.builder).  XML format requests will then render the view template with the builder
+  gem, rather than generating XML with XmlSimple.
   
 
 == Installation:
@@ -22,11 +17,11 @@
 
 
 == Why RESTRack when there is Rails?
-    Rails is a powerful tool for full web applications.  RESTRack is targeted at
-  making development of lightweight data services as easy as possible, while
-  still giving you a performant and extensible framework.  The primary goal of
-  the framework was to add as little as possible to the framework to give the
-  web developer a good application space for developing JSON or XML services.
+    Rails is a powerful tool for full web applications.  RESTRack is targeted at making development of lightweight data
+  services as easy as possible, while still giving you a performant and extensible framework.  The primary goal of
+  of the development of RESTRack was to add as little as possible to the
+  framework to give the web developer a good application space for developing
+  JSON and XML services.
     
     Rails 3 instantiates approximately 80K more objects than RESTRack to do a
   hello world or nothing type response with the default setup.  Trimming Rails
@@ -103,8 +98,7 @@
   'has_mapped_relationships_to' method.  This allows you to define many named or
   keyword paths to related resources.  The method's code block should accepts
   the parent id and return a hash where the keys are your relationship names and
-  the values are the child resource ids.  For example, within a PeopleController
-  the following definition:
+  the values are the child resource ids.  For example, within a PeopleController the following definition:
         has_mapped_relationships_to( :people ) do |id|
           {
             'father'    => People.find(id).father.id,
@@ -120,30 +114,26 @@
   DELETE  /people/Luke/people/mother     => destroy Luke's father
 
 
-  Resource id data types can be defined with the keyed_with_type class method
-  within resource controllers.  The default data type of String is used if a
-  different type is not specified.
+  Resource id data types can be defined with the keyed_with_type class method within resource controllers.  The default
+  data type of String is used if a different type is not specified.
 
 
 == How-Tos
 
   === Logging/Logging Level
-    RESTRack logs to two logs, the standard log (or error log) and the request
-  log.  Paths and logging levels for these can be configured in
-  config/constants.yaml.  RESTRack uses Logger from Ruby-stdlib.
+    RESTRack logs to two logs, the standard log (or error log) and the request log.  Paths and logging levels for these
+    can be configured in config/constants.yaml.  RESTRack uses Logger from Ruby-stdlib.
   
   === XML Serialization
-    RESTRack will convert the data structures that your actions return to JSON
-  by default.  You can change the default by setting :DEFAULT_FORMAT to :XML in
-  config/constants.yml.
+    RESTRack will convert the data structures that your actions return to JSON by default.  You can change the default
+    by setting :DEFAULT_FORMAT to :XML in config/constants.yml.
   
     ==== With XmlSimple
-      RESTRack will attempt to serialize the data structures that your action
-    methods return automatically using the xml-simple gem.
+      RESTRack will attempt to serialize the data structures that your action methods return automatically using the
+      xml-simple gem.
           
     ==== With Builder
-      Custom XML serialization can be done by providing Builder gem templates in
-    views/<controller>/<action>.xml.builder.
+      Custom XML serialization can be done by providing Builder gem templates in views/<controller>/<action>.xml.builder
     
   === Inputs
     ==== GET params
@@ -161,20 +151,15 @@
 
 Copyright (c) 2010 Chris St. John
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
+documentation files (the "Software"), to deal in the Software without restriction, including without limitation the
+rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit
+persons to whom the Software is furnished to do so, subject to the following conditions:
 
-The above copyright notice and this permission notice shall be included in
-all copies or substantial portions of the Software.
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the
+Software.
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-THE SOFTWARE.
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
+WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.

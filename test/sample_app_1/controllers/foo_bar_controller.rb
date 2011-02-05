@@ -54,7 +54,19 @@ class SampleApp::FooBarController < RESTRack::ResourceController
     if id == '1234567890'
       return { :foo => 'abc', :bar => '123', 'baz' => 456, :more => { :one => 1, :two => [1,2], :three => :deep_fu } }
     end
-    { :foo => 'bar', :baz => 123 }
+    if id == '42'
+      return {
+        :foo => 'abc',
+        :bar => 123,
+        :baz => {
+          'one' => [1],
+          'two' => ['1','2'],
+          'three' => ['1', 2, {:three => 3}],
+          4 => :four
+        }
+      }
+    end
+    return { :foo => 'bar', :baz => 123 }
   end
   def update(id)
     { :success => true }
