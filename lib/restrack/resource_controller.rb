@@ -10,6 +10,7 @@ module RESTRack
   
   class ResourceController
     attr_reader :action, :id
+    class << self; attr_accessor :key_type; end
 
     # Base initialization method for resources and storage of request input
     # This method should not be overriden in decendent classes.
@@ -100,7 +101,8 @@ module RESTRack
       define_method( entity_name.to_sym,
         Proc.new do |calling_id| # The parent resource's id will come along for the ride when the new bridging method is called magically from ResourceController#call
           entity_array = get_entity_id_from_relation_id.call(@id)
-          id = @resource_request.url_chain.shift # TODO: Trap error on no id supplied in url
+          id = @resource_request.url_chain.shift
+          raise HTTP400BadRequest, 'No ID provided for has_defined_relationships_to routing.' if id.nil?
           id = RESTRack.controller_class_for(entity).format_string_id(id) if id.is_a? String
           unless entity_array.include?( id )
             raise HTTP404ResourceNotFound, 'Relation entity does not belong to referring resource.'
@@ -128,7 +130,7 @@ module RESTRack
 
     # Allows decendent controllers to set a data type for the id other than the default.
     def self.keyed_with_type(klass)
-      @key_type = klass
+      self.key_type = klass
     end
 
     # Find the action, and id if relevant, that the controller must call.
@@ -152,42 +154,21 @@ module RESTRack
           raise HTTP405MethodNotAllowed, 'Action not provided or found and unknown HTTP request method.'
         end
       end
-      @id = format_string_id(@id) if @id.is_a? String
+      @id = self.class.format_string_id(@id) if @id.is_a? String
       # If the action is not set with the request URI, determine the action from HTTP Verb.
       get_action_from_context if @action.blank?
     end
 
     # This method is used to convert the id coming off of the path stack, which is in string form, into another data type if one has been set.
     def self.format_string_id(id)
-puts 'i am here'
       return nil unless id
       # default key type of resources is String
       # TODO: Should this be set by service in config/constants.yaml?
-      @key_type ||= String
-      unless @key_type.blank? or @key_type.ancestors.include?(String)
-        if @key_type.ancestors.include?(Integer)
+      self.key_type ||= String
+      unless self.key_type.blank? or self.key_type.ancestors.include?(String)
+        if self.key_type.ancestors.include?(Integer)
           id = id.to_i
-        elsif @key_type.ancestors.include?(Float)
-          id = id.to_f
-        else
-          raise HTTP500ServerError, "Invalid key identifier type specified on resource #{self.class.to_s}."
-        end
-      end
-      id
-    end
-
-#TODO: Why is it erroring if I only use the class method?
-    # This method is used to convert the id coming off of the path stack, which is in string form, into another data type if one has been set.
-    def format_string_id(id)
-puts 'i am here'
-      return nil unless id
-      # default key type of resources is String
-      # TODO: Should this be set by service in config/constants.yaml?
-      @key_type ||= String
-      unless @key_type.blank? or @key_type.ancestors.include?(String)
-        if @key_type.ancestors.include?(Integer)
-          id = id.to_i
-        elsif @key_type.ancestors.include?(Float)
+        elsif self.key_type.ancestors.include?(Float)
           id = id.to_f
         else
           raise HTTP500ServerError, "Invalid key identifier type specified on resource #{self.class.to_s}."

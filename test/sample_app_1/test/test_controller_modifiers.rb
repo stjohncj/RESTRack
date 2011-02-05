@@ -147,7 +147,6 @@ class SampleApp::TestControllerModifiers < Test::Unit::TestCase
     assert_equal 404, output[0]
   end
   
-  # XXX
   def test_has_defined_relationships_to
     # goes to baza
     env = Rack::MockRequest.env_for('/foo_bar/133/def/1', {
@@ -179,6 +178,16 @@ class SampleApp::TestControllerModifiers < Test::Unit::TestCase
       output = @ws.call(env)
     end
     assert_equal 404, output[0]
+    
+    # this should 400
+    env = Rack::MockRequest.env_for('/foo_bar/133/def', {
+      :method => 'GET'
+    })
+    output = ''
+    assert_nothing_raised do
+      output = @ws.call(env)
+    end
+    assert_equal 400, output[0]
   end
   
   def test_has_mapped_relationships_to
