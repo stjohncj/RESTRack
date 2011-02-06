@@ -142,7 +142,7 @@
 
 == Constant Definition (config/constants.yaml)
 
-=== Required Configuration Options
+=== Required Configuration Settings
 ==== :LOG
     Sets the location of the error log.
 
@@ -156,7 +156,7 @@
 ==== :REQUEST_LOG_LEVEL
     Sets the the logging level of the request log, similar to :LOG_LEVEL.
 
-=== Optional Configuration Options    
+=== Optional Configuration Settings
 ==== :DEFAULT_FORMAT
     Sets the default format for the response.  This is the format that the response will take if no extension is
   appended to the request string (i.e. /foo/123 rather than /foo/123.xml).  Services will have a default format of JSON
