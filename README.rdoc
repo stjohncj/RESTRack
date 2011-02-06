@@ -52,11 +52,13 @@
   Defining a controller for a resource means that you plan to expose that resource to requests to your service.
   Defining a controller relationship means that you plan to expose a path from this resource to another.
   
+  === 'pass_through_to'
     An open, or pass-through, path can be defined via the 'pass_through_to' class method for resource controllers.  This
   exposes URL patterns like the following:
   GET /foo/123/bar/234        <= simple pass-through from Foo 123 to show Bar 234
   GET /foo/123/bar            <= simple pass-through from Foo 123 to Bar index
   
+  === 'has_relationship_to'
     A direct path to a single related resource's controller can be defined with the 'has_relationship_to' method.  This
   allows you to define a one-to-one relationship from this resource to a related resource, which means that the id of
   the related resource is implied through the id of the caller.  The caller has one relation through a custom code block
@@ -71,6 +73,7 @@
   PUT /people/Henry/spouse    <= direct route to update Henry's spouse
   POST /people/Jane/spouse    <= direct route to add Jane's spouse
   
+  === 'has_relationships_to' and 'has_defined_relationships_to'
     A direct path to many related resources' controller can be defined with the 'has_relationships_to' and
   'has_defined_relationships_to' methods.  These allows you to define one-to-many relationships.  They work similar to
   'has_relationship_to', except that they accept code blocks which evaluate to arrays of related child ids.  Each
@@ -88,6 +91,7 @@
   GET /people/Nancy/children/George     <= direct route to show child 0
   DELETE /people/Robert/children/John   <= direct route to destroy child 100
   
+  === 'has_mapped_relationships_to'
     Multiple named one-to-many relationships can be exposed with the 'has_mapped_relationships_to' method.  This allows
   you to define many named or keyword paths to related resources.  The method's code block should accepts the parent id
   and return a hash where the keys are your relationship names and the values are the child resource ids.  For example,
@@ -111,37 +115,46 @@
   default data type of String is used if a different type is not specified.
 
 
-== Miscellaneous Details
+== Logging/Logging Level
+    RESTRack logs to two logs, the standard log (or error log) and the request log.  Paths and logging levels for these
+  can be configured in config/constants.yaml.  RESTRack uses Logger from Ruby-stdlib.
 
-  === Logging/Logging Level
-      RESTRack logs to two logs, the standard log (or error log) and the request log.  Paths and logging levels for these
-    can be configured in config/constants.yaml.  RESTRack uses Logger from Ruby-stdlib.
+== XML Serialization
+    RESTRack will convert the data structures that your actions return to JSON by default.  You can change the default
+  by setting :DEFAULT_FORMAT to :XML in config/constants.yml.
+
+  === With XmlSimple
+    RESTRack will attempt to serialize the data structures that your action methods return automatically using the
+  xml-simple gem.
+        
+  === With Builder
+    Custom XML serialization can be done by providing Builder gem templates in views/<controller>/<action>.xml.builder
+
   
-  === XML Serialization
-      RESTRack will convert the data structures that your actions return to JSON by default.  You can change the default
-    by setting :DEFAULT_FORMAT to :XML in config/constants.yml.
-  
-    ==== With XmlSimple
-      RESTRack will attempt to serialize the data structures that your action methods return automatically using the
-    xml-simple gem.
-          
-    ==== With Builder
-      Custom XML serialization can be done by providing Builder gem templates in views/<controller>/<action>.xml.builder
-    
-  === Inputs
-    ==== Query string parameters
-      Available to controllers in the @params instance variable.
-    ==== POST data
-      Available to controllers in the @input instance variable.
-  === :DEFAULT_RESOURCE
+== Inputs
+
+  === Query string parameters
+    Available to controllers in the @params instance variable.
+
+  === POST data
+    Available to controllers in the @input instance variable.
+
+
+== :DEFAULT_RESOURCE
     Set this option in config/constants.yaml to use an implied root resource controller.
-  :DEFAULT_RESOURCE: foo  # /foo/123 could be accessed with /123, /foo could be accessed with /
-  
-  === :ROOT_RESOURCE_ACCEPT / :ROOT_RESOURCE_DENY
-    :ROOT_RESOURCE_ACCEPT: [ 'foo', 'bar' ]     # OPTIONAL
-        defines an array of resources that can be accessed (without being proxied through another relation).
-    :ROOT_RESOURCE_DENY: [ 'baz' ]              # OPTIONAL
-        defines an array of resources that cannot be accessed without proxying though another controller.
+  :DEFAULT_RESOURCE: foo
+                          # /foo/123 could be accessed with /123
+                          # /foo could be accessed with /
+
+
+== :ROOT_RESOURCE_ACCEPT
+  :ROOT_RESOURCE_ACCEPT: [ 'foo', 'bar' ]     # OPTIONAL
+      defines an array of resources that can be accessed (without being proxied through another relation).
+
+
+== :ROOT_RESOURCE_DENY
+  :ROOT_RESOURCE_DENY: [ 'baz' ]              # OPTIONAL
+      defines an array of resources that cannot be accessed without proxying though another controller.
 
 
 == License:
