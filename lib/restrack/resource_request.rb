@@ -1,7 +1,7 @@
 module RESTRack
   # The ResourceRequest class handles all incoming requests.
   class ResourceRequest
-    attr_reader :request, :request_id, :input
+    attr_reader :request, :request_id, :input, :params
     attr_accessor :mime_type, :url_chain
 
     # Initialize the ResourceRequest by assigning a request_id and determining the path, format, and controller of the resource.
@@ -13,7 +13,8 @@ module RESTRack
       RESTRack.request_log.info "{#{@request_id}} #{@request.path_info} requested from #{@request.ip}"
       RESTRack.log.debug "{#{@request_id}} Reading POST Input"
       # Pull input data from POST body
-      @input = read( @request )
+      @input = parse_body( @request )
+      @params = get_params( @request )
       # Setup up the initial routing.
       @url_chain = @request.path_info.split('/')
       @url_chain.shift if @url_chain[0] == ''
@@ -66,24 +67,24 @@ module RESTRack
     end
 
     # Pull input data from POST body
-    def read(request)
-      input = ''
-      if request.content_type.blank?
-        input = request.body.read
-      else
+    def parse_body(request)
+      input = request.body.read
+      unless request.content_type.blank?
         request_mime_type = MIME::Type.new( request.content_type )
         if request_mime_type.like?( RESTRack.mime_type_for( :JSON ) )
-          input = JSON.parse( request.body.read )
+          input = JSON.parse( input )
         elsif request_mime_type.like?( RESTRack.mime_type_for( :XML ) )
-          input = XmlSimple.xml_in( request.body.read )
+          input = XmlSimple.xml_in( input )
         elsif request_mime_type.like?( RESTRack.mime_type_for( :YAML ) )
-          input = YAML.parse( request.body.read )
-        else
-          input = request.body.read
+          input = YAML.parse( input )
         end
-        RESTRack.request_log.debug "{#{@request_id}} #{request_mime_type.to_s} data in\n" + input.to_json
       end
+      RESTRack.request_log.debug "{#{@request_id}} #{request_mime_type.to_s} data in\n" + input.pretty_inspect
       input
+    end
+    
+    def get_params(request)
+      params = request.GET
     end
 
     # Determine the MIME type of the request from the extension provided.
@@ -119,7 +120,7 @@ module RESTRack
         if File.exists? builder_file
           @output = builder_up(data)
         else
-          @output = XmlSimple.xml_out(data, 'AttrPrefix' => true, 'XmlDeclaration' => true)
+          @output = XmlSimple.xml_out(data, 'AttrPrefix' => true, 'XmlDeclaration' => true, 'NoIndent' => true)
         end
       elsif @mime_type.like?(RESTRack.mime_type_for( :YAML ) )
         @output = YAML.dump(data)

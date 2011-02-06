@@ -78,8 +78,30 @@ class SampleApp::FooBarController < RESTRack::ResourceController
     { :success => true }
   end
 
+  def complex_show_xml_no_builder(id)
+    if id == '1234567890'
+      return { :foo => 'abc', :bar => '123', 'baz' => 456, :more => { :one => 1, :two => [1,2], :three => :deep_fu } }
+    end
+    if id == '42'
+      return {
+        :foo => 'abc',
+        :bar => 123,
+        :baz => {
+          'one' => [1],
+          'two' => ['1','2'],
+          'three' => ['1', 2, {:three => 3}],
+          4 => :four
+        }
+      }
+    end
+  end
+
   def echo
-    return @resource_request.input
+    return @input
+  end
+  
+  def echo_get
+    return @params.merge({ 'get?' => @resource_request.request.get?.to_s })
   end
   
   def custom_entity(id)

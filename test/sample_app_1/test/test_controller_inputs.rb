@@ -10,6 +10,30 @@ class SampleApp::TestControllerInputs < Test::Unit::TestCase
     @ws = SampleApp::WebService.new
   end
 
+  def test_get_params
+    env = Rack::MockRequest.env_for('/foo_bar/echo_get?test=1&hello=world', {
+      :method => 'GET'
+    })
+    output = ''
+    assert_nothing_raised do
+      output = @ws.call(env)
+    end
+    test_val = { :test => '1', :hello => 'world', 'get?' => 'true' }.to_json
+    assert_equal test_val, output[2]
+  end
+  
+  def test_FUBAR_params
+    env = Rack::MockRequest.env_for('/foo_bar/echo_get?test=1&hello=world', {
+      :method => 'DELETE'
+    })
+    output = ''
+    assert_nothing_raised do
+      output = @ws.call(env)
+    end
+    test_val = { :test => '1', :hello => 'world', 'get?' => 'false' }.to_json
+    assert_equal test_val, output[2]
+  end
+
   def test_post_no_content_type
     test_val = "random text" # will be converted to json because of default response type
     env = Rack::MockRequest.env_for('/foo_bar/echo', {
@@ -38,7 +62,7 @@ class SampleApp::TestControllerInputs < Test::Unit::TestCase
   end
   
   def test_post_xml
-    test_val = XmlSimple.xml_out({ :echo => 'niner' }, 'AttrPrefix' => true, 'XmlDeclaration' => true)
+    test_val = XmlSimple.xml_out({ :echo => 'niner' }, 'AttrPrefix' => true, 'XmlDeclaration' => true, 'NoIndent' => true)
     env = Rack::MockRequest.env_for('/foo_bar/echo.xml', {
       :method => 'POST',
       :input => test_val,

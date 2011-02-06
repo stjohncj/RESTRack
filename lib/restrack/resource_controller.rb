@@ -20,6 +20,9 @@ module RESTRack
     end
     def __init(resource_request)
       @resource_request = resource_request
+      @request = @resource_request.request
+      @params = @resource_request.params
+      @input = @resource_request.input
       self
     end
 

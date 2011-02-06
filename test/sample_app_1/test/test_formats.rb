@@ -30,7 +30,7 @@ class SampleApp::TestFormats < Test::Unit::TestCase
     assert_nothing_raised do
       output = @ws.call(env)
     end
-    test_val = XmlSimple.xml_out([1,2,3,4,5,6,7], 'AttrPrefix' => true, 'XmlDeclaration' => true)
+    test_val = XmlSimple.xml_out([1,2,3,4,5,6,7], 'AttrPrefix' => true, 'XmlDeclaration' => true, 'NoIndent' => true)
     assert_equal test_val, output[2]
 
     env = Rack::MockRequest.env_for('/foo_bar.xml', {
@@ -40,7 +40,7 @@ class SampleApp::TestFormats < Test::Unit::TestCase
     assert_nothing_raised do
       output = @ws.call(env)
     end
-    test_val = XmlSimple.xml_out([1,2,3,4,5,6,7], 'AttrPrefix' => true, 'XmlDeclaration' => true)
+    test_val = XmlSimple.xml_out([1,2,3,4,5,6,7], 'AttrPrefix' => true, 'XmlDeclaration' => true, 'NoIndent' => true)
     assert_equal test_val, output[2]
   end
 
@@ -88,25 +88,24 @@ class SampleApp::TestFormats < Test::Unit::TestCase
   end
     
   def test_complex_data_structure_xml
-    skip
-    env = Rack::MockRequest.env_for('/foo_bar/1234567890.xml', {
+    env = Rack::MockRequest.env_for('/foo_bar/1234567890/complex_show_xml_no_builder.xml', {
       :method => 'GET'
     })
     output = ''
     assert_nothing_raised do
       output = @ws.call(env)
     end
-    test_val = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><data><foo>abc</foo><baz>456</baz><bar>123</bar><more><two></data>"
+    test_val = "<?xml version='1.0' standalone='yes'?>\n<opt><foo>abc</foo><bar>123</bar><baz>456</baz><more><one>1</one><two>1</two><two>2</two><three>deep_fu</three></more></opt>"
     assert_equal test_val, output[2]
     
-    env = Rack::MockRequest.env_for('/foo_bar/42.xml', {
+    env = Rack::MockRequest.env_for('/foo_bar/42/complex_show_xml_no_builder.xml', {
       :method => 'GET'
     })
     output = ''
     assert_nothing_raised do
       output = @ws.call(env)
     end
-    test_val = {
+    test_val = XmlSimple.xml_out({
       :foo => 'abc',
       :bar => 123,
       :baz => {
@@ -115,7 +114,7 @@ class SampleApp::TestFormats < Test::Unit::TestCase
         'three' => ['1', 2, {:three => 3}],
         4 => :four
       }
-    }
+    }, 'AttrPrefix' => true, 'XmlDeclaration' => true, 'NoIndent' => true)
     assert_equal test_val, output[2]
   end
 

@@ -14,7 +14,7 @@ when :generate, :gen, :g
     puts "Generating new RESTRack service #{name}..."
     RESTRack::Generator.generate_service( name )
   when :controller, :cont, :c
-    predicate  = ARGV[3].to_sym
+    predicate  = ARGV[3] ? ARGV[3].to_sym : nil
     case predicate
     when :descendant_from, :parent
       parent = ARGV[4]

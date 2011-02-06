@@ -3,8 +3,7 @@
 == Description:
     RESTRack is a Rack based MVC framework that makes it extremely easy to develop RESTful data services. It is inspired
   by Rails, and follows a few of its conventions.  But it has no routes file, routing relationships are done through
-  supplying custom code blocks to class methods such as 'has_relationship_to', 'has_mapped_relationships_to',
-  'has_direct_relationship_to', and 'has_direct_relationships_to'.
+  supplying custom code blocks to class methods such as 'has_relationship_to' or 'has_mapped_relationships_to'.
     RESTRack aims at being lightweight and easy to use.  It will automatically render JSON and XML for the data
   structures you return in your actions (any structure parsable by the 'json' and 'xml-simple' gems, respectively).
     If you supply a view for a controller action, you do that using a builder file.  Builder files are stored in the
@@ -55,8 +54,8 @@
   
     An open, or pass-through, path can be defined via the 'pass_through_to' class method for resource controllers.  This
   exposes URL patterns like the following:
-  GET /foo/123/bar/234      <= simple pass-through from Foo 123 to show Bar 234
-  GET /foo/123/bar          <= simple pass-through from Foo 123 to Bar index
+  GET /foo/123/bar/234        <= simple pass-through from Foo 123 to show Bar 234
+  GET /foo/123/bar            <= simple pass-through from Foo 123 to Bar index
   
     A direct path to a single related resource's controller can be defined with the 'has_relationship_to' method.  This
   allows you to define a one-to-one relationship from this resource to a related resource, which means that the id of
@@ -68,21 +67,26 @@
         end
   This exposes URL patterns like
   the following:
-  GET     /people/Sally/spouse  <= direct route to show Sally's spouse
-  PUT     /people/Henry/spouse  <= direct route to update Henry's spouse
-  POST    /people/Jane/spouse   <= direct route to add Jane's spouse
+  GET /people/Sally/spouse    <= direct route to show Sally's spouse
+  PUT /people/Henry/spouse    <= direct route to update Henry's spouse
+  POST /people/Jane/spouse    <= direct route to add Jane's spouse
   
-  # TODO: need has_relationships_to and has_direct_relationships_to
-    A direct path to many related resources' controller can be defined with the 'has_relationships_to' method.  This
-  allows you to define one-to-many relationships.  It works similar to 'has_relationship_to', except that the code block
-  passed to it should evaluate to an array of the related child ids.  Each resource in the parent's relation list is
-  then accessed through its array index (zero-based) in the URL.  An example of exposing the list of a People resource's
-  children in this manner follows:
-        has_direct_relationships_to( :people, :as => children ) do |id|
+    A direct path to many related resources' controller can be defined with the 'has_relationships_to' and
+  'has_defined_relationships_to' methods.  These allows you to define one-to-many relationships.  They work similar to
+  'has_relationship_to', except that they accept code blocks which evaluate to arrays of related child ids.  Each
+  resource in the parent's relation list is then accessed through its array index (zero-based) in the URL.  An example
+  of exposing the list of a People resource's children in this manner follows:
+        has_relationships_to( :people, :as => children ) do |id|
           People.find(id).children.collect {|child| child.id}
         end
-  GET     /people/Nancy/children/0      <= direct route to show child 0
-  DELETE  /people/Robert/children/100   <= direct route to destroy child 100
+  GET /people/Nancy/children/0          <= direct route to show child 0
+  DELETE /people/Robert/children/100    <= direct route to destroy child 100
+  
+        has_defined_relationships_to( :people, :as => children ) do |id|
+          People.find(id).children.collect {|child| child.id}
+        end
+  GET /people/Nancy/children/George     <= direct route to show child 0
+  DELETE /people/Robert/children/John   <= direct route to destroy child 100
   
     Multiple named one-to-many relationships can be exposed with the 'has_mapped_relationships_to' method.  This allows
   you to define many named or keyword paths to related resources.  The method's code block should accepts the parent id
@@ -97,17 +101,17 @@
           }
         end
   This would expose the following URL patterns:
-  GET     /people/Fred/people/father     => show the father of Fred
-  PUT     /people/Fred/people/assistant  => update Fred's assistant
-  POST    /people/Fred/people/boss       => add Fred's boss
-  DELETE  /people/Luke/people/mother     => destroy Luke's father
+  GET /people/Fred/people/father      => show the father of Fred
+  PUT /people/Fred/people/assistant   => update Fred's assistant
+  POST /people/Fred/people/boss       => add Fred's boss
+  DELETE /people/Luke/people/mother   => destroy Luke's father
 
 
     Resource id data types can be defined with the keyed_with_type class method within resource controllers.  The
   default data type of String is used if a different type is not specified.
 
 
-== How-Tos
+== Miscellaneous Details
 
   === Logging/Logging Level
       RESTRack logs to two logs, the standard log (or error log) and the request log.  Paths and logging levels for these
@@ -125,16 +129,20 @@
       Custom XML serialization can be done by providing Builder gem templates in views/<controller>/<action>.xml.builder
     
   === Inputs
-    ==== GET params
+    ==== Query string parameters
+      Available to controllers in the @params instance variable.
     ==== POST data
-
-  === TODO: :DEFAULT_RESOURCE
-    ...yet to be done...
-  === TODO: :ROOT_RESOURCE_ACCEPT/:ROOT_RESOURCE_DENY
-    ...yet to be done...
-  === TODO: Authentication/Authorization Suggestions
-    ...yet to be done...
+      Available to controllers in the @input instance variable.
+  === :DEFAULT_RESOURCE
+    Set this option in config/constants.yaml to use an implied root resource controller.
+  :DEFAULT_RESOURCE: foo  # /foo/123 could be accessed with /123, /foo could be accessed with /
   
+  === :ROOT_RESOURCE_ACCEPT / :ROOT_RESOURCE_DENY
+    :ROOT_RESOURCE_ACCEPT: [ 'foo', 'bar' ]     # OPTIONAL
+        defines an array of resources that can be accessed (without being proxied through another relation).
+    :ROOT_RESOURCE_DENY: [ 'baz' ]              # OPTIONAL
+        defines an array of resources that cannot be accessed without proxying though another controller.
+
 
 == License:
 
