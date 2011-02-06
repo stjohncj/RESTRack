@@ -1,7 +1,7 @@
 = RESTRack
 
 == Description:
-    RESTRack is a Rack based MVC framework that makes it extremely easy to develop RESTful data services. It is inspired
+    RESTRack is a Rack-based MVC framework that makes it extremely easy to develop RESTful data services. It is inspired
   by Rails, and follows a few of its conventions.  But it has no routes file, routing relationships are done through
   supplying custom code blocks to class methods such as 'has_relationship_to' or 'has_mapped_relationships_to'.
     RESTRack aims at being lightweight and easy to use.  It will automatically render JSON and XML for the data
@@ -141,36 +141,40 @@
 
 
 == Constant Definition (config/constants.yaml)
-=== :LOG
+
+=== Required Configuration Options
+==== :LOG
     Sets the location of the error log.
 
-=== :REQUEST_LOG
+==== :REQUEST_LOG
     Sets the location of the request log.
 
-=== :LOG_LEVEL
+==== :LOG_LEVEL
     Sets the the logging level of the error log, based on the Ruby Logger object.  Supply these as a symbol, with valid
   values being :DEBUG, :INFO, :WARN, etc.
 
-=== :REQUEST_LOG_LEVEL
+==== :REQUEST_LOG_LEVEL
     Sets the the logging level of the request log, similar to :LOG_LEVEL.
-    
-=== :DEFAULT_FORMAT
-    Sets the default format for the response.  This is the format that the response will take if no extension is
-  appended to the request string (i.e. /foo/123 rather than /foo/123.xml).
 
-=== :DEFAULT_RESOURCE
+=== Required Configuration Options    
+==== :DEFAULT_FORMAT
+    Sets the default format for the response.  This is the format that the response will take if no extension is
+  appended to the request string (i.e. /foo/123 rather than /foo/123.xml).  Services will have a default format of JSON
+  if this configuration option is not defined.
+
+==== :DEFAULT_RESOURCE
     Set this option in config/constants.yaml to use an implied root resource controller.
-  :DEFAULT_RESOURCE: foo
+  :DEFAULT_RESOURCE: foo                      
                           # /foo/123 could be accessed with /123
                           # /foo could be accessed with /
 
-=== :ROOT_RESOURCE_ACCEPT
-  :ROOT_RESOURCE_ACCEPT: [ 'foo', 'bar' ]     # OPTIONAL
+==== :ROOT_RESOURCE_ACCEPT
+  :ROOT_RESOURCE_ACCEPT: [ 'foo', 'bar' ]     
       defines an array of resources that can be accessed (without being proxied through another relation).
 
 
-=== :ROOT_RESOURCE_DENY
-  :ROOT_RESOURCE_DENY: [ 'baz' ]              # OPTIONAL
+==== :ROOT_RESOURCE_DENY
+  :ROOT_RESOURCE_DENY: [ 'baz' ]              
       defines an array of resources that cannot be accessed without proxying though another controller.
 
 
