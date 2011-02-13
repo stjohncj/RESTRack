@@ -29,8 +29,8 @@ framework.  The primary goal of of the development of RESTRack was to add as lit
 the web developer a good application space for developing JSON and XML services.
   
 Rails 3 instantiates approximately 80K more objects than RESTRack to do a hello world or nothing type response with
-the default setup.  Trimming Rails down to just ActionController, by eliminating ActiveRecord, ActionMailer, and
-ActiveResource, it still instantiates over 47K more objects than RESTRack.
+the default setup.  Trimming Rails down by eliminating ActiveRecord, ActionMailer, and ActiveResource, it still
+instantiates over 47K more objects than RESTRack.
 
 
 ## CLI Usage:
