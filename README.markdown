@@ -1,4 +1,4 @@
-# RESTRack - serving JSON at REST with pleasure.
+# RESTRack: serving JSON and XML with REST and pleasure.
 
 ## Description:
 RESTRack is a [Rack](http://rack.rubyforge.org/)-based [MVC](http://en.wikipedia.org/wiki/Model%E2%80%93View%E2%80%93Controller)
