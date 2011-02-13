@@ -9,21 +9,20 @@ Gem::Specification.new do |s|
   s.authors     = ['Chris St. John']
   s.email       = ['chris@stjohnstudios.com']
   s.homepage    = 'http://github.com/stjohncj/RESTRack'
-  s.summary     = %q{A lightweight MVC framework developed specifically for JSON and XML REST services.}
-  s.description = %q{RESTRack is a Rack based MVC framework that makes it extremely easy to
-  develop RESTful data services. It is inspired by Rails, and follows a few of
-  its conventions.  But it has no routes file, routing relationships are done
-  through supplying custom code blocks to class methods such as
-  'has_relationship_to', 'has_mapped_relationships_to',
-  'has_direct_relationship_to', and 'has_direct_relationships_to'.
-    RESTRack aims at being lightweight and easy to use.  It will
-  automatically render JSON and XML for the data structures you return in your
-  actions (any structure parsable by the 'json' and 'xml-simple' gems,
-  respectively).
-    If you supply a view for a controller action, you do that using a builder
-  file (view/<controller>/<action>.xml.builder).  XML format requests will then
-  render the view template with the builder gem, rather than generating XML with
-  XmlSimple.}
+  s.summary     = %q{A lightweight MVC framework developed specifically for JSON (and XML) REST services.}
+  s.description = %q{
+RESTRack is a Rack-based MVC framework that makes it extremely easy to develop RESTful data services. It is inspired by
+Rails, and follows a few of its conventions.  But it has no routes file, routing relationships are done through
+supplying custom code blocks to class methods such as "has_relationship_to" or "has_mapped_relationships_to".
+
+RESTRack aims at being lightweight and easy to use.  It will automatically render JSON and XML for the data
+structures you return in your actions (any structure parsable by the "json" and
+"xml-simple" gems, respectively).
+
+If you supply a view for a controller action, you do that using a builder file.  Builder files are stored in the
+view directory grouped by controller name subdirectories (`view/<controller>/<action>.xml.builder`).  XML format
+requests will then render the view template with the builder gem, rather than generating XML with XmlSimple.
+  }
 
   s.rubyforge_project = "restrack"
 
