@@ -167,13 +167,13 @@ Custom XML serialization can be done by providing Builder gem templates in `view
 ## Inputs
 
 ### Query string parameters
-Available to controllers in the @params instance variable.
+Available to controllers in the `@params` instance variable.
 
 ### POST data
-Available to controllers in the @input instance variable.
+Available to controllers in the `@input` instance variable.
 
 
-## Constant Definition (config/constants.yaml)
+## Constant Definition \(`config/constants.yaml`\)
 
 ### Required Configuration Settings
 #### :LOG
@@ -187,29 +187,32 @@ Sets the the logging level of the error log, based on the Ruby Logger object.  S
 values being :DEBUG, :INFO, :WARN, etc.
 
 #### :REQUEST\_LOG\_LEVEL
-Sets the the logging level of the request log, similar to :LOG_LEVEL.
+Sets the the logging level of the request log, similar to :LOG\_LEVEL.
 
 ### Optional Configuration Settings
 #### :DEFAULT\_FORMAT
 Sets the default format for the response.  This is the format that the response will take if no extension is appended to
-the request string (i.e. /foo/123 rather than /foo/123.xml).  Services will have a default format of JSON if this
+the request string \(i.e. `/foo/123` rather than `/foo/123.xml`\).  Services will have a default format of JSON if this
 configuration option is not defined.
 
 #### :DEFAULT\_RESOURCE
-Set this option in config/constants.yaml to use an implied root resource controller.
+Set this option in config/constants.yaml to use an implied root resource controller.  To make `/foo/123` also be accessible
+at `/123`:
 
-    :DEFAULT_RESOURCE: foo                      
-                          # /foo/123 could be accessed with /123
-                          # /foo could be accessed with /
+    :DEFAULT_RESOURCE: foo
+
 
 #### :ROOT\_RESOURCE\_ACCEPT
+This defines an array of resources that can be accessed as the first resource in the URL chain, without being proxied
+through another relation.
+
     :ROOT_RESOURCE_ACCEPT: [ 'foo', 'bar' ]
-    # defines an array of resources that can be accessed (without being proxied through another relation).
 
 
 #### :ROOT\_RESOURCE\_DENY
+This defines an array of resources that cannot be accessed without proxying though another controller.
+
     :ROOT_RESOURCE_DENY: [ 'baz' ]
-    # defines an array of resources that cannot be accessed without proxying though another controller.
 
 
 ## License:
