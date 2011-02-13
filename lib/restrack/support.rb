@@ -52,7 +52,7 @@ module RESTRack
 
 end
 
-class Object
+class Object #:nodoc: all
   # Courtesy of Rails' ActiveSupport, thank you DHH et al.
   def blank?
     respond_to?(:empty?) ? empty? : !self
