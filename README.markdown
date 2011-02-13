@@ -1,7 +1,8 @@
 # RESTRack
 
 ## Description:
-RESTRack is a [Rack](http://rack.rubyforge.org/)-based MVC framework that makes it extremely easy to develop RESTful
+RESTRack is a [Rack](http://rack.rubyforge.org/)-based [MVC](http://en.wikipedia.org/wiki/Model%E2%80%93View%E2%80%93Controller)
+framework that makes it extremely easy to develop [REST](http://en.wikipedia.org/wiki/Representational_State_Transfer)ful
 data services. It is inspired by Rails, and follows a few of its conventions.  But it has no routes file, routing
 relationships are done through supplying custom code blocks to class methods such as "has\_relationship\_to" or
 "has\_mapped\_relationships\_to".
