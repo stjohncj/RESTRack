@@ -215,7 +215,7 @@ This defines an array of resources that cannot be accessed without proxying thou
     :ROOT_RESOURCE_DENY: [ 'baz' ]
 
 
-## License:
+## License
 
 Copyright (c) 2010 Chris St. John
 

@@ -74,7 +74,7 @@ module RESTRack
         if request_mime_type.like?( RESTRack.mime_type_for( :JSON ) )
           input = JSON.parse( input )
         elsif request_mime_type.like?( RESTRack.mime_type_for( :XML ) )
-          input = XmlSimple.xml_in( input )
+          input = XmlSimple.xml_in( input, 'ForceArray' => false )
         elsif request_mime_type.like?( RESTRack.mime_type_for( :YAML ) )
           input = YAML.parse( input )
         end

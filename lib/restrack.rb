@@ -1,6 +1,7 @@
 %w[
   rack
   logger
+  pp
   find
   yaml
   rubygems

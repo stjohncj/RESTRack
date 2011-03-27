@@ -32,7 +32,7 @@ requests will then render the view template with the builder gem, rather than ge
   s.require_paths = ["lib"]
   
   s.add_runtime_dependency 'rack'
-  s.add_runtime_dependency 'rack-test'
+  s.add_development_dependency 'rack-test'
   s.add_runtime_dependency 'i18n'
   s.add_runtime_dependency 'json'
   s.add_runtime_dependency 'xml-simple', '>= 1.0.13'
