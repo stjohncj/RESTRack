@@ -27,7 +27,7 @@ requests will then render the view template with the builder gem, rather than ge
 development of lightweight data services as easy as possible, while still giving you a performant and extensible
 framework.  The primary goal of of the development of RESTRack was to add as little as possible to the framework to give
 the web developer a good application space for developing JSON and XML services.
-  
+
 Rails 3 instantiates approximately 80K more objects than RESTRack to do a hello world or nothing type response with
 the default setup.  Trimming Rails down by eliminating ActiveRecord, ActionMailer, and ActiveResource, it still
 instantiates over 47K more objects than RESTRack.
@@ -38,7 +38,7 @@ instantiates over 47K more objects than RESTRack.
   - restrack generate service foo\_bar
   - restrack gen serv foo\_bar
   - restrack g s foo\_bar
-  
+
 ### Generate a new controller \(FooBar::BazController\)
   - restrack generate controller baz
   - restrack gen cont baz
@@ -47,10 +47,10 @@ instantiates over 47K more objects than RESTRack.
 ### Generate a new controller that descends from another \(FooBar::NewController < FooBar::BazController\)
   - restrack generate controller new descendant\_from baz
   - restrack g controller new parent baz
-  
+
 ### Start up a server on default rackup port 9292
   - restrack server
-  
+
 ### Start up a server on port 3456
   - restrack server 3456
   - restrack s 3456
@@ -69,14 +69,14 @@ supported\(\*\).
 RESTRack enforces a strict URL pattern through the contruct of controller relationships, rather than a routing file.
 Defining a controller for a resource means that you plan to expose that resource to requests to your service.
 Defining a controller relationship means that you plan to expose a path from this resource to another.
-  
+
 ### "pass\_through\_to"
 An open, or pass-through, path can be defined via the "pass\_through\_to" class method for resource controllers.  This
 exposes URL patterns like the following:
-    
+
     GET /foo/123/bar/234        <= simple pass-through from Foo 123 to show Bar 234
     GET /foo/123/bar            <= simple pass-through from Foo 123 to Bar index
-  
+
 ### "has\_relationship\_to"
 A direct path to a single related resource's controller can be defined with the "has\_relationship\_to" method.  This
 allows you to define a one-to-one relationship from this resource to a related resource, which means that the id of
@@ -93,7 +93,7 @@ This exposes URL patterns like the following:
     GET /people/Sally/spouse    <= direct route to show Sally's spouse
     PUT /people/Henry/spouse    <= direct route to update Henry's spouse
     POST /people/Jane/spouse    <= direct route to add Jane's spouse
-  
+
 ### "has\_relationships\_to" and "has\_defined\_relationships\_to"
 A direct path to many related resources' controller can be defined with the "has\_relationships\_to" and
 "has\_defined\_relationships\_to" methods.  These allows you to define one-to-many relationships.  They work similar to
@@ -120,7 +120,7 @@ exposes URL patterns:
 
     GET /people/Nancy/children/George     <= route to show child George
     DELETE /people/Robert/children/Jerry  <= route to destroy child Jerry
-  
+
 ### "has\_mapped\_relationships\_to"
 Multiple named one-to-many relationships can be exposed with the "has\_mapped\_relationships\_to" method.  This allows
 you to define many named or keyword paths to related resources.  The method's code block should accepts the parent id
@@ -158,12 +158,13 @@ by setting :DEFAULT_FORMAT to :XML in `config/constants.yml`.
 
 ### With XmlSimple
 RESTRack will attempt to serialize the data structures that your action methods return automatically using the
-xml-simple gem.
-        
-### With Builder
-Custom XML serialization can be done by providing Builder gem templates in `views/<controller>/<action>.xml.builder`.
+xml-simple gem.  Complex objects may not serialize correctly, or you may want to define a particular structure for your
+XML, in which case a builder template should be defined (see next heading).
 
-  
+### With Builder
+Custom XML serialization can be done by providing [Builder](http://builder.rubyforge.org/) gem templates in `views/<controller>/<action>.xml.builder`.
+
+
 ## Inputs
 
 ### Query string parameters

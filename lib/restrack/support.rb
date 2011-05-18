@@ -37,7 +37,7 @@ module RESTRack
       return false
     end
   end
-  
+
   def self.controller_class_for(resource_name)
     Kernel.const_get( RESTRack::CONFIG[:SERVICE_NAME].to_sym ).const_get( controller_name(resource_name).to_sym )
   end
@@ -45,16 +45,16 @@ module RESTRack
   def self.controller_name(resource_name)
     "#{resource_name.to_s.camelize}Controller".to_sym
   end
-  
+
   def self.controller_has_action?(resource_name, action)
     controller_class_for(resource_name).const_defined?( action.to_sym )
   end
 
 end
 
-class Object #:nodoc: all
-  # Courtesy of Rails' ActiveSupport, thank you DHH et al.
+class Object
   def blank?
+    # Courtesy of Rails' ActiveSupport, thank you DHH et al.
     respond_to?(:empty?) ? empty? : !self
   end
 end
