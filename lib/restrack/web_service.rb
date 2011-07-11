@@ -14,7 +14,7 @@ module RESTRack
       request = Rack::Request.new(env)
       begin
         resource_request = RESTRack::ResourceRequest.new( :request => request )
-        response = resource_request.response
+        response = resource_request.fulfill
         return valid resource_request, response
       rescue Exception => exception
         return caught resource_request, exception
@@ -25,15 +25,16 @@ module RESTRack
 
     # Return HTTP200OK SUCCESS
     def valid( resource_request, response )
-      RESTRack.request_log.debug "'#{resource_request.mime_type.to_s}' response data (Request ID: #{resource_request.request_id})\n" + response.to_s unless not response.respond_to?( :to_s )
-      RESTRack.request_log.info "HTTP200OK - (Request ID: #{resource_request.request_id})"
+      RESTRack.log.debug "(#{resource_request.request_id}) '#{resource_request.mime_type.to_s}' response data:\n" + response.to_s unless not response.respond_to?( :to_s )
+      RESTRack.request_log.info "(#{resource_request.request_id}) HTTP200OK"
       return [200, {'Content-Type' => resource_request.content_type}, response ]
     end
 
     # Return appropriate response code and messages per raised exception type.
     def caught( resource_request, exception )
+      # This will log the returned status code
       if resource_request && resource_request.request_id
-        RESTRack.request_log.info exception.message + "(Request ID: #{resource_request.request_id})"
+        RESTRack.request_log.info "(#{resource_request.request_id}) " + exception.message
       else
         RESTRack.request_log.info exception.message
       end
@@ -55,7 +56,7 @@ module RESTRack
         else # HTTP500ServerError
           msg = exception.message + "\n\n" + exception.backtrace.join("\n")
           if resource_request && resource_request.request_id
-            RESTRack.log.error msg + " (Request ID: #{resource_request.request_id})\n\n"
+            RESTRack.log.error "(#{resource_request.request_id})" + msg
           else
             RESTRack.log.error msg
           end

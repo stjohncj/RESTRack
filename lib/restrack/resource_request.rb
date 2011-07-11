@@ -11,7 +11,14 @@ module RESTRack
       @request_id = opts[:request_id] || get_request_id
       # Write input details to logs
       RESTRack.request_log.info "{#{@request_id}} #{@request.path_info} requested from #{@request.ip}"
-      RESTRack.log.debug "{#{@request_id}} Reading POST Input"
+    end
+    
+    def fulfill
+      self.prepare
+      return self.response
+    end
+    
+    def prepare
       # Pull input data from POST body
       @input = parse_body( @request )
       @params = get_params( @request )
@@ -42,10 +49,6 @@ module RESTRack
       @active_controller = instantiate_controller( @active_resource_name )
     end
 
-    def content_type
-      @mime_type.to_s
-    end
-
     # Send out the typed resource's output, this must occur after a call to run.
     def response
       RESTRack.log.debug "{#{@request_id}} Retrieving Output"
@@ -58,6 +61,10 @@ module RESTRack
       @active_resource_name = resource_name
       @active_controller = instantiate_controller( resource_name.to_s.camelize )
       @active_controller.call
+    end
+
+    def content_type
+      @mime_type.to_s
     end
 
     private
@@ -79,7 +86,7 @@ module RESTRack
           input = YAML.parse( input )
         end
       end
-      RESTRack.request_log.debug "{#{@request_id}} #{request_mime_type.to_s} data in\n" + input.pretty_inspect
+      RESTRack.log.debug "{#{@request_id}} #{request_mime_type.to_s} data in:\n" + input.pretty_inspect
       input
     end
     
