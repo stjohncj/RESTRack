@@ -1,0 +1,282 @@
+<h1>RESTRack</h1>
+
+<ul>
+<li>serving JSON and XML with REST and pleasure.</li>
+</ul>
+
+<h2>Description:</h2>
+
+<p>RESTRack is a <a href="http://rack.rubyforge.org/">Rack</a>-based <a href="http://en.wikipedia.org/wiki/Model%E2%80%93View%E2%80%93Controller">MVC</a>
+framework that makes it extremely easy to develop <a href="http://en.wikipedia.org/wiki/Representational_State_Transfer">REST</a>ful
+data services. It is inspired by Rails, and follows a few of its conventions.  But it has no routes file, routing
+relationships are done through supplying custom code blocks to class methods such as "has_relationship_to" or
+"has_mapped_relationships_to".</p>
+
+<p>RESTRack aims at being lightweight and easy to use.  It will automatically render JSON and XML for the data
+structures you return in your actions (any structure parsable by the "<a href="http://flori.github.com/json/">json</a>" and
+"<a href="https://github.com/maik/xml-simple">xml-simple</a>" gems, respectively).</p>
+
+<p>If you supply a view for a controller action, you do that using a builder file.  Builder files are stored in the
+view directory grouped by controller name subdirectories (<code>view/&lt;controller&gt;/&lt;action&gt;.xml.builder</code>).  XML format
+requests will then render the view template with the builder gem, rather than generating XML with XmlSimple.</p>
+
+<h2>Installation:</h2>
+
+<h3>Using <a href="http://rubygems.org">RubyGems</a>:</h3>
+
+<pre><code>&lt;sudo&gt; gem install restrack
+</code></pre>
+
+<h2>Why RESTRack when there is Rails?</h2>
+
+<p><a href="http://rubyonrails.org/">Rails</a> is a powerful tool for full web applications.  RESTRack is targeted at making
+development of lightweight data services as easy as possible, while still giving you a performant and extensible
+framework.  The primary goal of of the development of RESTRack was to add as little as possible to the framework to give
+the web developer a good application space for developing JSON and XML services.</p>
+
+<p>Rails 3 instantiates approximately 80K more objects than RESTRack to do a hello world or nothing type response with
+the default setup.  Trimming Rails down by eliminating ActiveRecord, ActionMailer, and ActiveResource, it still
+instantiates over 47K more objects than RESTRack.</p>
+
+<h2>CLI Usage:</h2>
+
+<h3>Generate a new service (FooBar::WebService)</h3>
+
+<ul>
+<li>restrack generate service foo_bar</li>
+<li>restrack gen serv foo_bar</li>
+<li>restrack g s foo_bar</li>
+</ul>
+
+<h3>Generate a new controller (FooBar::BazController)</h3>
+
+<ul>
+<li>restrack generate controller baz</li>
+<li>restrack gen cont baz</li>
+<li>restrack g c baz</li>
+</ul>
+
+<h3>Generate a new controller that descends from another (FooBar::NewController &lt; FooBar::BazController)</h3>
+
+<ul>
+<li>restrack generate controller new descendant_from baz</li>
+<li>restrack g controller new parent baz</li>
+</ul>
+
+<h3>Start up a server on default rackup port 9292</h3>
+
+<ul>
+<li>restrack server</li>
+</ul>
+
+<h3>Start up a server on port 3456</h3>
+
+<ul>
+<li>restrack server 3456</li>
+<li>restrack s 3456</li>
+</ul>
+
+<h2>REST action method names</h2>
+
+<p>All default RESTful controller method names align with their Rails counterparts, with two additional actions being
+supported(*).</p>
+
+<pre><code>                     HTTP Verb: |   GET   |   PUT    |   POST   |   DELETE
+    Collection URI (/widgets/): |  index  |  replace |  create  |  *drop
+    Element URI  (/widgets/42): |  show   |  update  |  *add    |  destroy
+</code></pre>
+
+<h2>URLs and Controller relationships</h2>
+
+<p>RESTRack enforces a strict URL pattern through the contruct of controller relationships, rather than a routing file.
+Defining a controller for a resource means that you plan to expose that resource to requests to your service.
+Defining a controller relationship means that you plan to expose a path from this resource to another.</p>
+
+<h3>"pass_through_to"</h3>
+
+<p>An open, or pass-through, path can be defined via the "pass_through_to" class method for resource controllers.  This
+exposes URL patterns like the following:</p>
+
+<pre><code>GET /foo/123/bar/234        &lt;= simple pass-through from Foo 123 to show Bar 234
+GET /foo/123/bar            &lt;= simple pass-through from Foo 123 to Bar index
+</code></pre>
+
+<h3>"has_relationship_to"</h3>
+
+<p>A direct path to a single related resource's controller can be defined with the "has_relationship_to" method.  This
+allows you to define a one-to-one relationship from this resource to a related resource, which means that the id of
+the related resource is implied through the id of the caller.  The caller has one relation through a custom code block
+passed to "has_relationship_to".  The code block takes the caller resource's id and evaluates to the relation
+resource's id, for example a PeopleController might define a one-to-one relationship like so:</p>
+
+<pre><code>    has_relationship_to( :people, :as spouse ) do |id|
+      People.find(id).spouse.id
+    end
+</code></pre>
+
+<p>This exposes URL patterns like the following:</p>
+
+<pre><code>GET /people/Sally/spouse    &lt;= direct route to show Sally's spouse
+PUT /people/Henry/spouse    &lt;= direct route to update Henry's spouse
+POST /people/Jane/spouse    &lt;= direct route to add Jane's spouse
+</code></pre>
+
+<h3>"has_relationships_to" and "has_defined_relationships_to"</h3>
+
+<p>A direct path to many related resources' controller can be defined with the "has_relationships_to" and
+"has_defined_relationships_to" methods.  These allows you to define one-to-many relationships.  They work similar to
+"has_relationship_to", except that they accept code blocks which evaluate to arrays of related child ids.  Each
+resource in the parent's relation list is then accessed through its array index (zero-based) in the URL.  An example
+of exposing the list of a People resource's children in this manner follows:</p>
+
+<pre><code>  has_relationships_to( :people, :as =&gt; children ) do |id|
+    People.find(id).children.collect {|child| child.id}
+  end
+</code></pre>
+
+<p>Which exposes URLs similar to:</p>
+
+<pre><code>GET /people/Nancy/children/0          &lt;= direct route to show child 0
+DELETE /people/Robert/children/100    &lt;= direct route to destroy child 100
+</code></pre>
+
+<p>An example of "has_defined_relationships_to":</p>
+
+<pre><code>    has_defined_relationships_to( :people, :as =&gt; children ) do |id|
+      People.find(id).children.collect {|child| child.id}
+    end
+</code></pre>
+
+<p>exposes URL patterns:</p>
+
+<pre><code>GET /people/Nancy/children/George     &lt;= route to show child George
+DELETE /people/Robert/children/Jerry  &lt;= route to destroy child Jerry
+</code></pre>
+
+<h3>"has_mapped_relationships_to"</h3>
+
+<p>Multiple named one-to-many relationships can be exposed with the "has_mapped_relationships_to" method.  This allows
+you to define many named or keyword paths to related resources.  The method's code block should accepts the parent id
+and return a hash where the keys are your relationship names and the values are the child resource ids.  For example,
+within a PeopleController the following definition:</p>
+
+<pre><code>    has_mapped_relationships_to( :people ) do |id|
+      {
+        'father'    =&gt; People.find(id).father.id,
+        'mother'    =&gt; People.find(id).mother.id,
+        'boss'      =&gt; People.find(id).boss.id,
+        'assistant' =&gt; People.find(id).assistant.id
+      }
+    end
+</code></pre>
+
+<p>This would expose the following URL patterns:</p>
+
+<pre><code>GET /people/Fred/people/father      =&gt; show the father of Fred
+PUT /people/Fred/people/assistant   =&gt; update Fred's assistant
+POST /people/Fred/people/boss       =&gt; add Fred's boss
+DELETE /people/Luke/people/mother   =&gt; destroy Luke's father
+</code></pre>
+
+<h3>Setting the data type of the id - "keyed_with_type"</h3>
+
+<p>Resource id data types can be defined with the "keyed_with_type" class method within resource controllers.  The
+default data type of String is used if a different type is not specified.</p>
+
+<h2>Logging/Logging Level</h2>
+
+<p>RESTRack outputs to two logs, the standard log (or error log) and the request log.  Paths and logging levels for these
+can be configured in <code>config/constants.yaml</code>.  RESTRack uses Logger from Ruby-stdlib.</p>
+
+<h2>XML Serialization</h2>
+
+<p>RESTRack will convert the data structures that your actions return to JSON by default.  You can change the default
+by setting :DEFAULT_FORMAT to :XML in <code>config/constants.yml</code>.</p>
+
+<h3>With XmlSimple</h3>
+
+<p>RESTRack will attempt to serialize the data structures that your action methods return automatically using the
+xml-simple gem.</p>
+
+<h3>With Builder</h3>
+
+<p>Custom XML serialization can be done by providing Builder gem templates in <code>views/&lt;controller&gt;/&lt;action&gt;.xml.builder</code>.</p>
+
+<h2>Inputs</h2>
+
+<h3>Query string parameters</h3>
+
+<p>Available to controllers in the <code>@params</code> instance variable.</p>
+
+<h3>POST data</h3>
+
+<p>Available to controllers in the <code>@input</code> instance variable.</p>
+
+<h2>Constant Definition (<code>config/constants.yaml</code>)</h2>
+
+<h3>Required Configuration Settings</h3>
+
+<h4>:LOG</h4>
+
+<p>Sets the location of the error log.</p>
+
+<h4>:REQUEST_LOG</h4>
+
+<p>Sets the location of the request log.</p>
+
+<h4>:LOG_LEVEL</h4>
+
+<p>Sets the the logging level of the error log, based on the Ruby Logger object.  Supply these as a symbol, with valid
+values being :DEBUG, :INFO, :WARN, etc.</p>
+
+<h4>:REQUEST_LOG_LEVEL</h4>
+
+<p>Sets the the logging level of the request log, similar to :LOG_LEVEL.</p>
+
+<h3>Optional Configuration Settings</h3>
+
+<h4>:DEFAULT_FORMAT</h4>
+
+<p>Sets the default format for the response.  This is the format that the response will take if no extension is appended to
+the request string (i.e. <code>/foo/123</code> rather than <code>/foo/123.xml</code>).  Services will have a default format of JSON if this
+configuration option is not defined.</p>
+
+<h4>:DEFAULT_RESOURCE</h4>
+
+<p>Set this option in config/constants.yaml to use an implied root resource controller.  To make <code>/foo/123</code> also be accessible
+at <code>/123</code>:</p>
+
+<pre><code>:DEFAULT_RESOURCE: foo
+</code></pre>
+
+<h4>:ROOT_RESOURCE_ACCEPT</h4>
+
+<p>This defines an array of resources that can be accessed as the first resource in the URL chain, without being proxied
+through another relation.</p>
+
+<pre><code>:ROOT_RESOURCE_ACCEPT: [ 'foo', 'bar' ]
+</code></pre>
+
+<h4>:ROOT_RESOURCE_DENY</h4>
+
+<p>This defines an array of resources that cannot be accessed without proxying though another controller.</p>
+
+<pre><code>:ROOT_RESOURCE_DENY: [ 'baz' ]
+</code></pre>
+
+<h2>License</h2>
+
+<p>Copyright (c) 2010 Chris St. John</p>
+
+<p>Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
+documentation files (the "Software"), to deal in the Software without restriction, including without limitation the
+rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit
+persons to whom the Software is furnished to do so, subject to the following conditions:</p>
+
+<p>The above copyright notice and this permission notice shall be included in all copies or substantial portions of the
+Software.</p>
+
+<p>THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
+WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.</p>

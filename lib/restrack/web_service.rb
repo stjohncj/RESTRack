@@ -1,8 +1,5 @@
 module RESTRack
   class WebService
-# TODO: Fix logging, routes duplicated
-# TODO: only one "info" level log for 200 to request log or one "warn" for <500 or "error" for 500, all else goes to error log
-#         request log data should contain status code, request IP address, request path, request_id
 
     # Establish the namespace pointer.
     def initialize
