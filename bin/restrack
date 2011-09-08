@@ -28,5 +28,6 @@ when :generate, :gen, :g
   puts 'Creation is complete.'
 when :server, :s
   options = { :Port => noun || 9292, :config => 'config.ru' }
+  options.merge { :environment => ARGV[2] } unless ARGV[2].nil?
   Rack::Server.start( options )
 end

@@ -1,3 +1,3 @@
-# Rails.root/config.ru
-require 'loader'
+# rackup config.ru
+require File.join(File.dirname(__FILE__),'loader')
 run <%= @service_name.camelize %>::WebService.new

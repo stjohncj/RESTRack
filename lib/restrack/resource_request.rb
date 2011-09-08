@@ -12,12 +12,12 @@ module RESTRack
       # Write input details to logs
       RESTRack.request_log.info "{#{@request_id}} #{@request.path_info} requested from #{@request.ip}"
     end
-    
+
     def fulfill
       self.prepare
       return self.response
     end
-    
+
     def prepare
       # Pull input data from POST body
       @input = parse_body( @request )
@@ -42,7 +42,7 @@ module RESTRack
       end
       if @active_resource_name.nil? or not RESTRack.controller_exists?(@active_resource_name)
         raise HTTP404ResourceNotFound unless RESTRack::CONFIG[:DEFAULT_RESOURCE]
-        @active_resource_name = RESTRack::CONFIG[:DEFAULT_RESOURCE] 
+        @active_resource_name = RESTRack::CONFIG[:DEFAULT_RESOURCE]
       end
       raise HTTP403Forbidden unless RESTRack::CONFIG[:ROOT_RESOURCE_ACCEPT].blank? or RESTRack::CONFIG[:ROOT_RESOURCE_ACCEPT].include?(@active_resource_name)
       raise HTTP403Forbidden if not RESTRack::CONFIG[:ROOT_RESOURCE_DENY].blank? and RESTRack::CONFIG[:ROOT_RESOURCE_DENY].include?(@active_resource_name)
@@ -89,7 +89,7 @@ module RESTRack
       RESTRack.log.debug "{#{@request_id}} #{request_mime_type.to_s} data in:\n" + input.pretty_inspect
       input
     end
-    
+
     def get_params(request)
       params = request.GET
     end
@@ -126,6 +126,8 @@ module RESTRack
       elsif @mime_type.like?( RESTRack.mime_type_for( :XML ) )
         if File.exists? builder_file
           @output = builder_up(data)
+        elsif data.respond_to?(:to_xml)
+          @output = data.to_xml
         else
           @output = XmlSimple.xml_out(data, 'AttrPrefix' => true, 'XmlDeclaration' => true, 'NoIndent' => true)
         end
