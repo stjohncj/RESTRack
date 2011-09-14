@@ -37,19 +37,19 @@ module RESTRack
       end
       case
         when exception.is_a?( HTTP400BadRequest )
-          return [400, {'Content-Type' => 'text/plain'}, exception.message + "\nThe request cannot be fulfilled due to bad syntax." ]
+          return [400, {'Content-Type' => 'text/plain'}, [exception.message || "The request cannot be fulfilled due to bad syntax."] ]
         when exception.is_a?( HTTP401Unauthorized )
-          return [401, {'Content-Type' => 'text/plain'}, exception.message + "\nYou have failed authentication for access to the resource." ]
+          return [401, {'Content-Type' => 'text/plain'}, [exception.message || "You have failed authentication for access to the resource."] ]
         when exception.is_a?( HTTP403Forbidden )
-          return [403, {'Content-Type' => 'text/plain'}, exception.message + "\nYou are forbidden to access that resource." ]
+          return [403, {'Content-Type' => 'text/plain'}, [exception.message || "You are forbidden to access that resource."] ]
         when exception.is_a?( HTTP404ResourceNotFound )
-          return [404, {'Content-Type' => 'text/plain'}, exception.message + "\nThe resource you requested could not be found." ]
+          return [404, {'Content-Type' => 'text/plain'}, [exception.message || "The resource you requested could not be found."] ]
         when exception.is_a?( HTTP405MethodNotAllowed )
-          return [405, {'Content-Type' => 'text/plain'}, exception.message + "\nThe resource you requested does not support the request method provided." ]
+          return [405, {'Content-Type' => 'text/plain'}, [exception.message || "The resource you requested does not support the request method provided."] ]
         when exception.is_a?( HTTP409Conflict )
-          return [409, {'Content-Type' => 'text/plain'}, exception.message + "\nThe resource you requested is in a conflicted state." ]
+          return [409, {'Content-Type' => 'text/plain'}, [exception.message || "The resource you requested is in a conflicted state."] ]
         when exception.is_a?( HTTP410Gone )
-          return [410, {'Content-Type' => 'text/plain'}, exception.message + "\nThe resource you requested is no longer available." ]
+          return [410, {'Content-Type' => 'text/plain'}, [exception.message || "The resource you requested is no longer available."] ]
         else # HTTP500ServerError
           msg = exception.message + "\n\n" + exception.backtrace.join("\n")
           if resource_request && resource_request.request_id
@@ -57,7 +57,7 @@ module RESTRack
           else
             RESTRack.log.error msg
           end
-          return [500, {'Content-Type' => 'text/plain'}, msg ]
+          return [500, {'Content-Type' => 'text/plain'}, [msg] ]
       end # case Exception
     end # method caught
 

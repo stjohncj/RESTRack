@@ -19,7 +19,7 @@ class SampleApp::TestControllerModifiers < Test::Unit::TestCase
       output = @ws.call(env)
     end
     test_val = { :BAZ => 'ALOHA!' }.to_json
-    assert_equal test_val, output[2]
+    assert_equal test_val, output[2][0]
   
     env = Rack::MockRequest.env_for('/foo_bar/133/baz', {
       :method => 'GET'
@@ -29,7 +29,7 @@ class SampleApp::TestControllerModifiers < Test::Unit::TestCase
       output = @ws.call(env)
     end
     test_val = { :OTHER => 'YUP' }.to_json
-    assert_equal test_val, output[2]
+    assert_equal test_val, output[2][0]
   
     env = Rack::MockRequest.env_for('/foo_bar/144/baz/', {
       :method => 'GET'
@@ -39,7 +39,7 @@ class SampleApp::TestControllerModifiers < Test::Unit::TestCase
       output = @ws.call(env)
     end
     test_val = { :BAZ => 'ALOHA!' }.to_json
-    assert_equal test_val, output[2]
+    assert_equal test_val, output[2][0]
   end
   
   def test_has_relationships_to
@@ -51,7 +51,7 @@ class SampleApp::TestControllerModifiers < Test::Unit::TestCase
       output = @ws.call(env)
     end
     test_val = { :BAZA => 'YESSIR' }.to_json
-    assert_equal test_val, output[2]
+    assert_equal test_val, output[2][0]
   
     env = Rack::MockRequest.env_for('/foo_bar/133/children/8', {
       :method => 'GET'
@@ -61,7 +61,7 @@ class SampleApp::TestControllerModifiers < Test::Unit::TestCase
       output = @ws.call(env)
     end
     test_val = { :NOWAY => 'JOSE' }.to_json
-    assert_equal test_val, output[2]
+    assert_equal test_val, output[2][0]
   
     env = Rack::MockRequest.env_for('/foo_bar/133/children/11', {
       :method => 'GET'
@@ -82,7 +82,7 @@ class SampleApp::TestControllerModifiers < Test::Unit::TestCase
       output = @ws.call(env)
     end
     test_val = 1.to_json
-    assert_equal test_val, output[2]
+    assert_equal test_val, output[2][0]
   
     env = Rack::MockRequest.env_for('/foo_bar/133/maps/second', {
       :method => 'GET'
@@ -92,7 +92,7 @@ class SampleApp::TestControllerModifiers < Test::Unit::TestCase
       output = @ws.call(env)
     end
     test_val = 0.to_json
-    assert_equal test_val, output[2]
+    assert_equal test_val, output[2][0]
   
     env = Rack::MockRequest.env_for('/foo_bar/133/maps/third', {
       :method => 'GET'
@@ -102,7 +102,7 @@ class SampleApp::TestControllerModifiers < Test::Unit::TestCase
       output = @ws.call(env)
     end
     test_val = 0.to_json
-    assert_equal test_val, output[2]
+    assert_equal test_val, output[2][0]
   end
   
   def test_keyed_with_type
@@ -115,7 +115,7 @@ class SampleApp::TestControllerModifiers < Test::Unit::TestCase
       output = @ws.call(env)
     end
     test_val = 1.to_json
-    assert_equal test_val, output[2]
+    assert_equal test_val, output[2][0]
   end
 
 end

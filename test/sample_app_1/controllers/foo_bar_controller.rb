@@ -24,7 +24,7 @@ class SampleApp::FooBarController < RESTRack::ResourceController
   has_relationships_to( :baza, :as => :children ) do |id|
     [1,2,3,4,5,6,7,8,9]
   end
-  
+
   has_defined_relationships_to( :baza, :as => :def ) do |id|
     [1,8,9,17]
   end
@@ -97,17 +97,17 @@ class SampleApp::FooBarController < RESTRack::ResourceController
   end
 
   def echo
-    return @input
+    return @post_params
   end
-  
+
   def echo_get
     return @params.merge({ 'get?' => @resource_request.request.get?.to_s })
   end
-  
+
   def custom_entity(id)
     return id
   end
-  
+
   def custom_collection
     return [1,1,2,3,5,8,13,21,34]
   end

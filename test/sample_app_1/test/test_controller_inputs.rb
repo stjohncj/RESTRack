@@ -19,7 +19,7 @@ class SampleApp::TestControllerInputs < Test::Unit::TestCase
       output = @ws.call(env)
     end
     test_val = { :test => '1', :hello => 'world', 'get?' => 'true' }.to_json
-    assert_equal test_val, output[2]
+    assert_equal test_val, output[2][0]
   end
   
   def test_FUBAR_params
@@ -31,7 +31,7 @@ class SampleApp::TestControllerInputs < Test::Unit::TestCase
       output = @ws.call(env)
     end
     test_val = { :test => '1', :hello => 'world', 'get?' => 'false' }.to_json
-    assert_equal test_val, output[2]
+    assert_equal test_val, output[2][0]
   end
 
   def test_post_no_content_type
@@ -44,7 +44,7 @@ class SampleApp::TestControllerInputs < Test::Unit::TestCase
     assert_nothing_raised do
       output = @ws.call(env)
     end
-    assert_equal test_val.to_json, output[2] # will be converted to json because of default response type
+    assert_equal test_val.to_json, output[2][0] # will be converted to json because of default response type
   end
 
   def test_post_json
@@ -58,7 +58,7 @@ class SampleApp::TestControllerInputs < Test::Unit::TestCase
     assert_nothing_raised do
       output = @ws.call(env)
     end
-    assert_equal test_val, output[2]
+    assert_equal test_val, output[2][0]
   end
   
   def test_post_xml
@@ -72,7 +72,7 @@ class SampleApp::TestControllerInputs < Test::Unit::TestCase
     assert_nothing_raised do
       output = @ws.call(env)
     end
-    assert_equal test_val, output[2]
+    assert_equal test_val, output[2][0]
   end
   
   def test_post_text
@@ -86,6 +86,6 @@ class SampleApp::TestControllerInputs < Test::Unit::TestCase
     assert_nothing_raised do
       output = @ws.call(env)
     end
-    assert_equal test_val, output[2]
+    assert_equal test_val, output[2][0]
   end
 end

@@ -1,7 +1,7 @@
 module RESTRack
   # The ResourceRequest class handles all incoming requests.
   class ResourceRequest
-    attr_reader :request, :request_id, :input, :params
+    attr_reader :request, :request_id, :params, :post_params, :get_params
     attr_accessor :mime_type, :url_chain
 
     # Initialize the ResourceRequest by assigning a request_id and determining the path, format, and controller of the resource.
@@ -20,8 +20,15 @@ module RESTRack
 
     def prepare
       # Pull input data from POST body
-      @input = parse_body( @request )
-      @params = get_params( @request )
+      @post_params = parse_body( @request )
+      @get_params = parse_query_string( @request )
+      @params = {}
+      # TODO: Test this!
+      if @post_params.is_a? Hash
+        @params = @post_params.merge( @get_params )
+      else
+        @params = @get_params
+      end
       # Setup up the initial routing.
       @url_chain = @request.path_info.split('/')
       @url_chain.shift if @url_chain[0] == ''
@@ -49,7 +56,7 @@ module RESTRack
       @active_controller = instantiate_controller( @active_resource_name )
     end
 
-    # Send out the typed resource's output, this must occur after a call to run.
+    # Send out the typed resource's output.
     def response
       RESTRack.log.debug "{#{@request_id}} Retrieving Output"
       package( @active_controller.call )
@@ -75,23 +82,23 @@ module RESTRack
 
     # Pull input data from POST body
     def parse_body(request)
-      input = request.body.read
+      post_params = request.body.read
       unless request.content_type.blank?
         request_mime_type = MIME::Type.new( request.content_type )
         if request_mime_type.like?( RESTRack.mime_type_for( :JSON ) )
-          input = JSON.parse( input )
+          post_params = JSON.parse( post_params ) rescue post_params
         elsif request_mime_type.like?( RESTRack.mime_type_for( :XML ) )
-          input = XmlSimple.xml_in( input, 'ForceArray' => false )
+          post_params = XmlSimple.xml_in( post_params, 'ForceArray' => false ) rescue post_params
         elsif request_mime_type.like?( RESTRack.mime_type_for( :YAML ) )
-          input = YAML.parse( input )
+          post_params = YAML.parse( post_params ) rescue post_params
         end
       end
-      RESTRack.log.debug "{#{@request_id}} #{request_mime_type.to_s} data in:\n" + input.pretty_inspect
-      input
+      RESTRack.log.debug "{#{@request_id}} #{request_mime_type.to_s} data in:\n" + post_params.pretty_inspect
+      post_params
     end
 
-    def get_params(request)
-      params = request.GET
+    def parse_query_string(request)
+      get_params = request.GET
     end
 
     # Determine the MIME type of the request from the extension provided.
@@ -114,7 +121,7 @@ module RESTRack
       RESTRack.log.debug "{#{@request_id}} Locating Resource #{resource_name}"
       begin
         return RESTRack.controller_class_for( resource_name ).__init(self)
-      rescue
+      rescue Exception => e
         raise HTTP404ResourceNotFound, "The resource #{RESTRack::CONFIG[:SERVICE_NAME]}::#{RESTRack.controller_name(resource_name)} could not be instantiated."
       end
     end
@@ -137,6 +144,11 @@ module RESTRack
         @output = data.to_s
       else
         @output = data
+      end
+      if @output.respond_to?(:each)
+        return @output
+      else
+        return [@output]
       end
     end
 

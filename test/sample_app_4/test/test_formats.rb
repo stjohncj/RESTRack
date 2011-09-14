@@ -20,7 +20,7 @@ class SampleApp::TestFormats < Test::Unit::TestCase
     end
     assert_equal 'text/x-yaml', output[1]['Content-Type']
     test_val = YAML.dump( { :foo => '123', :baz => 'bat' } )
-    assert_equal test_val, output[2]
+    assert_equal test_val, output[2][0]
   end
 
   def test_text
@@ -33,7 +33,7 @@ class SampleApp::TestFormats < Test::Unit::TestCase
     end
     assert_equal 'text/plain', output[1]['Content-Type']
     test_val = 'Hello 123!'
-    assert_equal test_val, output[2]
+    assert_equal test_val, output[2][0]
   end
 
   def test_image
@@ -45,7 +45,7 @@ class SampleApp::TestFormats < Test::Unit::TestCase
       output = @ws.call(env)
     end
     assert_equal 'image/png', output[1]['Content-Type']
-    assert output[2].length
+    assert output[2][0].length
   end
 
 end

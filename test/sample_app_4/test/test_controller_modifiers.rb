@@ -19,7 +19,7 @@ class SampleApp::TestControllerModifiers < Test::Unit::TestCase
       output = @ws.call(env)
     end
     test_val = [0,1,2,3].to_json
-    assert_equal test_val, output[2]
+    assert_equal test_val, output[2][0]
 
 
     #"Hello from Bar with id of

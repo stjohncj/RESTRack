@@ -19,7 +19,7 @@ class SampleApp::TestControllerActions < Test::Unit::TestCase
       output = @ws.call(env)
     end
     test_val = { :foo => 'bar', :baz => 123 }.to_json
-    assert_equal test_val, output[2]
+    assert_equal test_val, output[2][0]
   end
 
   def test_update
@@ -31,7 +31,7 @@ class SampleApp::TestControllerActions < Test::Unit::TestCase
       output = @ws.call(env)
     end
     test_val = { :success => true }.to_json
-    assert_equal test_val, output[2]
+    assert_equal test_val, output[2][0]
   end
 
   def test_add
@@ -43,7 +43,7 @@ class SampleApp::TestControllerActions < Test::Unit::TestCase
       output = @ws.call(env)
     end
     test_val = { :success => true }.to_json
-    assert_equal test_val, output[2]
+    assert_equal test_val, output[2][0]
   end
 
   def test_destroy
@@ -55,7 +55,7 @@ class SampleApp::TestControllerActions < Test::Unit::TestCase
       output = @ws.call(env)
     end
     test_val = { :success => true }.to_json
-    assert_equal test_val, output[2]
+    assert_equal test_val, output[2][0]
   end
 
 
@@ -68,7 +68,7 @@ class SampleApp::TestControllerActions < Test::Unit::TestCase
       output = @ws.call(env)
     end
     test_val = [1,2,3,4,5,6,7].to_json
-    assert_equal test_val, output[2]
+    assert_equal test_val, output[2][0]
   end
 
   def test_replace
@@ -80,7 +80,7 @@ class SampleApp::TestControllerActions < Test::Unit::TestCase
       output = @ws.call(env)
     end
     test_val = { :success => true }.to_json
-    assert_equal test_val, output[2]
+    assert_equal test_val, output[2][0]
   end
 
   def test_create
@@ -92,7 +92,7 @@ class SampleApp::TestControllerActions < Test::Unit::TestCase
       output = @ws.call(env)
     end
     test_val = { :success => true }.to_json
-    assert_equal test_val, output[2]
+    assert_equal test_val, output[2][0]
   end
 
   def test_drop
@@ -104,7 +104,7 @@ class SampleApp::TestControllerActions < Test::Unit::TestCase
       output = @ws.call(env)
     end
     test_val = { :success => true }.to_json
-    assert_equal test_val, output[2]
+    assert_equal test_val, output[2][0]
   end
 
   def test_custom_entity_action
@@ -116,9 +116,9 @@ class SampleApp::TestControllerActions < Test::Unit::TestCase
       output = @ws.call(env)
     end
     test_val = '7476'.to_json
-    assert_equal test_val, output[2]
+    assert_equal test_val, output[2][0]
   end
-  
+
   def test_custom_collection_action
     env = Rack::MockRequest.env_for('/foo_bar/custom_collection', {
       :method => 'GET'
@@ -128,7 +128,7 @@ class SampleApp::TestControllerActions < Test::Unit::TestCase
       output = @ws.call(env)
     end
     test_val = [1,1,2,3,5,8,13,21,34].to_json
-    assert_equal test_val, output[2]
+    assert_equal test_val, output[2][0]
   end
 
   def test_missing

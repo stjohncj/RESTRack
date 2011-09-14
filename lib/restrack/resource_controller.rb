@@ -1,5 +1,5 @@
 module RESTRack
-  
+
   # All RESTRack controllers should descend from ResourceController.  This class
   # provides the methods for your controllers.
   #
@@ -7,7 +7,7 @@ module RESTRack
   # Collection URI (/widgets/):   |   index   |   replace |   create  |   drop
   # Element URI   (/widgets/42):  |   show    |   update  |   add     |   destroy
   #
-  
+
   class ResourceController
     attr_reader :action, :id
     class << self; attr_accessor :key_type; end
@@ -22,7 +22,8 @@ module RESTRack
       @resource_request = resource_request
       @request = @resource_request.request
       @params = @resource_request.params
-      @input = @resource_request.input
+      @post_params = @resource_request.post_params
+      @get_params = @resource_request.get_params
       self
     end
 
@@ -42,14 +43,14 @@ module RESTRack
     #def update(id);  end
     #def add(id);     end
     #def destroy(id); end
-    
+
     def method_missing(method_sym, *arguments, &block)
       raise HTTP405MethodNotAllowed, 'Method not provided on controller.'
     end
 
     # all internal methods are protected rather than private so that calling methods *could* be overriden if necessary.
     protected
-    
+
     # This method allows one to access a related resource, without providing a direct link to specific relation(s).
     def self.pass_through_to(entity, opts = {})
       entity_name = opts[:as] || entity
@@ -96,7 +97,7 @@ module RESTRack
         end
       )
     end
-    
+
     # This method defines that there are multiple links to members from an entity collection (an array of entity identifiers).
     # This adds an accessor instance method whose name is the entity's class.
     def self.has_defined_relationships_to(entity, opts = {}, &get_entity_id_from_relation_id)
@@ -178,7 +179,7 @@ module RESTRack
       end
       id
     end
-    
+
     # Get action from HTTP verb
     def get_action_from_context
       if @resource_request.request.get?

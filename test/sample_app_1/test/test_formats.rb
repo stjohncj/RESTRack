@@ -19,7 +19,7 @@ class SampleApp::TestFormats < Test::Unit::TestCase
       output = @ws.call(env)
     end
     test_val = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><data><foo>bar</foo><baz>123</baz></data>"
-    assert_equal test_val, output[2]
+    assert_equal test_val, output[2][0]
   end
 
   def test_show_default_xml
@@ -31,7 +31,7 @@ class SampleApp::TestFormats < Test::Unit::TestCase
       output = @ws.call(env)
     end
     test_val = XmlSimple.xml_out([1,2,3,4,5,6,7], 'AttrPrefix' => true, 'XmlDeclaration' => true, 'NoIndent' => true)
-    assert_equal test_val, output[2]
+    assert_equal test_val, output[2][0]
 
     env = Rack::MockRequest.env_for('/foo_bar.xml', {
       :method => 'GET'
@@ -41,7 +41,7 @@ class SampleApp::TestFormats < Test::Unit::TestCase
       output = @ws.call(env)
     end
     test_val = XmlSimple.xml_out([1,2,3,4,5,6,7], 'AttrPrefix' => true, 'XmlDeclaration' => true, 'NoIndent' => true)
-    assert_equal test_val, output[2]
+    assert_equal test_val, output[2][0]
   end
 
   def test_show_json
@@ -53,7 +53,7 @@ class SampleApp::TestFormats < Test::Unit::TestCase
       output = @ws.call(env)
     end
     test_val = { :foo => 'bar', :baz => 123 }.to_json
-    assert_equal test_val, output[2]
+    assert_equal test_val, output[2][0]
   end
   
   def test_complex_data_structure_json
@@ -65,7 +65,7 @@ class SampleApp::TestFormats < Test::Unit::TestCase
       output = @ws.call(env)
     end
     test_val = "{\"foo\":\"abc\",\"bar\":\"123\",\"baz\":456,\"more\":{\"one\":1,\"two\":[1,2],\"three\":\"deep_fu\"}}"
-    assert_equal test_val, output[2]
+    assert_equal test_val, output[2][0]
     
     env = Rack::MockRequest.env_for('/foo_bar/42', {
       :method => 'GET'
@@ -84,7 +84,7 @@ class SampleApp::TestFormats < Test::Unit::TestCase
         4 => :four
       }
     }.to_json
-    assert_equal test_val, output[2]
+    assert_equal test_val, output[2][0]
   end
     
   def test_complex_data_structure_xml
@@ -96,7 +96,7 @@ class SampleApp::TestFormats < Test::Unit::TestCase
       output = @ws.call(env)
     end
     test_val = "<?xml version='1.0' standalone='yes'?>\n<opt><foo>abc</foo><bar>123</bar><baz>456</baz><more><one>1</one><two>1</two><two>2</two><three>deep_fu</three></more></opt>"
-    assert_equal test_val, output[2]
+    assert_equal test_val, output[2][0]
     
     env = Rack::MockRequest.env_for('/foo_bar/42/complex_show_xml_no_builder.xml', {
       :method => 'GET'
@@ -115,7 +115,7 @@ class SampleApp::TestFormats < Test::Unit::TestCase
         4 => :four
       }
     }, 'AttrPrefix' => true, 'XmlDeclaration' => true, 'NoIndent' => true)
-    assert_equal test_val, output[2]
+    assert_equal test_val, output[2][0]
   end
 
 end
