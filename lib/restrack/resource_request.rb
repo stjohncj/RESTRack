@@ -83,6 +83,7 @@ module RESTRack
     # Pull input data from POST body
     def parse_body(request)
       post_params = request.body.read
+      RESTRack.log.debug "{#{@request_id}} #{request.content_type} raw POST data in:\n" + post_params.pretty_inspect
       unless request.content_type.blank?
         request_mime_type = MIME::Type.new( request.content_type )
         if request_mime_type.like?( RESTRack.mime_type_for( :JSON ) )
@@ -93,7 +94,7 @@ module RESTRack
           post_params = YAML.parse( post_params ) rescue post_params
         end
       end
-      RESTRack.log.debug "{#{@request_id}} #{request_mime_type.to_s} data in:\n" + post_params.pretty_inspect
+      RESTRack.log.debug "{#{@request_id}} #{request_mime_type.to_s} parsed POST data in:\n" + post_params.pretty_inspect
       post_params
     end
 
