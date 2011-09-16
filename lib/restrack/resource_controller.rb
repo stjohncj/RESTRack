@@ -32,20 +32,8 @@ module RESTRack
       self.determine_action
       args = []
       args << @id unless @id.blank?
+      raise HTTP405MethodNotAllowed, 'Method not provided on controller.' unless self.respond_to?(@action.to_sym)
       self.send(@action.to_sym, *args)
-    end
-
-    #def index;       end
-    #def replace;     end
-    #def create;      end
-    #def drop;        end
-    #def show(id);    end
-    #def update(id);  end
-    #def add(id);     end
-    #def destroy(id); end
-
-    def method_missing(method_sym, *arguments, &block)
-      raise HTTP405MethodNotAllowed, 'Method not provided on controller.'
     end
 
     # all internal methods are protected rather than private so that calling methods *could* be overriden if necessary.
