@@ -24,11 +24,12 @@ module RESTRack
       @get_params = parse_query_string( @request )
       @params = {}
       # TODO: Test this!
-      if @post_params.is_a? Hash
+      if @post_params.respond_to?(:merge)
         @params = @post_params.merge( @get_params )
       else
         @params = @get_params
       end
+      RESTRack.log.debug 'combined params: ' + @params.inspect
       # Setup up the initial routing.
       @url_chain = @request.path_info.split('/')
       @url_chain.shift if @url_chain[0] == ''
@@ -74,6 +75,32 @@ module RESTRack
       @mime_type.to_s
     end
 
+    # This handles outputing properly formatted content based on the file extension in the URL.
+    def package(data)
+      if @mime_type.like?( RESTRack.mime_type_for( :JSON ) )
+        @output = data.to_json
+      elsif @mime_type.like?( RESTRack.mime_type_for( :XML ) )
+        if File.exists? builder_file
+          @output = builder_up(data)
+        elsif data.respond_to?(:to_xml)
+          @output = data.to_xml
+        else
+          @output = XmlSimple.xml_out(data, 'AttrPrefix' => true, 'XmlDeclaration' => true, 'NoIndent' => true)
+        end
+      elsif @mime_type.like?(RESTRack.mime_type_for( :YAML ) )
+        @output = YAML.dump(data)
+      elsif @mime_type.like?(RESTRack.mime_type_for( :TEXT ) )
+        @output = data.to_s
+      else
+        @output = data
+      end
+      if @output.respond_to?(:each) # TODO: Should this do this?  Perhaps always bundle in array in web_service.rb
+        return @output
+      else
+        return [@output]
+      end
+    end
+
     private
     def get_request_id
       t = Time.now
@@ -100,6 +127,8 @@ module RESTRack
 
     def parse_query_string(request)
       get_params = request.GET
+      RESTRack.log.debug "{#{@request_id}} GET data in:\n" + get_params.pretty_inspect
+      get_params
     end
 
     # Determine the MIME type of the request from the extension provided.
@@ -124,32 +153,6 @@ module RESTRack
         return RESTRack.controller_class_for( resource_name ).__init(self)
       rescue Exception => e
         raise HTTP404ResourceNotFound, "The resource #{RESTRack::CONFIG[:SERVICE_NAME]}::#{RESTRack.controller_name(resource_name)} could not be instantiated."
-      end
-    end
-
-    # This handles outputing properly formatted content based on the file extension in the URL.
-    def package(data)
-      if @mime_type.like?( RESTRack.mime_type_for( :JSON ) )
-        @output = data.to_json
-      elsif @mime_type.like?( RESTRack.mime_type_for( :XML ) )
-        if File.exists? builder_file
-          @output = builder_up(data)
-        elsif data.respond_to?(:to_xml)
-          @output = data.to_xml
-        else
-          @output = XmlSimple.xml_out(data, 'AttrPrefix' => true, 'XmlDeclaration' => true, 'NoIndent' => true)
-        end
-      elsif @mime_type.like?(RESTRack.mime_type_for( :YAML ) )
-        @output = YAML.dump(data)
-      elsif @mime_type.like?(RESTRack.mime_type_for( :TEXT ) )
-        @output = data.to_s
-      else
-        @output = data
-      end
-      if @output.respond_to?(:each)
-        return @output
-      else
-        return [@output]
       end
     end
 

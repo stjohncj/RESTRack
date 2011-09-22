@@ -9,7 +9,7 @@ module RESTRack
   #
 
   class ResourceController
-    attr_reader :action, :id
+    attr_reader :action, :id, :params
     class << self; attr_accessor :key_type; end
 
     # Base initialization method for resources and storage of request input
@@ -38,6 +38,10 @@ module RESTRack
 
     # all internal methods are protected rather than private so that calling methods *could* be overriden if necessary.
     protected
+
+    def package_error(error)
+      @output = @resource_request.package(error)[0] # TODO: Remove this if change line 97 in resource_request.rb
+    end
 
     # This method allows one to access a related resource, without providing a direct link to specific relation(s).
     def self.pass_through_to(entity, opts = {})

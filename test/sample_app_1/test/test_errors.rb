@@ -31,8 +31,7 @@ class SampleApp::TestControllerActions < Test::Unit::TestCase
       output = @ws.call(env)
     end
     assert_equal response_code, output[0]
-    assert_equal 'tester', output[2][0]
-puts output.inspect
+    assert_equal 'tester'.to_json, output[2][0]
   end
 
   def test_unauthorized
