@@ -6,5 +6,6 @@ module HTTPStatus
   class HTTP405MethodNotAllowed < Exception; end
   class HTTP409Conflict         < Exception; end
   class HTTP410Gone             < Exception; end
+  class HTTP422ResourceInvalid  < Exception; end
   class HTTP500ServerError      < Exception; end
 end

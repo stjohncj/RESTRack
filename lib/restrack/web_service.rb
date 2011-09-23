@@ -50,6 +50,8 @@ module RESTRack
           return [409, {'Content-Type' => 'text/plain'}, [exception.message || "The resource you requested is in a conflicted state."] ]
         when exception.is_a?( HTTP410Gone )
           return [410, {'Content-Type' => 'text/plain'}, [exception.message || "The resource you requested is no longer available."] ]
+        when exception.is_a?( HTTP422ResourceInvalid )
+          return [422, {'Content-Type' => 'text/plain'}, [exception.message || "Invalid attribute values sent for resource."] ]
         else # HTTP500ServerError
           msg = exception.message + "\n\n" + exception.backtrace.join("\n")
           if resource_request && resource_request.request_id

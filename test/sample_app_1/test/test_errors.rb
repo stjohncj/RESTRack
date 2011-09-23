@@ -106,6 +106,19 @@ class SampleApp::TestControllerActions < Test::Unit::TestCase
     assert_equal response_code, output[0]
   end
 
+  def test_resource_invalid
+    response_code = 422
+    env = Rack::MockRequest.env_for('/errors/resource_invalid', {
+      :method => 'GET'
+    })
+    output = ''
+    assert_nothing_raised do
+      output = @ws.call(env)
+    end
+    assert_equal response_code, output[0]
+    assert JSON.parse(output[2][0]).has_key?('message')
+  end
+
   def test_server_error
     response_code = 500
     # This will/should spam the log
