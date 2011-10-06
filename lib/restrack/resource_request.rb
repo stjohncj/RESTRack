@@ -117,6 +117,12 @@ module RESTRack
           post_params = JSON.parse( post_params ) rescue post_params
         elsif request_mime_type.like?( RESTRack.mime_type_for( :XML ) )
           post_params = XmlSimple.xml_in( post_params, 'ForceArray' => false ) rescue post_params
+          post_params.each_key do |p|
+            post_params[p] = nil if post_params[p]['nil'] # XmlSimple oddity
+            if post_params[p].is_a? Hash and post_params[p]['type'] == 'integer'
+              post_params[p] = post_params[p]['content'].to_i
+            end
+          end
         elsif request_mime_type.like?( RESTRack.mime_type_for( :YAML ) )
           post_params = YAML.parse( post_params ) rescue post_params
         end
