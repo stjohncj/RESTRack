@@ -22,7 +22,7 @@ module RESTRack
 
     # Return HTTP200OK SUCCESS
     def valid( resource_request, response )
-      RESTRack.log.debug "(#{resource_request.request_id}) '#{resource_request.mime_type.to_s}' response data:\n" + response.to_s unless not response.respond_to?( :to_s )
+      RESTRack.log.debug "(#{resource_request.request_id}) HTTP200OK '#{resource_request.mime_type.to_s}' response data:\n" + response.to_s unless not response.respond_to?( :to_s )
       RESTRack.request_log.info "(#{resource_request.request_id}) HTTP200OK"
       return [200, {'Content-Type' => resource_request.content_type}, response ]
     end
@@ -31,9 +31,9 @@ module RESTRack
     def caught( resource_request, exception )
       # This will log the returned status code
       if resource_request && resource_request.request_id
-        RESTRack.request_log.info "(#{resource_request.request_id}) " + exception.message
+        RESTRack.request_log.info "(#{resource_request.request_id}) #{exception.class.to_s} " + exception.message
       else
-        RESTRack.request_log.info exception.message
+        RESTRack.request_log.info "(<nil-reqid>) #{exception.class.to_s} " + exception.message
       end
       case
         when exception.is_a?( HTTP400BadRequest )
@@ -55,9 +55,9 @@ module RESTRack
         else # HTTP500ServerError
           msg = exception.message + "\n\n" + exception.backtrace.join("\n")
           if resource_request && resource_request.request_id
-            RESTRack.log.error "(#{resource_request.request_id})" + msg
+            RESTRack.log.error "(#{resource_request.request_id}) #{exception.class.to_s} " + msg
           else
-            RESTRack.log.error msg
+            RESTRack.log.error "(<nil-reqid>) #{exception.class.to_s} " + msg
           end
           return [500, {'Content-Type' => 'text/plain'}, [msg] ]
       end # case Exception
