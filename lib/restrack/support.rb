@@ -59,6 +59,17 @@ class Object
   end
 end
 
+class ARFormattedError < Array
+  # provide this method, as if it is present it will be used to render the xml rather than XmlSimple
+  def to_xml
+    str = '<?xml version="1.0" encoding="UTF-8"?><errors>'
+    self.each do |error|
+      str << "<error>#{error}</error>"
+    end
+    str << "</errors>"
+  end
+end
+
 # We will support ".text" as an extension
 MIME::Types['text/plain'][0].extensions << 'text'
 MIME::Types.index_extensions( MIME::Types['text/plain'][0] )

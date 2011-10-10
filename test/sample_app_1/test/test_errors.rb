@@ -119,6 +119,31 @@ class SampleApp::TestControllerActions < Test::Unit::TestCase
     assert JSON.parse(output[2][0]).has_key?('message')
   end
 
+  def test_resource_invalid_active_record_format
+    response_code = 422
+    env = Rack::MockRequest.env_for('/errors/resource_invalid_active_resource_format.xml', {
+      :method => 'GET'
+    })
+    output = ''
+    assert_nothing_raised do
+      output = @ws.call(env)
+    end
+    assert_equal response_code, output[0]
+    assert_equal '<?xml version="1.0" encoding="UTF-8"?><errors><error>This is how ActiveResource expects errors to come through.</error><error>It has support for multiple errors.</error></errors>', output[2][0]
+
+    response_code = 422
+    env = Rack::MockRequest.env_for('/errors/resource_invalid_active_resource_format', {
+      :method => 'GET'
+    })
+    output = ''
+    assert_nothing_raised do
+      output = @ws.call(env)
+    end
+    assert_equal response_code, output[0]
+    assert_equal 'This is how ActiveResource expects errors to come through.', JSON.parse(output[2][0])[0]
+    assert_equal 'It has support for multiple errors.', JSON.parse(output[2][0])[1]
+  end
+
   def test_server_error
     response_code = 500
     # This will/should spam the log
