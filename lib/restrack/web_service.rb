@@ -24,7 +24,7 @@ module RESTRack
     def valid( resource_request, response )
       RESTRack.log.debug "(#{resource_request.request_id}) HTTP200OK '#{resource_request.mime_type.to_s}' response data:\n" + response.to_s unless not response.respond_to?( :to_s )
       RESTRack.request_log.info "(#{resource_request.request_id}) HTTP200OK"
-      return [200, {'Content-Type' => resource_request.content_type}, response ]
+      return [200, {'Content-Type' => resource_request.content_type}, [response] ]
     end
 
     # Return appropriate response code and messages per raised exception type.
@@ -53,12 +53,12 @@ module RESTRack
         when exception.is_a?( HTTP422ResourceInvalid )
           return [422, {'Content-Type' => 'text/plain'}, [exception.message || "Invalid attribute values sent for resource."] ]
         else # HTTP500ServerError
-          msg = exception.message + "\n\n" + exception.backtrace.join("\n")
           if resource_request && resource_request.request_id
-            RESTRack.log.error "(#{resource_request.request_id}) #{exception.class.to_s} " + msg
+            RESTRack.log.error "(#{resource_request.request_id}) #{exception.class.to_s} " + exception.message + "\n" + exception.backtrace.join("\n")
           else
-            RESTRack.log.error "(<nil-reqid>) #{exception.class.to_s} " + msg
+            RESTRack.log.error "(<nil-reqid>) #{exception.class.to_s} " + exception.message + "\n" + exception.backtrace.join("\n")
           end
+          msg = (exception.message == exception.class.to_s) ? exception.backtrace.join("\n") : exception.message
           return [500, {'Content-Type' => 'text/plain'}, [msg] ]
       end # case Exception
     end # method caught

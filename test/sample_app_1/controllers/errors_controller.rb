@@ -51,4 +51,8 @@ class SampleApp::ErrorsController < RESTRack::ResourceController
     raise HTTP500ServerError, package_error('tester')
   end
 
+  def server_error_with_backtrace
+    raise HTTP500ServerError
+  end
+
 end

@@ -31,7 +31,7 @@ class SampleApp::TestControllerActions < Test::Unit::TestCase
       output = @ws.call(env)
     end
     assert_equal response_code, output[0]
-    assert_equal 'tester'.to_json, output[2][0]
+    assert_equal 'tester', JSON.parse(output[2][0])[0]
   end
 
   def test_unauthorized
@@ -44,6 +44,7 @@ class SampleApp::TestControllerActions < Test::Unit::TestCase
       output = @ws.call(env)
     end
     assert_equal response_code, output[0]
+    assert_equal 'tester', JSON.parse(output[2][0])[0]
   end
 
   def test_forbidden
@@ -56,6 +57,7 @@ class SampleApp::TestControllerActions < Test::Unit::TestCase
       output = @ws.call(env)
     end
     assert_equal response_code, output[0]
+    assert_equal 'tester', JSON.parse(output[2][0])[0]
   end
 
   def test_resource_not_found
@@ -68,6 +70,7 @@ class SampleApp::TestControllerActions < Test::Unit::TestCase
       output = @ws.call(env)
     end
     assert_equal response_code, output[0]
+    assert_equal 'tester', JSON.parse(output[2][0])[0]
   end
 
   def test_method_not_allowed
@@ -80,6 +83,7 @@ class SampleApp::TestControllerActions < Test::Unit::TestCase
       output = @ws.call(env)
     end
     assert_equal response_code, output[0]
+    assert_equal 'tester', JSON.parse(output[2][0])[0]
   end
 
   def test_conflict
@@ -92,6 +96,7 @@ class SampleApp::TestControllerActions < Test::Unit::TestCase
       output = @ws.call(env)
     end
     assert_equal response_code, output[0]
+    assert_equal 'tester', JSON.parse(output[2][0])[0]
   end
 
   def test_gone
@@ -104,6 +109,7 @@ class SampleApp::TestControllerActions < Test::Unit::TestCase
       output = @ws.call(env)
     end
     assert_equal response_code, output[0]
+    assert_equal 'tester', JSON.parse(output[2][0])[0]
   end
 
   def test_resource_invalid
@@ -117,6 +123,7 @@ class SampleApp::TestControllerActions < Test::Unit::TestCase
     end
     assert_equal response_code, output[0]
     assert JSON.parse(output[2][0]).has_key?('message')
+    assert_equal 'This is a WebDAV HTTP extension code used by ActiveResource to communicate validation errors, rather than 400.', JSON.parse(output[2][0])['message']
   end
 
   def test_resource_invalid_active_record_format
@@ -155,6 +162,21 @@ class SampleApp::TestControllerActions < Test::Unit::TestCase
       output = @ws.call(env)
     end
     assert_equal response_code, output[0]
+    assert_equal 'tester', JSON.parse(output[2][0])[0]
+  end
+
+  def test_server_error_with_backtrace
+    response_code = 500
+    # This will/should spam the log
+    env = Rack::MockRequest.env_for('/errors/server_error_with_backtrace', {
+      :method => 'GET'
+    })
+    output = ''
+    assert_nothing_raised do
+      output = @ws.call(env)
+    end
+    assert_equal response_code, output[0]
+    assert_not_equal 'tester', output[2][0]
   end
 
 end

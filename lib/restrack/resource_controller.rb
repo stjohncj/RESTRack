@@ -50,10 +50,12 @@ module RESTRack
         # I am AR bound
         errors = ARFormattedError.new(errors)
       end
-      @output = @resource_request.package(errors)[0] # TODO: Remove this if change line 97 in resource_request.rb
+      @output = @resource_request.package(errors)
     end
+
     def package_error(error)
-      package_errors(error)
+      errors = error.is_a?(String) ? [error] : error
+      package_errors(errors)
     end
 
     # This method allows one to access a related resource, without providing a direct link to specific relation(s).

@@ -94,11 +94,7 @@ module RESTRack
       else
         @output = data
       end
-      if @output.respond_to?(:each) # TODO: Should this do this?  Perhaps always bundle in array in web_service.rb
-        return @output
-      else
-        return [@output]
-      end
+      return @output
     end
 
     private
