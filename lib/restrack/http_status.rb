@@ -6,6 +6,6 @@ module HTTPStatus
   class HTTP405MethodNotAllowed < Exception; end
   class HTTP409Conflict         < Exception; end
   class HTTP410Gone             < Exception; end
-  class HTTP422ResourceInvalid  < Exception; end
+  class HTTP422ResourceInvalid  < Exception; end # for ActiveResource (this is not a standard HTTP response code, but AR needs it for error communication on validations)
   class HTTP500ServerError      < Exception; end
 end

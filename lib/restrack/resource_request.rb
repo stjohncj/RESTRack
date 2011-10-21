@@ -10,7 +10,7 @@ module RESTRack
       @request = opts[:request]
       @request_id = opts[:request_id] || get_request_id
       # Write input details to logs
-      RESTRack.request_log.info "{#{@request_id}} #{@request.path_info} requested from #{@request.ip}"
+      RESTRack.request_log.info "{#{@request_id}} #{@request.request_method} #{@request.path_info} requested from #{@request.ip}"
     end
 
     def fulfill
@@ -106,7 +106,7 @@ module RESTRack
     # Pull input data from POST body
     def parse_body(request)
       post_params = request.body.read
-      RESTRack.log.debug "{#{@request_id}} #{request.content_type} raw POST data in:\n" + post_params.pretty_inspect
+      RESTRack.log.debug "{#{@request_id}} #{request.content_type} raw POST data in:\n" + post_params
       unless request.content_type.blank?
         request_mime_type = MIME::Type.new( request.content_type )
         if request_mime_type.like?( RESTRack.mime_type_for( :JSON ) )
