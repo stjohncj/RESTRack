@@ -32,7 +32,9 @@ module RESTRack
       self.determine_action
       args = []
       args << @id unless @id.blank?
-      raise HTTP405MethodNotAllowed, 'Method not provided on controller.' unless self.respond_to?(@action.to_sym)
+      unless self.respond_to?(@action.to_sym) or self.respond_to?(:method_missing)
+        raise HTTP405MethodNotAllowed, 'Method not provided on controller.'
+      end
       self.send(@action.to_sym, *args)
     end
 
