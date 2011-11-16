@@ -31,3 +31,5 @@ when :server, :s
   options.merge({ :environment => ARGV[2] }) unless ARGV[2].nil?
   Rack::Server.start( options )
 end
+
+# TODO: Print current version of RESTrack via command-line call

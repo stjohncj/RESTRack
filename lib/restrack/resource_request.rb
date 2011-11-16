@@ -119,6 +119,9 @@ module RESTRack
               if post_params[p].is_a? Hash and post_params[p]['type'] == 'integer'
                 post_params[p] = post_params[p]['content'].to_i
               end
+              if post_params[p].is_a? Hash and post_params[p].keys.empty?
+                post_params[p] = nil
+              end
             end
           end
         elsif request_mime_type.like?( RESTRack.mime_type_for( :YAML ) )
