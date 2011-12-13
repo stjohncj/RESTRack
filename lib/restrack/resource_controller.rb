@@ -154,7 +154,7 @@ module RESTRack
         @action = nil
       # id terms can be pushed on the url_stack which are not of type String by relationship handlers
       elsif term.is_a? String and self.methods.include?( term.to_sym )
-        @id = nil
+        @id = self.methods.include?(@resource_request.url_chain[0]) ? nil : @resource_request.url_chain.shift
         @action = term.to_sym
       else
         @id = term

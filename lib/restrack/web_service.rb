@@ -58,7 +58,7 @@ module RESTRack
           else
             RESTRack.log.error "(<nil-reqid>) #{exception.class.to_s} " + exception.message + "\n" + exception.backtrace.join("\n")
           end
-          msg = (exception.message == exception.class.to_s) ? exception.backtrace.join("\n") : exception.message
+          msg = (exception.message == exception.class.to_s) ? exception.backtrace.join("\n") : exception.message + "\nstack trace:\n" + exception.backtrace.join("\n")
           return [500, {'Content-Type' => 'text/plain'}, [msg] ]
       end # case Exception
     end # method caught
