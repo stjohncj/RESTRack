@@ -52,12 +52,15 @@ module RESTRack
           return [410, {'Content-Type' => 'text/plain'}, [exception.message || "The resource you requested is no longer available."] ]
         when exception.is_a?( HTTP422ResourceInvalid )
           return [422, {'Content-Type' => 'text/plain'}, [exception.message || "Invalid attribute values sent for resource."] ]
+        when exception.is_a?( HTTP502BadGateway )
+          return [502, {'Content-Type' => 'text/plain'}, [exception.message || "The server was acting as a gateway or proxy and received an invalid response from the upstream server."] ]
         else # HTTP500ServerError
           if resource_request && resource_request.request_id
             RESTRack.log.error "(#{resource_request.request_id}) #{exception.class.to_s} " + exception.message + "\n" + exception.backtrace.join("\n")
           else
             RESTRack.log.error "(<nil-reqid>) #{exception.class.to_s} " + exception.message + "\n" + exception.backtrace.join("\n")
           end
+          # TODO: Make it configurable whether or not exception includes stack trace
           msg = (exception.message == exception.class.to_s) ? exception.backtrace.join("\n") : exception.message + "\nstack trace:\n" + exception.backtrace.join("\n")
           return [500, {'Content-Type' => 'text/plain'}, [msg] ]
       end # case Exception

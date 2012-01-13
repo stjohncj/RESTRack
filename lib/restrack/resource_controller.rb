@@ -50,9 +50,16 @@ module RESTRack
     def package_errors(errors)
       if errors.is_a? Array and errors.count{|e| e.is_a? String} === errors.length
         # I am AR bound
+puts '092384092384029384===='
+puts errors.inspect
         errors = ARFormattedError.new(errors)
+puts errors.inspect
       end
       @output = @resource_request.package(errors)
+puts errors.inspect
+puts @output.inspect
+puts '======================'
+      @output
     end
 
     def package_error(error)
