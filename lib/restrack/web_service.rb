@@ -60,8 +60,12 @@ module RESTRack
           else
             RESTRack.log.error "(<nil-reqid>) #{exception.class.to_s} " + exception.message + "\n" + exception.backtrace.join("\n")
           end
-          # TODO: Make it configurable whether or not exception includes stack trace
-          msg = (exception.message == exception.class.to_s) ? exception.backtrace.join("\n") : exception.message + "\nstack trace:\n" + exception.backtrace.join("\n")
+          msg = ''
+          if RESTRack::CONFIG[:SHOW_STACK]
+            msg = (exception.message == exception.class.to_s) ? exception.backtrace.join("\n") : exception.message + "\nstack trace:\n" + exception.backtrace.join("\n")
+          else
+            msg = exception.message
+          end
           return [500, {'Content-Type' => 'text/plain'}, [msg] ]
       end # case Exception
     end # method caught

@@ -4,13 +4,13 @@
 ## Description:
 RESTRack is a [Rack](http://rack.rubyforge.org/)-based [MVC](http://en.wikipedia.org/wiki/Model%E2%80%93View%E2%80%93Controller)
 framework that makes it extremely easy to develop [REST](http://en.wikipedia.org/wiki/Representational_State_Transfer)ful
-data services. It is inspired by Rails, and follows a few of its conventions.  But it has no routes file, routing
-relationships are done through supplying custom code blocks to class methods such as "has\_relationship\_to" or
+data services. It is inspired by [Rails](http://rubyonrails.org), and follows a few of its conventions.  But it has no routes
+file, routing relationships are done through supplying custom code blocks to class methods such as "has\_relationship\_to" or
 "has\_mapped\_relationships\_to".
 
-RESTRack aims at being lightweight and easy to use.  It will automatically render JSON and XML for the data
-structures you return in your actions \(any structure parsable by the "[json](http://flori.github.com/json/)" and
-"[xml-simple](https://github.com/maik/xml-simple)" gems, respectively\).
+RESTRack aims at being lightweight and easy to use.  It will automatically render [JSON](http://www.json.org/) and
+[XML](http://www.w3.org/XML/) for the data structures you return in your actions \(any structure parsable by the
+"[json](http://flori.github.com/json/)" and "[xml-simple](https://github.com/maik/xml-simple)" gems, respectively\).
 
 If you supply a view for a controller action, you do that using a builder file.  Builder files are stored in the
 view directory grouped by controller name subdirectories \(`view/<controller>/<action>.xml.builder`\).  XML format
@@ -31,6 +31,9 @@ the web developer a good application space for developing JSON and XML services.
 Rails 3 instantiates approximately 80K more objects than RESTRack to do a hello world or nothing type response with
 the default setup.  Trimming Rails down by eliminating ActiveRecord, ActionMailer, and ActiveResource, it still
 instantiates over 47K more objects than RESTRack.
+
+## OK, so why RESTRack when there is Sinatra?
+RESTRack provides a full, albeit small, framework for developing RESTful MVC applications.
 
 
 ## CLI Usage:
@@ -63,6 +66,65 @@ supported\(\*\).
                          HTTP Verb: |   GET   |   PUT    |   POST   |   DELETE
         Collection URI (/widgets/): |  index  |  replace |  create  |  *drop
         Element URI  (/widgets/42): |  show   |  update  |  *add    |  destroy
+
+
+## Automatic response data serialization
+### JSON
+Objects returned from resource controller methods will have the "to\_json" method called to serialize response output.
+Controllers should return objects that respond to "to\_json".  RESTRack includes the JSON gem, which implements this method
+on Ruby's standard lib simple data types (Array, Hash, String etc).
+
+    # GET /widgets/42.json
+    def show(id) # id will be 42
+        widget = Widget.find(id)
+        return widget
+        # The widget.to_json will be called and the resultant JSON sent as response body.
+    end
+
+    # GET /widgets/42
+    def show(id) # id will be 42
+        widget = Widget.find(id)
+        return widget
+        # The widget.to_json will be called unless the default response type is set to :XML in config/constants.yaml,
+        # in which case the widget.to_xml method will be called.
+    end
+
+### XML
+RESTRack will convert the data structures that your actions return to JSON by default.  You can change the default
+by setting :DEFAULT_FORMAT to :XML in `config/constants.yml`.
+
+#### With Builder
+Custom XML serialization can be done by providing [Builder](http://builder.rubyforge.org/) gem templates in `views/<controller>/<action>.xml.builder`.
+
+#### Custom Serialization Method
+When XML is requested, objects returned from resource controller methods will have the "to_xml" method called to serialize
+response output if an XML builder template file is not provided.  If the response object does not respond to "to_xml", then
+the object will be sent to XmlSimple for serialization.
+
+#### With XmlSimple
+RESTRack will attempt to serialize the data structures that your action methods return automatically using the
+xml-simple gem.  Complex objects may not serialize correctly, or you may want to define a particular structure for your
+XML, in which case a builder template should be defined.
+
+    # GET /widgets/42.xml
+    def show(id) # id will be 42
+        widget = Widget.find(id)
+        return widget
+        # Template file views/widgets/show.xml.builder will be used to render the XML if it exists.
+        # If not, the widget.to_xml method will be called and the resultant XML sent as response body,
+        # or, if widget does not respond to "to_xml", then XmlSimple will be used to serialize the data object.
+    end
+
+
+## Accepting parameters and generating a response
+Input parameters are accessible through the @params object.  This is a merged hash containing the POST and GET parameters,
+which can be accessed separately through @post_params and @get_params.
+
+    # GET /widgets/list.xml?offset=100&limit=50
+    def list
+        widget_list = Widget.limit( @params['limit'], @params['offset'] )
+        return widget_list
+    end
 
 
 ## URLs and Controller relationships
@@ -152,18 +214,6 @@ default data type of String is used if a different type is not specified.
 RESTRack outputs to two logs, the standard log (or error log) and the request log.  Paths and logging levels for these
 can be configured in `config/constants.yaml`.  RESTRack uses Logger from Ruby-stdlib.
 
-## XML Serialization
-RESTRack will convert the data structures that your actions return to JSON by default.  You can change the default
-by setting :DEFAULT_FORMAT to :XML in `config/constants.yml`.
-
-### With XmlSimple
-RESTRack will attempt to serialize the data structures that your action methods return automatically using the
-xml-simple gem.  Complex objects may not serialize correctly, or you may want to define a particular structure for your
-XML, in which case a builder template should be defined (see next heading).
-
-### With Builder
-Custom XML serialization can be done by providing [Builder](http://builder.rubyforge.org/) gem templates in `views/<controller>/<action>.xml.builder`.
-
 
 ## Inputs
 
@@ -214,6 +264,13 @@ through another relation.
 This defines an array of resources that cannot be accessed without proxying though another controller.
 
     :ROOT_RESOURCE_DENY: [ 'baz' ]
+
+
+#### :SHOW\_STACK
+If defined, server error messages will contain the stack trace.  This is not recommended when these errors could possibly
+be delivered to the client.
+
+    :SHOW_STACK: true
 
 
 ## License

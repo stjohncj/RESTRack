@@ -162,7 +162,6 @@ class SampleApp::TestControllerActions < Test::Unit::TestCase
       output = @ws.call(env)
     end
     assert_equal response_code, output[0]
-    #assert_equal 'tester', JSON.parse(output[2][0])[0]
   end
 
   def test_server_error_with_backtrace
@@ -177,6 +176,22 @@ class SampleApp::TestControllerActions < Test::Unit::TestCase
     end
     assert_equal response_code, output[0]
     assert_not_equal 'tester', output[2][0]
+  end
+
+  def test_server_error_without_backtrace
+    RESTRack::CONFIG[:SHOW_STACK] = false
+    response_code = 500
+    # This will/should spam the log
+    env = Rack::MockRequest.env_for('/errors/server_error', {
+      :method => 'GET'
+    })
+    output = ''
+    assert_nothing_raised do
+      output = @ws.call(env)
+    end
+    assert_equal response_code, output[0]
+    assert_equal 'tester', JSON.parse(output[2][0])[0]
+    RESTRack::CONFIG[:SHOW_STACK] = true
   end
 
 end
