@@ -23,7 +23,7 @@ module RESTRack
       @post_params = parse_body( @request )
       @get_params = parse_query_string( @request )
       @params = {}
-      # TODO: Test this!
+      # TODO: symbolize!
       if @post_params.respond_to?(:merge)
         @params = @post_params.merge( @get_params )
       else
