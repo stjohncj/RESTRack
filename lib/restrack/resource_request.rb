@@ -75,7 +75,8 @@ module RESTRack
       @mime_type.to_s
     end
 
-    # This handles outputing properly formatted content based on the file extension in the URL.
+    # This handles outputing properly formatted content based on the type set as default in cofig/constants.yaml 
+    #   or the file extension from the URI.
     def package(data)
       if @mime_type.like?( RESTRack.mime_type_for( :JSON ) )
         @output = data.to_json
@@ -107,6 +108,7 @@ module RESTRack
     def parse_body(request)
       post_params = request.body.read
       RESTRack.log.debug "{#{@request_id}} #{request.content_type} raw POST data in:\n" + post_params
+      # TODO: raise ENCODING_EXCEPTION unless post_params.valid_encoding?(RESTRack::Config[:ENCODING])
       unless request.content_type.blank?
         request_mime_type = MIME::Type.new( request.content_type )
         if request_mime_type.like?( RESTRack.mime_type_for( :JSON ) )
