@@ -24,4 +24,10 @@
 # These are the resources which cannot be accessed from the root of your web service. Use either this or ROOT_RESOURCE_ACCEPT as a blacklist or whitelist to establish routing (relationships defined in resource controllers define further routing).
 :ROOT_RESOURCE_DENY:      [ baz ]
 
+# The stack trace will not be added to 500 response body by default, set to true to enable.
 :SHOW_STACK:              true
+
+# String#encode will be called when this value is set
+#:TRANSCODE:               ISO-8859-1  # UTF-8
+# String#force_encoding will be called when this value is set
+#:FORCE_ENCODING:          ISO-8859-1  # UTF-8

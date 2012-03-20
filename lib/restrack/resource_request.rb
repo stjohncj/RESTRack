@@ -107,6 +107,12 @@ module RESTRack
     def parse_body(request)
       post_params = request.body.read
       RESTRack.log.debug "{#{@request_id}} #{request.content_type} raw POST data in:\n" + post_params
+      if RESTRack::CONFIG[:TRANSCODE]
+        post_params.encode!( RESTRack::CONFIG[:TRANSCODE] )
+      end
+      if RESTRack::CONFIG[:FORCE_ENCODING]
+        post_params = post_params.force_encoding( RESTRack::CONFIG[:FORCE_ENCODING] )
+      end
       unless request.content_type.blank?
         request_mime_type = MIME::Type.new( request.content_type )
         if request_mime_type.like?( RESTRack.mime_type_for( :JSON ) )

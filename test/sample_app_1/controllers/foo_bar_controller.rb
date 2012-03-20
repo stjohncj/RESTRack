@@ -112,4 +112,8 @@ class SampleApp::FooBarController < RESTRack::ResourceController
     return [1,1,2,3,5,8,13,21,34]
   end
 
+  def show_encoding
+    return @post_params.encoding.to_s
+  end
+
 end

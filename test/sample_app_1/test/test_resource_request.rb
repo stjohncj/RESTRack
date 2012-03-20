@@ -1,3 +1,5 @@
+#!/usr/bin/env ruby
+# encoding: UTF-8
 require 'rubygems'
 require 'test/unit'
 require 'rack/test'
@@ -139,6 +141,140 @@ class SampleApp::TestResourceRequest < Test::Unit::TestCase
       output = @ws.call(env)
     end
     assert_equal 403, output[0]
+  end
+
+  def test_transcode_defined
+    RESTRack::CONFIG.delete(:TRANSCODE)
+    RESTRack::CONFIG.delete(:FORCE_ENCODING)
+    RESTRack::CONFIG[:TRANSCODE] = 'ISO-8859-1'
+
+    env = Rack::MockRequest.env_for('/foo_bar/show_encoding', {
+      :method => 'POST',
+      :params => %Q|[
+        {
+          "bar": "baz"
+        }
+      ]|
+    })
+    output = ''
+    assert_nothing_raised do
+      output = @ws.call(env)
+    end
+    assert_equal ["\"ISO-8859-1\""], output[2]
+
+    env = Rack::MockRequest.env_for('/foo_bar/show_encoding', {
+      :method => 'POST',
+      :params => %Q|[
+        {
+          "bar": "€"
+        }
+      ]|
+    })
+    output = ''
+    assert_nothing_raised do
+      output = @ws.call(env)
+    end
+    assert_equal 500, output[0]
+  end
+
+  def test_transcode_not_defined
+    RESTRack::CONFIG.delete(:TRANSCODE)
+    RESTRack::CONFIG.delete(:FORCE_ENCODING)
+
+    env = Rack::MockRequest.env_for('/foo_bar/show_encoding', {
+      :method => 'POST',
+      :params => %Q|[
+        {
+          "bar": "baz"
+        }
+      ]|
+    })
+    output = ''
+    assert_nothing_raised do
+      output = @ws.call(env)
+    end
+    assert_equal ["\"ASCII-8BIT\""], output[2]
+
+    env = Rack::MockRequest.env_for('/foo_bar/show_encoding', {
+      :method => 'POST',
+      :params => %Q|[
+        {
+          "bar": "€"
+        }
+      ]|
+    })
+    output = ''
+    assert_nothing_raised do
+      output = @ws.call(env)
+    end
+    assert_equal 200, output[0]
+  end
+
+  def test_force_encoding_defined
+    RESTRack::CONFIG.delete(:TRANSCODE)
+    RESTRack::CONFIG.delete(:FORCE_ENCODING)
+    RESTRack::CONFIG[:FORCE_ENCODING] = 'ISO-8859-1'
+
+    env = Rack::MockRequest.env_for('/foo_bar/show_encoding', {
+      :method => 'POST',
+      :params => %Q|[
+        {
+          "bar": "baz"
+        }
+      ]|
+    })
+    output = ''
+    assert_nothing_raised do
+      output = @ws.call(env)
+    end
+    assert_equal ["\"ISO-8859-1\""], output[2]
+
+    env = Rack::MockRequest.env_for('/foo_bar/show_encoding', {
+      :method => 'POST',
+      :params => %Q|[
+        {
+          "bar": "€"
+        }
+      ]|
+    })
+    output = ''
+    assert_nothing_raised do
+      output = @ws.call(env)
+    end
+    assert_equal 200, output[0]
+  end
+
+  def test_force_encoding_not_defined
+    RESTRack::CONFIG.delete(:TRANSCODE)
+    RESTRack::CONFIG.delete(:FORCE_ENCODING)
+
+    env = Rack::MockRequest.env_for('/foo_bar/show_encoding', {
+      :method => 'POST',
+      :params => %Q|[
+        {
+          "bar": "baz"
+        }
+      ]|
+    })
+    output = ''
+    assert_nothing_raised do
+      output = @ws.call(env)
+    end
+    assert_equal ["\"ASCII-8BIT\""], output[2]
+
+    env = Rack::MockRequest.env_for('/foo_bar/show_encoding', {
+      :method => 'POST',
+      :params => %Q|[
+        {
+          "bar": "€"
+        }
+      ]|
+    })
+    output = ''
+    assert_nothing_raised do
+      output = @ws.call(env)
+    end
+    assert_equal 200, output[0]
   end
 
 end
