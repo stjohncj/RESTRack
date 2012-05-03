@@ -158,6 +158,12 @@ module RESTRack
         @id = self.methods.include?(@resource_request.url_chain[0]) ? nil : @resource_request.url_chain.shift
         @action = term.to_sym
       else
+        begin
+          self.class.format_string_id(term)
+        rescue
+          # if this isn't a valid id then it must be a request for an action that doesn't exist (we tested it as an action name above)
+          raise HTTP405MethodNotAllowed, 'Action not provided or found and unknown HTTP request method.'
+        end
         @id = term
         term = @resource_request.url_chain.shift
         if term.nil?
@@ -180,9 +186,9 @@ module RESTRack
       self.key_type ||= String
       unless self.key_type.blank? or self.key_type.ancestors.include?(String)
         if self.key_type.ancestors.include?(Integer)
-          id = id.to_i
+          id = Integer(id)
         elsif self.key_type.ancestors.include?(Float)
-          id = id.to_f
+          id = Float(id)
         else
           raise HTTP500ServerError, "Invalid key identifier type specified on resource #{self.class.to_s}."
         end

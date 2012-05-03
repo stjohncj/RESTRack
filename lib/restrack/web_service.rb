@@ -55,11 +55,7 @@ module RESTRack
         when exception.is_a?( HTTP502BadGateway )
           return [502, {'Content-Type' => 'text/plain'}, [exception.message || "The server was acting as a gateway or proxy and received an invalid response from the upstream server."] ]
         else # HTTP500ServerError
-          if resource_request && resource_request.request_id
-            RESTRack.log.error "(#{resource_request.request_id}) #{exception.class.to_s} " + exception.message + "\n" + exception.backtrace.join("\n")
-          else
-            RESTRack.log.error "(<nil-reqid>) #{exception.class.to_s} " + exception.message + "\n" + exception.backtrace.join("\n")
-          end
+          log_server_error( resource_request, exception )
           msg = ''
           if RESTRack::CONFIG[:SHOW_STACK]
             msg = (exception.message == exception.class.to_s) ? exception.backtrace.join("\n") : exception.message + "\nstack trace:\n" + exception.backtrace.join("\n")
@@ -69,6 +65,14 @@ module RESTRack
           return [500, {'Content-Type' => 'text/plain'}, [msg] ]
       end # case Exception
     end # method caught
+
+    def log_server_error( resource_request, exception )
+      if resource_request && resource_request.request_id
+        RESTRack.log.error "(#{resource_request.request_id}) #{exception.class.to_s} " + exception.message + "\n" + exception.backtrace.join("\n")
+      else
+        RESTRack.log.error "(<nil-reqid>) #{exception.class.to_s} " + exception.message + "\n" + exception.backtrace.join("\n")
+      end
+    end
 
   end # class WebService
 end # module RESTRack

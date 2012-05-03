@@ -48,14 +48,14 @@ class SampleApp::TestResourceRequest < Test::Unit::TestCase
 
   def test_default_resource
     # This should be handled by bazu_controller
-    env = Rack::MockRequest.env_for('/', {
+    env = Rack::MockRequest.env_for('/bad_request', {
       :method => 'GET'
     })
     output = ''
     assert_nothing_raised do
       output = @ws.call(env)
     end
-    # no index method defined/allowed
+    # no bad_request method defined/allowed
     assert_equal 405, output[0]
 
     # This should be handled by bazu_controller
@@ -67,5 +67,20 @@ class SampleApp::TestResourceRequest < Test::Unit::TestCase
       output = @ws.call(env)
     end
     assert_equal 200, output[0]
+
+    # the following request should hit the default controller's index method (BazuController)
+    env = Rack::MockRequest.env_for('', {
+      :method => 'GET'
+    })
+    output = ''
+    assert_nothing_raised do
+      output = @ws.call(env)
+    end
+    test_val = [
+      { :id => 1, :val => 111 },
+      { :id => 2, :val => 222 },
+      { :id => 3, :val => 333 }
+    ].to_json
+    assert_equal test_val, output[2][0]
   end
 end
