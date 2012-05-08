@@ -30,7 +30,8 @@ module RESTRack
         @params = @get_params
       end
       RESTRack.log.debug 'combined params: ' + @params.inspect
-      # Setup up the initial routing.
+      # Set up the initial routing.
+      raise HTTP400BadRequest if @request.path_info.include?('//')
       @url_chain = @request.path_info.split('/')
       @url_chain.shift if @url_chain[0] == ''
       # Pull extension from URL
