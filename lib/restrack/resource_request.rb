@@ -13,11 +13,6 @@ module RESTRack
       RESTRack.request_log.info "{#{@request_id}} #{@request.request_method} #{@request.path_info} requested from #{@request.ip}"
     end
 
-    def fulfill
-      self.prepare
-      return self.response
-    end
-
     def prepare
       # Pull input data from POST body
       @post_params = parse_body( @request )
@@ -31,7 +26,7 @@ module RESTRack
       end
       RESTRack.log.debug 'combined params: ' + @params.inspect
       # Set up the initial routing.
-      raise HTTP400BadRequest if @request.path_info.include?('//')
+      raise HTTP400BadRequest, "Request path of #{@request.path_info} is invalid" if @request.path_info.include?('//')
       @url_chain = @request.path_info.split('/')
       @url_chain.shift if @url_chain[0] == ''
       # Pull extension from URL
@@ -53,13 +48,17 @@ module RESTRack
         raise HTTP404ResourceNotFound unless RESTRack::CONFIG[:DEFAULT_RESOURCE]
         @active_resource_name = RESTRack::CONFIG[:DEFAULT_RESOURCE]
       end
+puts '------------------------------------------------'
+puts RESTRack::CONFIG.inspect
+puts @active_resource_name
+puts '------------------------------------------------'
       raise HTTP403Forbidden unless RESTRack::CONFIG[:ROOT_RESOURCE_ACCEPT].blank? or RESTRack::CONFIG[:ROOT_RESOURCE_ACCEPT].include?(@active_resource_name)
       raise HTTP403Forbidden if not RESTRack::CONFIG[:ROOT_RESOURCE_DENY].blank? and RESTRack::CONFIG[:ROOT_RESOURCE_DENY].include?(@active_resource_name)
       @active_controller = instantiate_controller( @active_resource_name )
     end
 
-    # Send out the typed resource's output.
-    def response
+    # Process and return the typed resource's output.
+    def process
       RESTRack.log.debug "{#{@request_id}} Retrieving Output"
       package( @active_controller.call )
     end
@@ -74,28 +73,6 @@ module RESTRack
 
     def content_type
       @mime_type.to_s
-    end
-
-    # This handles outputing properly formatted content based on the file extension in the URL.
-    def package(data)
-      if @mime_type.like?( RESTRack.mime_type_for( :JSON ) )
-        @output = data.to_json
-      elsif @mime_type.like?( RESTRack.mime_type_for( :XML ) )
-        if File.exists? builder_file
-          @output = builder_up(data)
-        elsif data.respond_to?(:to_xml)
-          @output = data.to_xml
-        else
-          @output = XmlSimple.xml_out(data, 'AttrPrefix' => true, 'XmlDeclaration' => true, 'NoIndent' => true)
-        end
-      elsif @mime_type.like?(RESTRack.mime_type_for( :YAML ) )
-        @output = YAML.dump(data)
-      elsif @mime_type.like?(RESTRack.mime_type_for( :TEXT ) )
-        @output = data.to_s
-      else
-        @output = data
-      end
-      return @output
     end
 
     private
@@ -172,20 +149,6 @@ module RESTRack
       rescue Exception => e
         raise HTTP404ResourceNotFound, "The resource #{RESTRack::CONFIG[:SERVICE_NAME]}::#{RESTRack.controller_name(resource_name)} could not be instantiated."
       end
-    end
-
-    # Use Builder to generate the XML.
-    def builder_up(data)
-      buffer = ''
-      xml = Builder::XmlMarkup.new(:target => buffer)
-      xml.instruct!
-      eval( File.new( builder_file ).read )
-      return buffer
-    end
-
-    # Builds the path to the builder file for the current controller action.
-    def builder_file
-      "#{RESTRack::CONFIG[:ROOT]}/views/#{@active_resource_name}/#{@active_controller.action}.xml.builder"
     end
 
   end # class ResourceRequest

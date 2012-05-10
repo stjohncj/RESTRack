@@ -6,8 +6,10 @@ require File.expand_path(File.join(File.dirname(__FILE__),'../lib/restrack'))
 module RESTRack
   class TestWebService < Test::Unit::TestCase
 
+    RESTRack::CONFIG = RESTRack.load_config(File.expand_path(File.join(File.dirname(__FILE__),'../test/sample_app_1/config/constants.yaml')))
+
     def test_call
-      env = Rack::MockRequest.env_for('/foo', {
+      env = Rack::MockRequest.env_for('/foo_bar', {
         :method => 'POST',
         :params => %Q|[
           {
@@ -15,10 +17,10 @@ module RESTRack
           }
         ]|
       })
-      assert_nothing_raised do
+      #assert_nothing_raised do
         ws = RESTRack::WebService.new # init logs
         ws.call(env)
-      end
+      #end
     end
 
     def test_initialize

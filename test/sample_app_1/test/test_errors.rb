@@ -158,9 +158,9 @@ class SampleApp::TestControllerActions < Test::Unit::TestCase
       :method => 'GET'
     })
     output = ''
-    assert_nothing_raised do
+    #assert_nothing_raised do
       output = @ws.call(env)
-    end
+    #end
     assert_equal response_code, output[0]
   end
 

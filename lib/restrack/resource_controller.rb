@@ -52,8 +52,7 @@ module RESTRack
         # I am AR bound
         errors = ARFormattedError.new(errors)
       end
-      @output = @resource_request.package(errors)
-      @output
+      errors
     end
 
     def package_error(error)
