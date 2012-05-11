@@ -27,11 +27,12 @@ class SampleApp::TestControllerActions < Test::Unit::TestCase
       :method => 'GET'
     })
     output = ''
-    assert_nothing_raised do
+    #assert_nothing_raised do
       output = @ws.call(env)
-    end
+    #end
     assert_equal response_code, output[0]
-    assert_equal 'tester', JSON.parse(output[2][0])[0]
+    tester = {"errors" => [{"error"=>"tester"}]}
+    assert_equal tester, JSON.parse(output[2][0])
   end
 
   def test_unauthorized
@@ -44,7 +45,8 @@ class SampleApp::TestControllerActions < Test::Unit::TestCase
       output = @ws.call(env)
     end
     assert_equal response_code, output[0]
-    assert_equal 'tester', JSON.parse(output[2][0])[0]
+    tester = {"errors" => [{"error"=>"tester"}]}
+    assert_equal tester, JSON.parse(output[2][0])
   end
 
   def test_forbidden
@@ -57,7 +59,8 @@ class SampleApp::TestControllerActions < Test::Unit::TestCase
       output = @ws.call(env)
     end
     assert_equal response_code, output[0]
-    assert_equal 'tester', JSON.parse(output[2][0])[0]
+    tester = {"errors" => [{"error"=>"tester"}]}
+    assert_equal tester, JSON.parse(output[2][0])
   end
 
   def test_resource_not_found
@@ -70,7 +73,8 @@ class SampleApp::TestControllerActions < Test::Unit::TestCase
       output = @ws.call(env)
     end
     assert_equal response_code, output[0]
-    assert_equal 'tester', JSON.parse(output[2][0])[0]
+    tester = {"errors" => [{"error"=>"tester"}]}
+    assert_equal tester, JSON.parse(output[2][0])
   end
 
   def test_method_not_allowed
@@ -83,7 +87,8 @@ class SampleApp::TestControllerActions < Test::Unit::TestCase
       output = @ws.call(env)
     end
     assert_equal response_code, output[0]
-    assert_equal 'tester', JSON.parse(output[2][0])[0]
+    tester = {"errors" => [{"error"=>"tester"}]}
+    assert_equal tester, JSON.parse(output[2][0])
   end
 
   def test_conflict
@@ -96,7 +101,8 @@ class SampleApp::TestControllerActions < Test::Unit::TestCase
       output = @ws.call(env)
     end
     assert_equal response_code, output[0]
-    assert_equal 'tester', JSON.parse(output[2][0])[0]
+    tester = {"errors" => [{"error"=>"tester"}]}
+    assert_equal tester, JSON.parse(output[2][0])
   end
 
   def test_gone
@@ -109,7 +115,8 @@ class SampleApp::TestControllerActions < Test::Unit::TestCase
       output = @ws.call(env)
     end
     assert_equal response_code, output[0]
-    assert_equal 'tester', JSON.parse(output[2][0])[0]
+    tester = {"errors" => [{"error"=>"tester"}]}
+    assert_equal tester, JSON.parse(output[2][0])
   end
 
   def test_resource_invalid
@@ -122,8 +129,8 @@ class SampleApp::TestControllerActions < Test::Unit::TestCase
       output = @ws.call(env)
     end
     assert_equal response_code, output[0]
-    assert JSON.parse(output[2][0]).has_key?('message')
-    assert_equal 'This is a WebDAV HTTP extension code used by ActiveResource to communicate validation errors, rather than 400.', JSON.parse(output[2][0])['message']
+    tester = {"errors" => [{"error"=>"This is a WebDAV HTTP extension code used by ActiveResource to communicate validation errors."}]}
+    assert_equal tester, JSON.parse(output[2][0])
   end
 
   def test_resource_invalid_active_record_format
@@ -132,23 +139,23 @@ class SampleApp::TestControllerActions < Test::Unit::TestCase
       :method => 'GET'
     })
     output = ''
-    assert_nothing_raised do
+    #assert_nothing_raised do
       output = @ws.call(env)
-    end
+    #end
     assert_equal response_code, output[0]
-    assert_equal '<?xml version="1.0" encoding="UTF-8"?><errors><error>This is how ActiveResource expects errors to come through.</error><error>It has support for multiple errors.</error></errors>', output[2][0]
+    assert_equal '<?xml version="1.0" encoding="UTF-8"?><errors><error>This is how ActiveResource expects errors to come through.</error></errors>', output[2][0]
 
     response_code = 422
     env = Rack::MockRequest.env_for('/errors/resource_invalid_active_resource_format', {
       :method => 'GET'
     })
     output = ''
-    assert_nothing_raised do
+    #assert_nothing_raised do
       output = @ws.call(env)
-    end
+    #end
     assert_equal response_code, output[0]
-    assert_equal 'This is how ActiveResource expects errors to come through.', JSON.parse(output[2][0])[0]
-    assert_equal 'It has support for multiple errors.', JSON.parse(output[2][0])[1]
+    tester = {"errors" => [{"error"=>"This is how ActiveResource expects errors to come through."}]}
+    assert_equal tester, JSON.parse(output[2][0])
   end
 
   def test_server_error
@@ -190,7 +197,8 @@ class SampleApp::TestControllerActions < Test::Unit::TestCase
       output = @ws.call(env)
     end
     assert_equal response_code, output[0]
-    assert_equal 'tester', JSON.parse(output[2][0])[0]
+    tester = {"errors"=>[{"error"=>"tester"}]}
+    assert_equal tester, JSON.parse(output[2][0])
     RESTRack::CONFIG[:SHOW_STACK] = true
   end
 

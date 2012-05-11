@@ -41,23 +41,13 @@ module RESTRack
     # all internal methods are protected rather than private so that calling methods *could* be overriden if necessary.
     protected
 
-    # If called with an array of strings this will return a datastructure which will
-    # automatically be converted by RESTRack into the error format expected by ActiveResource.
-    # ActiveResource expects attribute input errors to be responded to with a status
-    # code of 422, which is a non-standard HTTP code.  Use this to produce the required
-    # format of "<errors><error>...</error><error>...</error></errors>" for the response XML.
-    # This method also will accept any simple data structure when not worried about AR integration.
-    def package_errors(errors)
-      if errors.is_a? Array and errors.count{|e| e.is_a? String} === errors.length
-        # I am AR bound
-        errors = ARFormattedError.new(errors)
-      end
-      errors
-    end
-
+    # This returns a datastructure which will automatically be converted by RESTRack
+    # into the error format expected by ActiveResource.  ActiveResource expects
+    # attribute input errors to be responded to with a status code of 422, which
+    # is a non-standard HTTP code.  Use this to produce the required format of
+    # "<errors><error>...</error><error>...</error></errors>" for the response XML.
     def package_error(error)
-      errors = error.is_a?(String) ? [error] : error
-      package_errors(errors)
+      ARFormattedError.new(error)
     end
 
     # This method allows one to access a related resource, without providing a direct link to specific relation(s).

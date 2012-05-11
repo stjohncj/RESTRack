@@ -59,14 +59,13 @@ class Object
   end
 end
 
-class ARFormattedError < Array
+class ARFormattedError < String
   # provide this method, as if it is present it will be used to render the xml rather than XmlSimple
   def to_xml
-    str = '<?xml version="1.0" encoding="UTF-8"?><errors>'
-    self.each do |error|
-      str << "<error>#{error}</error>"
-    end
-    str << "</errors>"
+    "<?xml version=\"1.0\" encoding=\"UTF-8\"?><errors><error>#{self}</error></errors>"
+  end
+  def to_json
+    "{\"errors\": [{\"error\": \"#{self}\"}]}"
   end
 end
 

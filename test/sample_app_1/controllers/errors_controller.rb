@@ -40,11 +40,11 @@ class SampleApp::ErrorsController < RESTRack::ResourceController
   end
 
   def resource_invalid
-    raise HTTP422ResourceInvalid, package_error({:message => 'This is a WebDAV HTTP extension code used by ActiveResource to communicate validation errors, rather than 400.'})
+    raise HTTP422ResourceInvalid, package_error('This is a WebDAV HTTP extension code used by ActiveResource to communicate validation errors.')
   end
 
   def resource_invalid_active_resource_format
-    raise HTTP422ResourceInvalid, package_errors(['This is how ActiveResource expects errors to come through.','It has support for multiple errors.'])
+    raise HTTP422ResourceInvalid, package_error('This is how ActiveResource expects errors to come through.')
   end
 
   def server_error

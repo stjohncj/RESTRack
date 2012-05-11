@@ -1,7 +1,7 @@
 module RESTRack
   # The ResourceRequest class handles all incoming requests.
   class ResourceRequest
-    attr_reader :request, :request_id, :params, :post_params, :get_params
+    attr_reader :request, :request_id, :params, :post_params, :get_params, :active_controller
     attr_accessor :mime_type, :url_chain
 
     # Initialize the ResourceRequest by assigning a request_id and determining the path, format, and controller of the resource.
@@ -14,6 +14,23 @@ module RESTRack
     end
 
     def prepare
+      # MIME type should be determined before raising any exceptions for proper error reporting
+        # Set up the initial routing.
+      @url_chain = @request.path_info.split('/')
+      @url_chain.shift if @url_chain[0] == ''
+        # Pull extension from URL
+      extension = ''
+      unless @url_chain[-1].nil?
+        @url_chain[-1] = @url_chain[-1].sub(/\.([^.]*)$/) do |s|
+          extension = $1.downcase
+          '' # Return an empty string as the substitution so that the extension is removed from `@url_chain[-1]`
+        end
+      end
+        # Determine MIME type from extension
+      @mime_type = get_mime_type_from( extension )
+      
+      raise HTTP400BadRequest, "Request path of #{@request.path_info} is invalid" if @request.path_info.include?('//')
+
       # Pull input data from POST body
       @post_params = parse_body( @request )
       @get_params = parse_query_string( @request )
@@ -25,20 +42,7 @@ module RESTRack
         @params = @get_params
       end
       RESTRack.log.debug 'combined params: ' + @params.inspect
-      # Set up the initial routing.
-      raise HTTP400BadRequest, "Request path of #{@request.path_info} is invalid" if @request.path_info.include?('//')
-      @url_chain = @request.path_info.split('/')
-      @url_chain.shift if @url_chain[0] == ''
-      # Pull extension from URL
-      extension = ''
-      unless @url_chain[-1].nil?
-        @url_chain[-1] = @url_chain[-1].sub(/\.([^.]*)$/) do |s|
-          extension = $1.downcase
-          '' # Return an empty string as the substitution so that the extension is removed from `@url_chain[-1]`
-        end
-      end
-      # Determine MIME type from extension
-      @mime_type = get_mime_type_from( extension )
+
       # Pull first controller from URL
       @active_resource_name = @url_chain.shift
       unless @active_resource_name.nil? or RESTRack.controller_exists?(@active_resource_name)
@@ -48,19 +52,9 @@ module RESTRack
         raise HTTP404ResourceNotFound unless RESTRack::CONFIG[:DEFAULT_RESOURCE]
         @active_resource_name = RESTRack::CONFIG[:DEFAULT_RESOURCE]
       end
-puts '------------------------------------------------'
-puts RESTRack::CONFIG.inspect
-puts @active_resource_name
-puts '------------------------------------------------'
       raise HTTP403Forbidden unless RESTRack::CONFIG[:ROOT_RESOURCE_ACCEPT].blank? or RESTRack::CONFIG[:ROOT_RESOURCE_ACCEPT].include?(@active_resource_name)
       raise HTTP403Forbidden if not RESTRack::CONFIG[:ROOT_RESOURCE_DENY].blank? and RESTRack::CONFIG[:ROOT_RESOURCE_DENY].include?(@active_resource_name)
       @active_controller = instantiate_controller( @active_resource_name )
-    end
-
-    # Process and return the typed resource's output.
-    def process
-      RESTRack.log.debug "{#{@request_id}} Retrieving Output"
-      package( @active_controller.call )
     end
 
     # Call the next entity in the path stack.
@@ -128,11 +122,11 @@ puts '------------------------------------------------'
 
     # Determine the MIME type of the request from the extension provided.
     def get_mime_type_from(extension)
-      unless extension == ''
+      unless extension.blank?
         mime_type = RESTRack.mime_type_for( extension )
       end
-      if mime_type.nil?
-        if RESTRack::CONFIG[:DEFAULT_FORMAT]
+      if mime_type.blank?
+        unless RESTRack::CONFIG[:DEFAULT_FORMAT].blank?
           mime_type = RESTRack.mime_type_for( RESTRack::CONFIG[:DEFAULT_FORMAT].to_s.downcase )
         else
           mime_type = RESTRack.mime_type_for( :JSON )
