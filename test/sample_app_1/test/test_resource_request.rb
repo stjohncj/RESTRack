@@ -148,19 +148,19 @@ class SampleApp::TestResourceRequest < Test::Unit::TestCase
     RESTRack::CONFIG.delete(:FORCE_ENCODING)
     RESTRack::CONFIG[:TRANSCODE] = 'ISO-8859-1'
 
-    #env = Rack::MockRequest.env_for('/foo_bar/show_encoding', {
-    #  :method => 'POST',
-    #  :params => %Q|[
-    #    {
-    #      "bar": "baz"
-    #    }
-    #  ]|
-    #})
-    #output = ''
-    #assert_nothing_raised do
-    #  output = @ws.call(env)
-    #end
-    #assert_equal ["\"ISO-8859-1\""], output[2]
+    env = Rack::MockRequest.env_for('/foo_bar/show_encoding', {
+      :method => 'POST',
+      :params => %Q|[
+        {
+          "bar": "baz"
+        }
+      ]|
+    })
+    output = ''
+    assert_nothing_raised do
+      output = @ws.call(env)
+    end
+    assert_equal ["\"ISO-8859-1\""], output[2]
 
     env = Rack::MockRequest.env_for('/foo_bar/show_encoding', {
       :method => 'POST',
