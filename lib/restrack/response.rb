@@ -3,17 +3,18 @@ module RESTRack
     attr_reader :status, :content_type, :body, :mime_type
 
     def initialize(request)
+      @request = request
       begin
-        request.prepare
-        RESTRack.log.debug "{#{request.request_id}} Retrieving Output"
-        @body = request.active_controller.call
+        @request.prepare
+        RESTRack.log.debug "{#{@request.request_id}} Retrieving Output"
+        @body = @request.active_controller.call
         @status = body.blank? ? 200 : 204
-        RESTRack.log.debug "(#{request.request_id}) HTTP200OK '#{request.mime_type.to_s}' response data:\n" + @body.inspect
-        RESTRack.request_log.info "(#{request.request_id}) HTTP200OK"
+        RESTRack.log.debug "(#{@request.request_id}) HTTP200OK '#{@request.mime_type.to_s}' response data:\n" + @body.inspect
+        RESTRack.request_log.info "(#{@request.request_id}) HTTP200OK"
       rescue Exception => exception
         # This will log the returned status code
-        if request && request.request_id
-          RESTRack.request_log.info "(#{request.request_id}) #{exception.class.to_s} " + exception.message
+        if @request && @request.request_id
+          RESTRack.request_log.info "(#{@request.request_id}) #{exception.class.to_s} " + exception.message
         else
           RESTRack.request_log.info "(<nil-reqid>) #{exception.class.to_s} " + exception.message
         end
@@ -46,12 +47,11 @@ module RESTRack
             @status = 502
             @body = exception.message || 'The server was acting as a gateway or proxy and received an invalid response from the upstream server.'
           else # HTTP500ServerError
-            server_error(request, exception)
+            server_error(exception)
         end # case Exception
       end # begin / rescue
-      @mime_type = MIME::Type.new(request.mime_type)
-      @content_type = request.content_type
-      @request = request
+      @mime_type = MIME::Type.new(@request.mime_type)
+      @content_type = @request.content_type
     end
 
     def output
@@ -59,16 +59,16 @@ module RESTRack
     end
 
     private
-    def log_server_error(request, exception)
-      if request && request.request_id
-        RESTRack.log.error "(#{request.request_id}) #{exception.class.to_s} " + exception.message + "\n" + exception.backtrace.join("\n")
+    def log_server_error(exception)
+      if @request && @request.request_id
+        RESTRack.log.error "(#{@request.request_id}) #{exception.class.to_s} " + exception.message + "\n" + exception.backtrace.join("\n")
       else
         RESTRack.log.error "(<nil-reqid>) #{exception.class.to_s} " + exception.message + "\n" + exception.backtrace.join("\n")
       end
     end
 
-    def server_error(request, exception)
-      log_server_error(request, exception)
+    def server_error(exception)
+      log_server_error(exception)
       msg = ''
       if RESTRack::CONFIG[:SHOW_STACK]
         msg = (exception.message == exception.class.to_s) ? exception.backtrace.join("\n") : exception.message + "\nstack trace:\n" + exception.backtrace.join("\n")

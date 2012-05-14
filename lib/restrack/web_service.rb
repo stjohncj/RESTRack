@@ -8,8 +8,7 @@ module RESTRack
 
     # Handle requests in the Rack way.
     def call( env )
-      request = Rack::Request.new(env)
-      resource_request = RESTRack::ResourceRequest.new( :request => request )
+      resource_request = RESTRack::ResourceRequest.new( :request => Rack::Request.new(env) )
       response = RESTRack::Response.new(resource_request)
       return response.output
     end # method call
