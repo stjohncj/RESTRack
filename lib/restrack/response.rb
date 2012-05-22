@@ -8,7 +8,7 @@ module RESTRack
         @request.prepare
         RESTRack.log.debug "{#{@request.request_id}} Retrieving Output"
         @body = @request.active_controller.call
-        @status = body.blank? ? 200 : 204
+        @status = body.blank? ? 204 : 200
         RESTRack.log.debug "(#{@request.request_id}) HTTP200OK '#{@request.mime_type.to_s}' response data:\n" + @body.inspect
         RESTRack.request_log.info "(#{@request.request_id}) HTTP200OK"
       rescue Exception => exception

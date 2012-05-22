@@ -50,7 +50,7 @@ class SampleApp::TestResourceRequest < Test::Unit::TestCase
     assert_nothing_raised do
       output = @ws.call(env)
     end
-    assert_equal 204, output[0]
+    assert_equal 200, output[0]
 
     RESTRack::CONFIG[:ROOT_RESOURCE_ACCEPT] = []
     env = Rack::MockRequest.env_for('/foo_bar/144', {
@@ -60,7 +60,7 @@ class SampleApp::TestResourceRequest < Test::Unit::TestCase
     assert_nothing_raised do
       output = @ws.call(env)
     end
-    assert_equal 204, output[0]
+    assert_equal 200, output[0]
 
     RESTRack::CONFIG[:ROOT_RESOURCE_ACCEPT] = nil
     env = Rack::MockRequest.env_for('/foo_bar/144', {
@@ -70,7 +70,7 @@ class SampleApp::TestResourceRequest < Test::Unit::TestCase
     assert_nothing_raised do
       output = @ws.call(env)
     end
-    assert_equal 204, output[0]
+    assert_equal 200, output[0]
 
     RESTRack::CONFIG[:ROOT_RESOURCE_ACCEPT] = [ 'foo_bar' ]
   end
