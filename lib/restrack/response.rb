@@ -83,6 +83,8 @@ module RESTRack
     def package(data)
       if mime_type.like?( RESTRack.mime_type_for( :JSON ) )
         output = data.to_json
+      elsif mime_type.like?( RESTRack.mime_type_for( :JS ) ) and !@request.get_params['callback'].nil?
+        output = @request.get_params['callback'] + "(#{data.to_json});"
       elsif mime_type.like?( RESTRack.mime_type_for( :XML ) )
         if File.exists? builder_file
           output = builder_up(data)

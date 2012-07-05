@@ -105,7 +105,7 @@ class SampleApp::TestResourceRequest < Test::Unit::TestCase
     assert_nothing_raised do
       output = @ws.call(env)
     end
-    assert_equal 204, output[0]
+    assert_equal 200, output[0]
 
     RESTRack::CONFIG[:ROOT_RESOURCE_DENY] = nil
     env = Rack::MockRequest.env_for('/foo_bar/144', {
@@ -115,7 +115,7 @@ class SampleApp::TestResourceRequest < Test::Unit::TestCase
     assert_nothing_raised do
       output = @ws.call(env)
     end
-    assert_equal 204, output[0]
+    assert_equal 200, output[0]
 
     RESTRack::CONFIG[:ROOT_RESOURCE_DENY] = ['']
     # it should handle this, although it is incorrect
@@ -126,7 +126,7 @@ class SampleApp::TestResourceRequest < Test::Unit::TestCase
     assert_nothing_raised do
       output = @ws.call(env)
     end
-    assert_equal 204, output[0]
+    assert_equal 200, output[0]
 
     RESTRack::CONFIG[:ROOT_RESOURCE_DENY] = [ 'baz' ]
   end
@@ -207,7 +207,7 @@ class SampleApp::TestResourceRequest < Test::Unit::TestCase
     assert_nothing_raised do
       output = @ws.call(env)
     end
-    assert_equal 204, output[0]
+    assert_equal 200, output[0]
   end
 
   def test_force_encoding_defined
@@ -241,7 +241,7 @@ class SampleApp::TestResourceRequest < Test::Unit::TestCase
     assert_nothing_raised do
       output = @ws.call(env)
     end
-    assert_equal 204, output[0]
+    assert_equal 200, output[0]
   end
 
   def test_force_encoding_not_defined
@@ -274,7 +274,7 @@ class SampleApp::TestResourceRequest < Test::Unit::TestCase
     assert_nothing_raised do
       output = @ws.call(env)
     end
-    assert_equal 204, output[0]
+    assert_equal 200, output[0]
   end
 
 end

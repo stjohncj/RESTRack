@@ -66,7 +66,7 @@ class SampleApp::TestResourceRequest < Test::Unit::TestCase
     assert_nothing_raised do
       output = @ws.call(env)
     end
-    assert_equal 204, output[0]
+    assert_equal 200, output[0]
 
     # the following request should hit the default controller's index method (BazuController)
     env = Rack::MockRequest.env_for('', {
