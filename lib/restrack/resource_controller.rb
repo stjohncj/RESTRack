@@ -12,7 +12,7 @@ module RESTRack
 
   class ResourceController
     extend RESTRack::ResourceRelations
-    
+
     attr_reader :action, :id, :params
     class << self; attr_accessor :key_type; end
 
@@ -39,7 +39,11 @@ module RESTRack
       unless self.respond_to?(@action.to_sym) or self.respond_to?(:method_missing)
         raise HTTP405MethodNotAllowed, 'Method not provided on controller.'
       end
-      self.send(@action.to_sym, *args)
+      begin
+        self.send(@action.to_sym, *args)
+      rescue ArgumentError
+        raise HTTP400BadRequest, 'Method called with the incorrect number of arguments. This is most likely due to a call to an action that accepts identifier, which was not supplied in URL.'
+      end
     end
 
     # all internal methods are protected rather than private so that calling methods *could* be overriden if necessary.
