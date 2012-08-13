@@ -28,7 +28,7 @@ module RESTRack
       end
         # Determine MIME type from extension
       @mime_type = get_mime_type_from( extension )
-      
+
       raise HTTP400BadRequest, "Request path of #{@request.path_info} is invalid" if @request.path_info.include?('//')
 
       # Pull input data from POST body

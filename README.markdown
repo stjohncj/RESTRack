@@ -128,7 +128,7 @@ which can be accessed separately through @post_params and @get_params.
 
 
 ## URLs and Controller relationships
-RESTRack enforces a strict URL pattern through the contruct of controller relationships, rather than a routing file.
+RESTRack enforces a strict URL pattern through the construct of controller relationships, rather than a routing file.
 Defining a controller for a resource means that you plan to expose that resource to requests to your service.
 Defining a controller relationship means that you plan to expose a path from this resource to another.
 
