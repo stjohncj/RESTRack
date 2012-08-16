@@ -11,6 +11,10 @@ module RESTRack
       @request_id = opts[:request_id] || get_request_id
       # Write input details to logs
       RESTRack.request_log.info "{#{@request_id}} #{@request.request_method} #{@request.path_info} requested from #{@request.ip}"
+      @headers = Rack::Utils::HeaderHash.new
+      @request.env.select {|k,v| k.start_with? 'HTTP_'}.each do |k,v|
+        @headers[k.sub(/^HTTP_/, '')] = v
+      end
     end
 
     def prepare
@@ -28,8 +32,14 @@ module RESTRack
       end
         # Determine MIME type from extension
       @mime_type = get_mime_type_from( extension )
-
+      # Now safe to raise exceptions
       raise HTTP400BadRequest, "Request path of #{@request.path_info} is invalid" if @request.path_info.include?('//')
+
+      # For CORS support
+      if RESTRack::CONFIG[:CORS]
+        raise HTTP403Forbidden unless RESTRack::CONFIG[:CORS]['Access-Control-Allow-Origin'] == '*' or RESTRack::CONFIG[:CORS]['Access-Control-Allow-Origin'].include?(@headers['Origin'])
+        raise HTTP403Forbidden unless @request.env['REQUEST_METHOD'] == 'OPTIONS' or RESTRack::CONFIG[:CORS]['Access-Control-Allow-Methods'] == '*' or RESTRack::CONFIG[:CORS]['Access-Control-Allow-Methods'].include?(@request.env['REQUEST_METHOD'])
+      end
 
       # Pull input data from POST body
       @post_params = parse_body( @request )

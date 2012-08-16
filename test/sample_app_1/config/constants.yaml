@@ -28,6 +28,23 @@
 :SHOW_STACK:              true
 
 # String#encode will be called when this value is set
-#:TRANSCODE:               ISO-8859-1  # UTF-8
+#:TRANSCODE:               ISO-8859-1  #or UTF-8 etc
 # String#force_encoding will be called when this value is set
-#:FORCE_ENCODING:          ISO-8859-1  # UTF-8
+#:FORCE_ENCODING:          ISO-8859-1
+
+# CORS Header configuration
+#   Supported:
+#    - Access-Control-Allow-Origin: http://localhost
+#    - Access-Control-Allow-Methods: POST, GET
+#   List of all:
+#    - Access-Control-Allow-Origin: <origin> | *
+#       e.g. Access-Control-Allow-Origin: http://mozilla.com
+#    - Access-Control-Expose-Headers: X-My-Custom-Header, X-Another-Custom-Header
+#    - Access-Control-Max-Age: <delta-seconds>
+#    - Access-Control-Allow-Credentials: true | false
+#    - Access-Control-Allow-Methods: <method>[, <method>]*
+#       e.g. Access-Control-Allow-Methods: POST, GET
+#    - Access-Control-Allow-Headers: <field-name>[, <field-name>]*
+#:CORS:
+#  Access-Control-Allow-Origin: http://restrack.me
+#  Access-Control-Allow-Methods: POST, GET

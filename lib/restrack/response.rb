@@ -1,14 +1,19 @@
 module RESTRack
   class Response
-    attr_reader :status, :content_type, :body, :mime_type
+    attr_reader :status, :content_type, :body, :mime_type, :headers
 
     def initialize(request)
       @request = request
       begin
         @request.prepare
         RESTRack.log.debug "{#{@request.request_id}} Retrieving Output"
-        @body = @request.active_controller.call
-        @status = body.blank? ? 204 : 200
+        if RESTRack::CONFIG[:CORS] and @request.request.env['REQUEST_METHOD'] == 'OPTIONS'
+          @body = ''
+          @status = 200
+        else
+          @body = @request.active_controller.call
+          @status = body.blank? ? 204 : 200
+        end
         RESTRack.log.debug "(#{@request.request_id}) HTTP200OK '#{@request.mime_type.to_s}' response data:\n" + @body.inspect
         RESTRack.request_log.info "(#{@request.request_id}) HTTP200OK"
       rescue Exception => exception
@@ -55,7 +60,13 @@ module RESTRack
     end
 
     def output
-      return [status, {'Content-Type' => content_type}, [package(body)] ]
+      @headers ||= {}
+      @headers['Content-Type'] = content_type
+      if RESTRack::CONFIG[:CORS]
+        @headers['Access-Control-Allow-Origin'] = RESTRack::CONFIG[:CORS]['Access-Control-Allow-Origin'] if RESTRack::CONFIG[:CORS]['Access-Control-Allow-Origin']
+        @headers['Access-Control-Allow-Methods'] = RESTRack::CONFIG[:CORS]['Access-Control-Allow-Methods'] if RESTRack::CONFIG[:CORS]['Access-Control-Allow-Methods']
+      end
+      return [status, headers, [package(body)] ]
     end
 
     private
