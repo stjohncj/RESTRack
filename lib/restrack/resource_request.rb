@@ -37,6 +37,7 @@ module RESTRack
 
       # For CORS support
       if RESTRack::CONFIG[:CORS]
+        raise HTTP403Forbidden if @headers['Origin'].nil?
         raise HTTP403Forbidden unless RESTRack::CONFIG[:CORS]['Access-Control-Allow-Origin'] == '*' or RESTRack::CONFIG[:CORS]['Access-Control-Allow-Origin'].include?(@headers['Origin'])
         raise HTTP403Forbidden unless @request.env['REQUEST_METHOD'] == 'OPTIONS' or RESTRack::CONFIG[:CORS]['Access-Control-Allow-Methods'] == '*' or RESTRack::CONFIG[:CORS]['Access-Control-Allow-Methods'].include?(@request.env['REQUEST_METHOD'])
       end

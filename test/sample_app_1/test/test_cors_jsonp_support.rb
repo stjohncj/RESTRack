@@ -10,6 +10,24 @@ class SampleApp::TestCORSHeaders < Test::Unit::TestCase
     @ws = SampleApp::WebService.new
   end
 
+  def test_cors_no_origin_header
+    RESTRack::CONFIG[:CORS] = {}
+    RESTRack::CONFIG[:CORS]['Access-Control-Allow-Origin'] = 'http://restrack.me'
+    RESTRack::CONFIG[:CORS]['Access-Control-Allow-Methods'] = 'POST, GET'
+    env = Rack::MockRequest.env_for('/foo_bar/144', {
+      :method     => 'GET'
+    })
+    output = @ws.call(env)
+    expected_status = 403
+    expected_headers =  {
+      "Content-Type" => "application/json",
+      "Access-Control-Allow-Origin"   => "http://restrack.me",
+      "Access-Control-Allow-Methods"  => "POST, GET"
+    }
+    assert_equal expected_status, output[0]
+    assert_equal expected_headers, output[1]
+  end
+
   def test_cors_on_allowed_domain
     RESTRack::CONFIG[:CORS] = {}
     RESTRack::CONFIG[:CORS]['Access-Control-Allow-Origin'] = 'http://restrack.me'
