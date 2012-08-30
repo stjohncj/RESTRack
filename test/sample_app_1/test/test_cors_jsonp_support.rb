@@ -10,6 +10,10 @@ class SampleApp::TestCORSHeaders < Test::Unit::TestCase
     @ws = SampleApp::WebService.new
   end
 
+  def teardown
+    RESTRack::CONFIG.delete(:CORS)
+  end
+
   def test_cors_no_origin_header
     RESTRack::CONFIG[:CORS] = {}
     RESTRack::CONFIG[:CORS]['Access-Control-Allow-Origin'] = 'http://restrack.me'

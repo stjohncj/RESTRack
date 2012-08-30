@@ -51,6 +51,7 @@ module RESTRack
           when exception.is_a?( HTTP502BadGateway )
             @status = 502
             @body = exception.message || 'The server was acting as a gateway or proxy and received an invalid response from the upstream server.'
+            log_server_warning(exception)
           else # HTTP500ServerError
             server_error(exception)
         end # case Exception
@@ -70,6 +71,14 @@ module RESTRack
     end
 
     private
+    def log_server_warning(exception)
+      if @request && @request.request_id
+        RESTRack.log.warn "(#{@request.request_id}) #{exception.class.to_s} " + exception.message + "\n" + exception.backtrace.join("\n")
+      else
+        RESTRack.log.warn "(<nil-reqid>) #{exception.class.to_s} " + exception.message + "\n" + exception.backtrace.join("\n")
+      end
+    end
+
     def log_server_error(exception)
       if @request && @request.request_id
         RESTRack.log.error "(#{@request.request_id}) #{exception.class.to_s} " + exception.message + "\n" + exception.backtrace.join("\n")
