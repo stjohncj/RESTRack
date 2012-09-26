@@ -6,6 +6,8 @@ class <%= @service_name.camelize %>::WebService < RESTRack::WebService; end
 RESTRack::CONFIG = RESTRack::load_config(File.join(File.dirname(__FILE__), 'config/constants.yaml'))
 RESTRack::CONFIG[:ROOT] = File.dirname(__FILE__)
 
+require File.join(RESTRack::CONFIG[:ROOT], 'hooks')
+
 # Dynamically load all controllers
 Find.find(  File.join(File.dirname(__FILE__), 'controllers') ) do |file|
   next if File.extname(file) != '.rb'
