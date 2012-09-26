@@ -27,11 +27,13 @@
 # The stack trace will not be added to 500 response body by default, set to true to enable.
 :SHOW_STACK:              true
 
+# :TRANSCODE: and :FORCE_ENCODING: are optional config settings
 # String#encode will be called when this value is set
 #:TRANSCODE:               ISO-8859-1  #or UTF-8 etc
 # String#force_encoding will be called when this value is set
 #:FORCE_ENCODING:          ISO-8859-1
 
+# :CORS: is an optional config setting
 # CORS Header configuration
 #   Supported:
 #    - Access-Control-Allow-Origin: http://localhost
@@ -48,3 +50,7 @@
 #:CORS:
 #  Access-Control-Allow-Origin: http://restrack.me
 #  Access-Control-Allow-Methods: POST, GET
+
+# :PRE_PROCESSOR_DISABLED: and :POST_PROCESSOR_DISABLED: are optional config settings and are false by default
+#:PRE_PROCESSOR_DISABLED:  true
+#:POST_PROCESSOR_DISABLED:  true
