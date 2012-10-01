@@ -1,7 +1,10 @@
+# for development only
+$:.unshift File.expand_path(File.join(File.dirname(__FILE__),'../../lib'))
+#####
 require 'restrack'
 
-module <%= @service_name.camelize %>; end
-class <%= @service_name.camelize %>::WebService < RESTRack::WebService; end
+module SampleApp5; end
+class SampleApp5::WebService < RESTRack::WebService; end
 
 RESTRack::CONFIG = RESTRack::load_config(File.join(File.dirname(__FILE__), 'config/constants.yaml'))
 RESTRack::CONFIG[:ROOT] = File.dirname(__FILE__)
