@@ -14,7 +14,7 @@ module RESTRack
     @@log                 ||= Logger.new( config[:LOG] )
     @@log.level             = Logger.const_get( config[:LOG_LEVEL] )
     @@request_log         ||= Logger.new( config[:REQUEST_LOG] )
-    @@request_log.level     = Logger.const_get( config[:LOG_LEVEL] )
+    @@request_log.level     = Logger.const_get( config[:REQUEST_LOG_LEVEL] )
     # Do config validations
     if config[:ROOT_RESOURCE_ACCEPT].is_a?(Array) and config[:ROOT_RESOURCE_ACCEPT].length == 1 and config[:ROOT_RESOURCE_ACCEPT][0].lstrip.rstrip == ''
       config[:ROOT_RESOURCE_ACCEPT] = nil
