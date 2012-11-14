@@ -9,7 +9,7 @@ class SampleApp5::WebService < RESTRack::WebService; end
 RESTRack::CONFIG = RESTRack::load_config(File.join(File.dirname(__FILE__), 'config/constants.yaml'))
 RESTRack::CONFIG[:ROOT] = File.dirname(__FILE__)
 
-require File.join(RESTRack::CONFIG[:ROOT], 'hooks') if File.exists?(File.join(RESTRack::CONFIG[:ROOT], 'hooks'))
+require File.join(RESTRack::CONFIG[:ROOT], 'hooks') if File.exists?(File.join(RESTRack::CONFIG[:ROOT], 'hooks.rb'))
 
 # Dynamically load all controllers
 Find.find(  File.join(File.dirname(__FILE__), 'controllers') ) do |file|
