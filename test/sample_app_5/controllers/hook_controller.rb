@@ -7,5 +7,10 @@ class SampleApp5::HookController < RESTRack::ResourceController
       { 'neither' => true }
     end
   end
+  
+  def dynamic_request
+    @resource_request.instance_variable_set('@error_code', 123456)
+    @resource_request.instance_variable_set('@error_message', 'Invalid password or email address combination')
+  end
 
 end

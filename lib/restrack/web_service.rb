@@ -15,7 +15,7 @@ module RESTRack
       end
       response = RESTRack::Response.new(resource_request)
       unless @request_hook.nil? or (RESTRack::CONFIG.has_key?(:POST_PROCESSOR_DISABLED) and RESTRack::CONFIG[:POST_PROCESSOR_DISABLED])
-        @request_hook.post_processor(resource_request)
+        @request_hook.post_processor(response)
       end
       return response.output
     end # method call

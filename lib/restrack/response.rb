@@ -1,6 +1,6 @@
 module RESTRack
   class Response
-    attr_reader :status, :content_type, :body, :mime_type, :headers
+    attr_reader :status, :content_type, :body, :mime_type, :headers, :request
 
     def initialize(request)
       @request = request
