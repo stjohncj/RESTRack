@@ -13,7 +13,7 @@ module RESTRack
   class ResourceController
     extend RESTRack::ResourceRelations
 
-    attr_reader :action, :id, :params
+    attr_reader :action, :id, :params, :resource_request
     class << self; attr_accessor :key_type; end
 
     # Base initialization method for resources and storage of request input
