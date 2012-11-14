@@ -8,7 +8,7 @@ task :default => [:test_all]
 
 desc 'Run all tests.'
 task :test_all do
-  for n in 0..4
+  for n in 0..5
     Rake::Task['test'+n.to_s].invoke
   end
 end
