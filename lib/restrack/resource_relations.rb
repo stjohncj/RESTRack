@@ -88,5 +88,5 @@ module RESTRack
       self.key_type = klass
     end
 
-  end # module ResourceController
+  end # module ResourceRelations
 end # module RESTRack
